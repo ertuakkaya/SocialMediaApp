@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -90,7 +91,7 @@ fun LogInScreenComponents(){
 
             Column(
                 modifier = Modifier
-                    .padding(16.dp)
+                    .padding(24.dp)
                     .fillMaxSize()
                     .background(Color(0xFFE0E0E0)),
 
@@ -158,7 +159,9 @@ fun LogInScreenComponents(){
                         value = password,
                         onValueChange = { password = it },
                         label = { Text("Password") },
-                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                        leadingIcon = {
+                            Icon(Icons.Default.Lock, contentDescription = null)
+                        },
                         visualTransformation = PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         modifier = Modifier
@@ -177,7 +180,8 @@ fun LogInScreenComponents(){
                         /* Handle login click */
                     },
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .size(200.dp, 50.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(Color(0xFF3F51B5))
 
@@ -192,7 +196,9 @@ fun LogInScreenComponents(){
                         /* Handle sign up click */
                     },
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                    ,
+                    
                 ){
                     Text("Don't have an account? Sign up")
                 }
