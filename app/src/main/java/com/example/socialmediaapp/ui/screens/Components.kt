@@ -12,16 +12,23 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -41,174 +48,131 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-@Preview(showSystemUi = true)
+
 @Composable
-fun LogInScreenComponents(){
+fun Components(){
 
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-
-
-
-    Surface (
-        modifier = Modifier
-            .fillMaxSize(),
-        color = Color(0xFF4B67D0),
-
-
-    ){
-        Column (
-            modifier = Modifier
-                .padding(18.dp),
-
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ){
-            Text(
-                text = "Connected",
-                fontSize = 32.sp,
-                color = Color(0xFFE0E0E0),
-                modifier = Modifier
-                    .padding(bottom = 16.dp),
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "Your favorite social network",
-                fontSize = 16.sp,
-                color = Color(0xFFE0E0E0),
-                modifier = Modifier.padding(bottom = 32.dp)
-            )
-        }
-        Surface (
-            modifier = Modifier
-                .padding(top = 128.dp)
-                .fillMaxSize(),
-            color = Color(0xFFE0E0E0),
-            shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)
-        ){
-
-
-
-            Column(
-                modifier = Modifier
-                    .padding(24.dp)
-                    .fillMaxSize()
-                    .background(Color(0xFFE0E0E0)),
-
-                verticalArrangement = Arrangement.SpaceEvenly,
-                //horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
-
-                // Log in
-                Text(
-                    text = "Log in",
-                    fontSize = 36.sp,
-                    color = Color(0xFF030303),
-                    modifier = Modifier
-                        .padding(bottom = 16.dp),
-                    fontWeight = FontWeight.Bold,
-
-                )
-
-                Column (
-
-                ){
-                    Text(
-                        text = "Username",
-                        fontSize = 16.sp,
-                        color = Color(0xFF030303),
-                        modifier = Modifier
-
-                    )
-                    OutlinedTextField(
-                        value = username,
-                        onValueChange = { username = it },
-                        label = { Text("Username") },
-                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp),
-
-                    )
-
-                }
-
-                Column (
-
-                ){
-                    Row(){
-                        Text(
-                            text = "Password",
-                            fontSize = 16.sp,
-                            color = Color(0xFF030303),
-                            modifier = Modifier
-
-                        )
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text(
-                            text = "Forgot your password?",
-                            color = Color(0xFF3F51B5),
-                            textAlign = TextAlign.End,
-                            modifier = Modifier
-                                .fillMaxWidth()
-
-                        )
-                    }
-                    OutlinedTextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        label = { Text("Password") },
-                        leadingIcon = {
-                            Icon(Icons.Default.Lock, contentDescription = null)
-                        },
-                        visualTransformation = PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp)
-                    )
-
-                }
-
-
-
-
-
-                Button(
-                    onClick = {
-                        /* Handle login click */
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .size(200.dp, 50.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(Color(0xFF3F51B5))
-
-                ) {
-                    Text("Log in")
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                TextButton(
-                    onClick = {
-                        /* Handle sign up click */
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                    ,
-                    
-                ){
-                    Text("Don't have an account? Sign up")
-                }
-            }
-        }
-
-    }
+    //
 
 
 
 
 }
+
+@Preview(showSystemUi = true)
+@Composable
+fun HomeScreen() {
+    Scaffold(
+        topBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Box(modifier = Modifier.size(50.dp))
+                Text(
+                    text = "Connected",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .weight(1f),
+                    textAlign = TextAlign.Center
+                )
+                IconButton(
+                    onClick = { /*TODO*/ },
+                    modifier = Modifier
+                        .size(50.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications, // Icon için uygun bir image vector seçin
+                        contentDescription = "Logout",
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+            }
+        },// Top bar
+        bottomBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                IconButton(
+                    onClick = { /*TODO*/ },
+                    modifier = Modifier
+                        .size(50.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Person, // Icon için uygun bir image vector seçin
+                        contentDescription = "Logout",
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+                Text(
+                    text = "Your favorite social network",
+                    fontSize = 16.sp,
+                    modifier = Modifier
+                        .weight(1f),
+                    textAlign = TextAlign.Center
+                )
+                Box(modifier = Modifier.size(50.dp)
+                )
+            }
+        },// Bottom bar
+
+    ) { innerPadding ->
+        BodyContent(Modifier.padding(innerPadding))
+    }
+}
+
+@Composable
+fun BodyContent(modifier: Modifier = Modifier) {
+    Surface (
+        color = Color(0xFFFFFFFF),
+        modifier = modifier.fillMaxSize()
+    ) {
+        LazyColumn {
+            items(10) {
+                Post()
+            }
+
+        }
+    }
+}
+
+@Composable
+@Preview
+fun Post(){
+
+    Card(
+        onClick = {
+            /*TODO*/
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            //.background(Color(0xFFFEFEFE))
+            .background(Color.Black)
+            ,
+        shape = RoundedCornerShape(100.dp, 100.dp, 100.dp, 100.dp),
+        elevation = CardDefaults.cardElevation(8.dp),
+
+
+        //colors = CardDefaults.cardColors(Color(0xFFFFFFFF))
+
+
+
+
+
+    ) {
+        
+    }
+
+}
+
+
 
