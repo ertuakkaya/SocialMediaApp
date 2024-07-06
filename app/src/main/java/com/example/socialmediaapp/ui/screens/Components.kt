@@ -28,14 +28,19 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CardElevation
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -66,39 +72,50 @@ fun Components(){
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showSystemUi = true)
 @Composable
 fun HomeScreen() {
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            Row(
+            CenterAlignedTopAppBar(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Box(modifier = Modifier.size(50.dp))
-                Text(
-                    text = "Connected",
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .weight(1f),
-                    textAlign = TextAlign.Center
-                )
-                IconButton(
-                    onClick = { /*TODO*/ },
-                    modifier = Modifier
-                        .size(50.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Notifications, // Icon için uygun bir image vector seçin
-                        contentDescription = "Logout",
-                        modifier = Modifier.size(32.dp)
+                    //.fillMaxWidth(),
+                    ,
+
+                title = {
+                    Text(
+                        text = "Connected",
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier,
+
+                        textAlign = TextAlign.Center
                     )
-                }
-            }
+                },
+                actions = {
+
+                    IconButton(
+                        onClick = { /*TODO*/ },
+                        modifier = Modifier
+                            .size(50.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Notifications, // Icon için uygun bir image vector seçin
+                            contentDescription = "Logout",
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                },
+                scrollBehavior = scrollBehavior,
+
+
+
+
+            )
+
         },// Top bar
         bottomBar = {
             Row(
