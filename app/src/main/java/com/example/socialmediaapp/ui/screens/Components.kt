@@ -1,16 +1,11 @@
 package com.example.socialmediaapp.ui.screens
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,44 +15,27 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.MailOutline
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Call
-import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CardElevation
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemColors
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,16 +45,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.socialmediaapp.R
 
 
 @Composable
@@ -89,119 +67,9 @@ fun Components(){
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(showSystemUi = true)
-@Composable
-fun HomeScreen() {
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            CenterAlignedTopAppBar(
-                modifier = Modifier,
-
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    Color(0xFFFFFFFF), Color(0xFFFFFFFF), Color(
-                        0xFFFFFFFF
-                    )
-                ),
-
-                title = {
-                    Text(
-                        text = "Connected",
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier,
-
-                        textAlign = TextAlign.Center
-                    )
-                },
-                actions = {
-
-                    IconButton(
-                        onClick = { /*TODO*/ },
-                        modifier = Modifier
-                            .size(50.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Notifications, // Icon için uygun bir image vector seçin
-                            contentDescription = "Logout",
-                            modifier = Modifier.size(32.dp)
-                        )
-                    }
-                },
-                scrollBehavior = scrollBehavior,
-
-
-
-
-            )
-
-        },// Top bar
-        bottomBar = {
-            NavigationBar(
-                modifier = Modifier
-                    .height(56.dp),
-                containerColor = Color(0xFFFFFFFF),
-                tonalElevation = 4.dp,
-                contentColor = Color(0xFF000000)
-
-
-            ) {
-                NavigationBarItem(
-                    selected = true,
-                    onClick = {
-                        /*TODO*/
-                    },
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .fillMaxSize(),
-
-                    icon = {
-                        Icon(
-                            Icons.Filled.Home,
-                            contentDescription = null
-                        )
-                    },
-
-                    //colors = NavigationBarItemDefaults.colors(Color(0xFF5871B4), Color(0xFF000000), Color(0xFFAD5454)
-
-
-                )
-                NavigationBarItem(
-                    selected = true,
-                    onClick = { /*TODO*/ },
-                    icon = {
-                        Icon(
-                            Icons.Rounded.Call,
-                            contentDescription = null
-                        )
-                    },
-                )
-                NavigationBarItem(
-                    selected = false,
-                    onClick = {
-                        /*TODO*/
-                    },
-                    icon = {
-                        Icon(
-                            Icons.Rounded.Add,
-                            contentDescription = null
-                        )
-                    },
-                )
-
-            }
-
-        },// Bottom bar
-
-    ) { innerPadding ->
-        BodyContent(Modifier.padding(innerPadding))
-    }
-}
 
 @Composable
-fun BodyContent(modifier: Modifier = Modifier) {
+fun HomeScreenBodyContent(modifier: Modifier = Modifier) {
     Surface (
         color = Color(0xFFFFFFFF),
         modifier = modifier.fillMaxSize()
@@ -221,8 +89,13 @@ fun BodyContent(modifier: Modifier = Modifier) {
 }
 
 @Composable
-@Preview
+//@Preview
 fun Post(){
+
+    var userLiked by remember { mutableStateOf(true) }
+    var likeCount by remember { mutableStateOf(0) }
+    var userCommented by remember { mutableStateOf(false) }
+    var commentCount by remember { mutableStateOf(0) }
 
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
@@ -288,17 +161,20 @@ fun Post(){
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ){
+                // Comment icon and Text Row
                 Box(
                     modifier = Modifier
                         .size(50.dp)
                         .weight(1f)
                 ){
+                    // Comment icon and Text Row
                     Row (
                         modifier = Modifier
                             .fillMaxWidth(),
                         horizontalArrangement = Arrangement.Start,
                         verticalAlignment = Alignment.CenterVertically
                     ){
+                        // Comment icon
                         IconButton(
                             onClick = { /*TODO*/ },
                             modifier = Modifier
@@ -310,9 +186,17 @@ fun Post(){
                                 modifier = Modifier.size(32.dp)
                             )
                         }
-                        Text(text = "12")
-                    }
-                }
+                        Text(
+                            text = if (userCommented) {
+                                if (commentCount > 1) "You and ${commentCount - 1} Commented" else "You Commented"
+                            } else {
+                                "$commentCount Comment"
+                            },
+                        )
+                    }// Comment icon and Text Row
+                }// Comment icon and Text Row
+
+                // Like icon and Text Row
                 Box(
                     modifier = Modifier
                         .size(50.dp)
@@ -325,15 +209,27 @@ fun Post(){
                         verticalAlignment = Alignment.CenterVertically
                     ){
 
-                        Text(text = "12")
+
+                        Text(
+                            text = if (userLiked) {
+                                if (likeCount > 1) "You and ${likeCount - 1} Liked" else "You Liked"
+                            } else {
+                                "$likeCount Like"
+                            },
+                        )
                         IconButton(
-                            onClick = { /*TODO*/ },
+                            onClick = {
+                                /*TODO*/
+                                userLiked = !userLiked
+
+                            },
                             modifier = Modifier
                                 .size(50.dp)
                         ) {
+
                             Icon(
-                                imageVector = Icons.Filled.FavoriteBorder, // Icon için uygun bir image vector seçin
-                                contentDescription = "Logout",
+                                painter = if(userLiked) painterResource(id = R.drawable.like_filled) else painterResource(id = R.drawable.like_unfilled),
+                                contentDescription = null,
                                 modifier = Modifier.size(32.dp)
                             )
                         }
@@ -349,41 +245,113 @@ fun Post(){
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomAppBarContent() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        IconButton(
-            onClick = { /*TODO*/ },
-            modifier = Modifier
-                .size(50.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Person, // Icon için uygun bir image vector seçin
-                contentDescription = "Logout",
-                modifier = Modifier.size(32.dp)
-            )
-        }
+@Preview
+fun MakeAPostScreen(){
 
-        IconButton(
-            onClick = { /*TODO*/ },
-            modifier = Modifier
-                .size(50.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Person, // Icon için uygun bir image vector seçin
-                contentDescription = "Logout",
-                modifier = Modifier.size(32.dp)
-            )
-        }
+    Scaffold (
+        topBar = {
+            CenterAlignedTopAppBar(
+                modifier = Modifier,
 
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    Color(0xFFFFFFFF), Color(0xFFFFFFFF), Color(0xFF000000)
+                ),
+
+                title = {
+                    Text(
+                        text = "Make a post",
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier,
+
+                        textAlign = TextAlign.Center
+                    )
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = { /* Yapılacak işlem */ },
+                        modifier = Modifier.size(50.dp)
+                    ) {
+
+                        Icon(
+                            painter = painterResource(id = R.drawable.back_arrow),
+                            contentDescription = "",
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                },
+                //scrollBehavior = scrollBehavior,
+
+
+
+
+                )
+
+        },// Top bar
+    ){innerPadding ->
+        MakeAPostBody(Modifier.padding(innerPadding))
     }
 }
+
+@Composable
+fun MakeAPostBody(modifier: Modifier = Modifier) {
+    val title = remember { mutableStateOf("") }
+    val content = remember { mutableStateOf("") }
+
+    Column(
+        modifier = modifier
+            .padding(16.dp)
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        OutlinedTextField(
+            value = title.value,
+            onValueChange = { title.value = it },
+            label = { Text("Title") },
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next)
+        )
+
+        OutlinedTextField(
+            value = content.value,
+            onValueChange = { content.value = it },
+            label = { Text("Content") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp),
+            keyboardActions = KeyboardActions(onDone = { /* Handle send post */ })
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            IconButton(onClick = { /* Handle add image */ }) {
+                Icon(imageVector = Icons.Default.Face, contentDescription = "Add Image")
+            }
+            IconButton(onClick = { /* Handle add video */ }) {
+                Icon(imageVector = Icons.Default.Info, contentDescription = "Add Video")
+            }
+            IconButton(onClick = { /* Handle add audio */ }) {
+                Icon(imageVector = Icons.Default.AccountBox, contentDescription = "Add Audio")
+            }
+        }
+
+        Button(
+            onClick = { /* Handle send post */ },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Post")
+        }
+    }
+}
+
+
+
+
+
 
 
 
