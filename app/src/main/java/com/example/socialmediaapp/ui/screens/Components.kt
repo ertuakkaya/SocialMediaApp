@@ -4,6 +4,8 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,9 +18,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -37,6 +42,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -57,10 +63,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.socialmediaapp.R
+import kotlin.math.absoluteValue
 
 
 @Composable
@@ -334,6 +342,7 @@ fun MakeAPostBody(modifier: Modifier = Modifier) {
 
 
 
+
     Column(
         modifier = modifier
             .padding(16.dp)
@@ -341,95 +350,28 @@ fun MakeAPostBody(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
+
+
+
         ElevatedCard (
             modifier = Modifier
                 .fillMaxWidth()
                 .height(500.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.elevatedCardColors(Color(0xFFFFFFFF))
+            colors = CardDefaults.elevatedCardColors(Color(0xFFFFFFFF)),
+            content = { HorizontalPagerSample(selectedImageUris = selectedImageUris)}
 
-        ){
-            LazyRow (
+        )
 
-            ){
-
-
-                /*
-                item{
-                    AsyncImage(
-                        model = selectedImageUri,
-                        contentDescription = "",
-                        modifier = Modifier.fillMaxWidth(),
-                        contentScale = ContentScale.Crop
-
-                    )
-                }// item
-                */
-
-
-
-
-
-                items(selectedImageUris) { uri ->
-
-                    if (selectedImageUris.isEmpty()) {
-                        AsyncImage(
-                            model = "https://picsum.photos/400/400",
-                            contentDescription = "",
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .fillMaxWidth(),
-                            contentScale = ContentScale.Crop
-
-                        )
-
-                    }else{
-                        AsyncImage(
-                            model = uri,
-                            contentDescription = "",
-                            modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            contentScale = ContentScale.Crop,
-                            //placeholder = painterResource(id = R.drawable.placeholder),
-
-                        )
-                    }
-
-
-                }
+        Button(
+            onClick = {
+                multiplePhotoPickerLauncher.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
             }
+        ) {
+            Text(text = "Pick Multiple Image")
         }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceAround
-        ){
-            Button(
-                onClick = {
-                    singlePhotoPickerLauncher.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                    )
-                }
-            ) {
-                Text(text = "Pick Image")
-            }
-
-            Button(
-                onClick = {
-                    multiplePhotoPickerLauncher.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                    )
-                }
-            ) {
-                Text(text = "Pick Multiple Image")
-            }
-
-        }// Row
-
-
-
 
 
 
@@ -444,37 +386,6 @@ fun MakeAPostBody(modifier: Modifier = Modifier) {
             keyboardActions = KeyboardActions(onDone = { /* Handle send post */ })
         )
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            IconButton(
-                onClick = { /* Handle add image */ }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Face,
-                    contentDescription = "Add Image"
-                )
-            }
-            IconButton(
-                onClick = { /* Handle add video */ }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = "Add Video"
-                )
-            }
-            IconButton(
-                onClick = {
-                    /* Handle add audio */
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.AccountBox,
-                    contentDescription = "Add Audio"
-                )
-            }
-        }
 
         Button(
             onClick = { /* Handle send post */ },
@@ -482,10 +393,10 @@ fun MakeAPostBody(modifier: Modifier = Modifier) {
         ) {
             Text("Post")
         }
-    }
+    }// Body Column
 }
 
-
+/*
 @Composable
 fun ImagePicker(){
     var selectedImageUri by remember {
@@ -546,8 +457,8 @@ fun ImagePicker(){
 
             }// Row
         }// item
-        
-        
+
+
         item{
             AsyncImage(
                 model = selectedImageUri,
@@ -573,7 +484,191 @@ fun ImagePicker(){
         }
     }
 }
+*/
 
+/*
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun HorizontalPagerSample() {
+
+    var selectedImageUri by remember {
+        mutableStateOf<Uri?>(null)
+    }
+
+    var selectedImageUris by remember {
+        mutableStateOf<List<Uri?>>(emptyList())
+    }
+
+
+
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            selectedImageUri = uri
+        }
+    )
+
+    val multiplePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia(),
+        onResult = { uris ->
+            selectedImageUris = uris
+        }
+    )
+
+
+    val pageCount = 5
+    val pagerState = rememberPagerState(pageCount = {
+        pageCount
+    })
+
+    Column {
+        HorizontalPager(
+            //pageCount = pageCount,
+            state = pagerState,
+        ) { page ->
+
+//            Box(
+//                modifier = Modifier
+//                    //.fillMaxSize()
+//                    .background(MaterialTheme.colorScheme.primary),
+//                contentAlignment = Alignment.Center
+//            ) {
+//                Text("Page $page", color = Color.White)
+//            }
+
+
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+
+
+        HorizontalPagerIndicator(
+            pageCount = pageCount,
+            currentPage = pagerState.currentPage,
+            targetPage = pagerState.targetPage,
+            currentPageOffsetFraction = pagerState.currentPageOffsetFraction
+        )
+    }
+}
+
+ */
+
+
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun HorizontalPagerSample(selectedImageUris: List<Uri?>) {
+    // Seçilen resimlerin sayısına göre pageCount değerini ayarlayın.
+    // Eğer hiç resim seçilmediyse, varsayılan olarak 1 sayfa gösterilsin.
+    val pageCount = if (selectedImageUris.isNotEmpty()) selectedImageUris.size else 1
+    val pagerState = rememberPagerState(pageCount = {
+        pageCount
+    })
+
+    Column (
+        modifier = Modifier
+            //.fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween
+
+    ){
+        // Horizontal Pager
+        HorizontalPager(
+            //pageCount = pageCount,
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(450.dp),
+
+            pageSpacing = 16.dp
+                //.height(300.dp)
+        ) { page ->
+            // Seçilen resimler listesinden, mevcut sayfaya karşılık gelen resmi göster
+            AsyncImage(
+                model = selectedImageUris.getOrNull(page) ?: "https://picsum.photos/400/400", // Eğer resim yoksa, varsayılan bir resim göster
+                contentDescription = "Selected Image",
+                modifier = Modifier
+                    .clip(RoundedCornerShape(32.dp))
+                    .fillMaxWidth()
+                    //.height(300.dp)
+                    ,
+                contentScale = ContentScale.Crop,
+                clipToBounds = true
+            )
+        }
+        //Spacer(modifier = Modifier.height(16.dp))
+
+        // Sayfa göstergesi için HorizontalPagerIndicator kullanabilirsiniz.
+        // Bu kısım opsiyoneldir ve sayfa göstergesi eklemek istiyorsanız kullanılabilir.
+        HorizontalPagerIndicator(
+            pageCount = pageCount,
+            currentPage = pagerState.currentPage,
+            targetPage = pagerState.targetPage,
+            currentPageOffsetFraction = pagerState.currentPageOffsetFraction
+        )
+    }// Column
+}
+
+
+@Composable
+private fun HorizontalPagerIndicator(
+    pageCount: Int,
+    currentPage: Int,
+    targetPage: Int,
+    currentPageOffsetFraction: Float,
+    modifier: Modifier = Modifier,
+    indicatorColor: Color = Color.DarkGray,
+    unselectedIndicatorSize: Dp = 8.dp,
+    selectedIndicatorSize: Dp = 10.dp,
+    indicatorCornerRadius: Dp = 2.dp,
+    indicatorPadding: Dp = 2.dp
+) {
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .wrapContentSize()
+            .height(selectedIndicatorSize + indicatorPadding * 2)
+    ) {
+
+        // draw an indicator for each page
+        repeat(pageCount) { page ->
+            // calculate color and size of the indicator
+            val (color, size) =
+                if (currentPage == page || targetPage == page) {
+                    // calculate page offset
+                    val pageOffset =
+                        ((currentPage - page) + currentPageOffsetFraction).absoluteValue
+                    // calculate offset percentage between 0.0 and 1.0
+                    val offsetPercentage = 1f - pageOffset.coerceIn(0f, 1f)
+
+                    val size =
+                        unselectedIndicatorSize + ((selectedIndicatorSize - unselectedIndicatorSize) * offsetPercentage)
+
+                    indicatorColor.copy(
+                        alpha = offsetPercentage
+                    ) to size
+                } else {
+                    indicatorColor.copy(alpha = 0.1f) to unselectedIndicatorSize
+                }
+
+            // draw indicator
+            Box(
+                modifier = Modifier
+                    .padding(
+                        // apply horizontal padding, so that each indicator is same width
+                        horizontal = ((selectedIndicatorSize + indicatorPadding * 2) - size) / 2,
+                        //vertical = size / 4
+                        vertical = 4.dp
+                    )
+                    .clip(RoundedCornerShape(indicatorCornerRadius))
+                    .background(color)
+                    .width(size)
+                    .height(size / 2)
+            )
+        }
+    }
+}
 
 
 
