@@ -1,5 +1,9 @@
 package com.example.socialmediaapp.ui.screens
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -300,20 +306,134 @@ fun MakeAPostBody(modifier: Modifier = Modifier) {
     val title = remember { mutableStateOf("") }
     val content = remember { mutableStateOf("") }
 
+    /// Image Picker
+    var selectedImageUri by remember {
+        mutableStateOf<Uri?>(null)
+    }
+
+    var selectedImageUris by remember {
+        mutableStateOf<List<Uri?>>(emptyList())
+    }
+
+
+
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            selectedImageUri = uri
+        }
+    )
+
+    val multiplePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia(),
+        onResult = { uris ->
+            selectedImageUris = uris
+        }
+    )
+    //// Image Picker
+
+
+
     Column(
         modifier = modifier
             .padding(16.dp)
             .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        OutlinedTextField(
-            value = title.value,
-            onValueChange = { title.value = it },
-            label = { Text("Title") },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next)
-        )
 
+        ElevatedCard (
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(500.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.elevatedCardColors(Color(0xFFFFFFFF))
+
+        ){
+            LazyRow (
+
+            ){
+
+
+                /*
+                item{
+                    AsyncImage(
+                        model = selectedImageUri,
+                        contentDescription = "",
+                        modifier = Modifier.fillMaxWidth(),
+                        contentScale = ContentScale.Crop
+
+                    )
+                }// item
+                */
+
+
+
+
+
+                items(selectedImageUris) { uri ->
+
+                    if (selectedImageUris.isEmpty()) {
+                        AsyncImage(
+                            model = "https://picsum.photos/400/400",
+                            contentDescription = "",
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth(),
+                            contentScale = ContentScale.Crop
+
+                        )
+
+                    }else{
+                        AsyncImage(
+                            model = uri,
+                            contentDescription = "",
+                            modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            contentScale = ContentScale.Crop,
+                            //placeholder = painterResource(id = R.drawable.placeholder),
+
+                        )
+                    }
+
+
+                }
+            }
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround
+        ){
+            Button(
+                onClick = {
+                    singlePhotoPickerLauncher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                }
+            ) {
+                Text(text = "Pick Image")
+            }
+
+            Button(
+                onClick = {
+                    multiplePhotoPickerLauncher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                }
+            ) {
+                Text(text = "Pick Multiple Image")
+            }
+
+        }// Row
+
+
+
+
+
+
+        // Content TextField
         OutlinedTextField(
             value = content.value,
             onValueChange = { content.value = it },
@@ -328,14 +448,31 @@ fun MakeAPostBody(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            IconButton(onClick = { /* Handle add image */ }) {
-                Icon(imageVector = Icons.Default.Face, contentDescription = "Add Image")
+            IconButton(
+                onClick = { /* Handle add image */ }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Face,
+                    contentDescription = "Add Image"
+                )
             }
-            IconButton(onClick = { /* Handle add video */ }) {
-                Icon(imageVector = Icons.Default.Info, contentDescription = "Add Video")
+            IconButton(
+                onClick = { /* Handle add video */ }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = "Add Video"
+                )
             }
-            IconButton(onClick = { /* Handle add audio */ }) {
-                Icon(imageVector = Icons.Default.AccountBox, contentDescription = "Add Audio")
+            IconButton(
+                onClick = {
+                    /* Handle add audio */
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.AccountBox,
+                    contentDescription = "Add Audio"
+                )
             }
         }
 
@@ -344,6 +481,95 @@ fun MakeAPostBody(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Post")
+        }
+    }
+}
+
+
+@Composable
+fun ImagePicker(){
+    var selectedImageUri by remember {
+        mutableStateOf<Uri?>(null)
+    }
+
+    var selectedImageUris by remember {
+        mutableStateOf<List<Uri?>>(emptyList())
+    }
+
+
+
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            selectedImageUri = uri
+        }
+    )
+
+    val multiplePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia(),
+        onResult = { uris ->
+            selectedImageUris = uris
+        }
+    )
+
+
+    LazyColumn (
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ){
+        item{
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround
+            ){
+                Button(
+                    onClick = {
+                        singlePhotoPickerLauncher.launch(
+                           PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    }
+                ) {
+                    Text(text = "Pick Image")
+                }
+
+                Button(
+                    onClick = {
+                        multiplePhotoPickerLauncher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    }
+                ) {
+                    Text(text = "Pick Multiple Image")
+                }
+
+            }// Row
+        }// item
+        
+        
+        item{
+            AsyncImage(
+                model = selectedImageUri,
+                contentDescription = "",
+                modifier = Modifier.fillMaxWidth(),
+                contentScale = ContentScale.Crop
+
+            )
+        }// item
+
+        items(selectedImageUris) { uri ->
+
+            AsyncImage(
+                model = uri,
+                contentDescription = "",
+                modifier = Modifier.fillMaxWidth(),
+                contentScale = ContentScale.Crop
+
+            )
+
+
+
         }
     }
 }
