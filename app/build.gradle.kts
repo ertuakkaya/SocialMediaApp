@@ -6,6 +6,8 @@ plugins {
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
 
+    alias(libs.plugins.jetbrains.kotlin.serialization)
+
 
 }
 
@@ -107,6 +109,11 @@ dependencies {
     kapt("com.google.dagger:hilt-android-compiler:2.48.1")
     // hilt navigation compose
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
+
+
 
 
 }

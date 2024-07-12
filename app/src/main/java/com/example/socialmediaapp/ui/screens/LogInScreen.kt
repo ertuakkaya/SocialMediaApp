@@ -38,10 +38,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.example.socialmediaapp.Screen
 
-@Preview
+//@Preview
 @Composable
-fun LoginScreen() {
+fun LoginScreen(navController: NavController) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -190,11 +192,10 @@ fun LoginScreen() {
 
                 TextButton(
                     onClick = {
-                        /* Handle sign up click */
+                        navController.navigate(Screen.SignupScreen)
                     },
                     modifier = Modifier
-                        .fillMaxWidth()
-                    ,
+                        .fillMaxWidth(),
 
                     ){
                     Text("Don't have an account? Sign up")
