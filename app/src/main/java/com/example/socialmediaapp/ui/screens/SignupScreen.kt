@@ -1,5 +1,6 @@
 package com.example.socialmediaapp.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,7 +30,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -44,10 +48,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import com.example.socialmediaapp.Screen
+import com.example.socialmediaapp.viewmodels.AuthState
+import com.example.socialmediaapp.viewmodels.FirebaseViewModel
 
 //@Preview
 @Composable
-fun SignupScreen() {
+fun SignupScreen(navController: NavHostController, firebaseViewModel: FirebaseViewModel) {
 
     var fullName by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
@@ -58,6 +66,25 @@ fun SignupScreen() {
 
 
     val scrollState = rememberScrollState()
+
+
+    val authState = firebaseViewModel.authState.observeAsState()
+    val context = LocalContext.current
+
+
+    // Based on the auth state value, navigate to the login screen or show an error message
+    LaunchedEffect(authState.value) {
+        when (authState.value) {
+            is AuthState.Authenticated -> navController.navigate(Screen.LoginScreen) // navigate to login
+            is AuthState.Error -> Toast.makeText(
+                context,
+                (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT
+            ).show()
+
+            else -> Unit
+        }
+    }
+
 
 
 
@@ -303,6 +330,29 @@ fun SignupScreen() {
                 Button(
                     onClick = {
                         /* Handle login click */
+                        // TODO: Sign up
+                        if (password != repeatPassword) {
+                            Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }else if(!termsAndConditions){
+
+                            Toast.makeText(context, "You must agree to the terms and conditions", Toast.LENGTH_SHORT).show()
+                            return@Button
+
+                        }else if(fullName.isEmpty() || username.isEmpty() || email.isEmpty() || password.isEmpty() || repeatPassword.isEmpty()){
+                            Toast.makeText(context, "Please fill all the fields", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }else if(!email.contains("@") || !email.contains(".")){
+                            Toast.makeText(context, "Please enter a valid email", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                        else if(password.length < 6){
+                            Toast.makeText(context, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                        else{
+                            firebaseViewModel.signUp(email, password)
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -318,13 +368,11 @@ fun SignupScreen() {
 
                 TextButton(
                     onClick = {
-                        /* Handle sign up click */
+                        navController.navigate(Screen.LoginScreen) // TODO: navigate to login
                     },
                     modifier = Modifier
                         .wrapContentWidth()
-                        .align(Alignment.CenterHorizontally)
-                    ,
-
+                        .align(Alignment.CenterHorizontally),
 
 
                     ){
