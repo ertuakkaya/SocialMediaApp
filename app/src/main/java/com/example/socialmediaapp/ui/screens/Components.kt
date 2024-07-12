@@ -261,55 +261,6 @@ fun Post(){
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-@Preview
-fun MakeAPostScreen(){
-
-    Scaffold (
-        topBar = {
-            CenterAlignedTopAppBar(
-                modifier = Modifier,
-
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    Color(0xFFFFFFFF), Color(0xFFFFFFFF), Color(0xFF000000)
-                ),
-
-                title = {
-                    Text(
-                        text = "Make a post",
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier,
-
-                        textAlign = TextAlign.Center
-                    )
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = { /* Yapılacak işlem */ },
-                        modifier = Modifier.size(50.dp)
-                    ) {
-
-                        Icon(
-                            painter = painterResource(id = R.drawable.back_arrow),
-                            contentDescription = "",
-                            modifier = Modifier.size(32.dp)
-                        )
-                    }
-                },
-                //scrollBehavior = scrollBehavior,
-
-
-
-
-                )
-
-        },// Top bar
-    ){innerPadding ->
-        MakeAPostBody(Modifier.padding(innerPadding))
-    }
-}
 
 @Composable
 fun MakeAPostBody(modifier: Modifier = Modifier) {
