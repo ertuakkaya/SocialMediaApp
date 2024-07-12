@@ -42,6 +42,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -90,6 +91,7 @@ fun HomeScreenBodyContent(modifier: Modifier = Modifier) {
         color = Color(0xFFFFFFFF),
         modifier = modifier.fillMaxSize()
     ) {
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()

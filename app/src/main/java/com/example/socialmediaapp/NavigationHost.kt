@@ -27,7 +27,7 @@ fun AppNavHost(modifier: Modifier,firebaseViewModel: FirebaseViewModel) {
             SignupScreen(navController = navController,firebaseViewModel = firebaseViewModel)
         }
         composable<Screen.HomeScreen> {
-            HomeScreen()
+            HomeScreen(firebaseViewModel = firebaseViewModel,navHostController = navController)
         }
     }
 }
