@@ -46,13 +46,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.socialmediaapp.Screen
-import com.example.socialmediaapp.viewmodels.AuthState
-import com.example.socialmediaapp.viewmodels.FirebaseViewModel
+import com.example.socialmediaapp.ui.viewmodels.AuthState
+import com.example.socialmediaapp.ui.viewmodels.FirebaseViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showSystemUi = true)
 @Composable
-fun HomeScreen(firebaseViewModel: FirebaseViewModel,navHostController: NavHostController) {
+fun HomeScreen(firebaseViewModel: FirebaseViewModel, navHostController: NavHostController) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
     val authState = firebaseViewModel.authState.observeAsState()
@@ -134,59 +134,7 @@ fun HomeScreen(firebaseViewModel: FirebaseViewModel,navHostController: NavHostCo
 
         },// Top bar
         bottomBar = {
-            NavigationBar(
-                modifier = Modifier
-                    .height(56.dp),
-                containerColor = Color(0xFFFFFFFF),
-                tonalElevation = 4.dp,
-                contentColor = Color(0xFF000000)
-
-
-            ) {
-                NavigationBarItem(
-                    selected = true,
-                    onClick = {
-                        /*TODO*/
-                    },
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .fillMaxSize(),
-
-                    icon = {
-                        Icon(
-                            Icons.Filled.Home,
-                            contentDescription = null
-                        )
-                    },
-
-                    //colors = NavigationBarItemDefaults.colors(Color(0xFF5871B4), Color(0xFF000000), Color(0xFFAD5454)
-
-
-                )
-                NavigationBarItem(
-                    selected = true,
-                    onClick = { /*TODO*/ },
-                    icon = {
-                        Icon(
-                            Icons.Rounded.Call,
-                            contentDescription = null
-                        )
-                    },
-                )
-                NavigationBarItem(
-                    selected = false,
-                    onClick = {
-                        /*TODO*/
-                    },
-                    icon = {
-                        Icon(
-                            Icons.Rounded.Add,
-                            contentDescription = null
-                        )
-                    },
-                )
-
-            }
+            BottomBarComponent(navHostController =navHostController)
 
         },// Bottom bar
 

@@ -13,7 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.socialmediaapp.ui.theme.SocialMediaAppTheme
-import com.example.socialmediaapp.viewmodels.FirebaseViewModel
+import com.example.socialmediaapp.ui.viewmodels.FirebaseViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

@@ -50,8 +50,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.socialmediaapp.Screen
-import com.example.socialmediaapp.viewmodels.AuthState
-import com.example.socialmediaapp.viewmodels.FirebaseViewModel
+import com.example.socialmediaapp.ui.viewmodels.AuthState
+import com.example.socialmediaapp.ui.viewmodels.FirebaseViewModel
 
 //@Preview
 @Composable
@@ -351,7 +351,7 @@ fun SignupScreen(navController: NavHostController, firebaseViewModel: FirebaseVi
                             return@Button
                         }
                         else{
-                            firebaseViewModel.signUp(email, password)
+                            firebaseViewModel.signUp(email = email, password = password, name = fullName, userName = username)
                         }
                     },
                     modifier = Modifier

@@ -34,9 +34,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -46,6 +49,8 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -69,8 +74,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.socialmediaapp.R
+import com.example.socialmediaapp.Screen
 import kotlin.math.absoluteValue
 
 
@@ -114,6 +121,7 @@ fun Post(){
     var likeCount by remember { mutableStateOf(0) }
     var userCommented by remember { mutableStateOf(false) }
     var commentCount by remember { mutableStateOf(0) }
+    var username by remember { mutableStateOf("username") }
 
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
@@ -152,7 +160,7 @@ fun Post(){
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                Text(text = "username")
+                Text(text = username)
 
 
             }
@@ -628,6 +636,64 @@ private fun HorizontalPagerIndicator(
 
 
 
+
+@Composable
+fun BottomBarComponent(navHostController: NavHostController) {
+    NavigationBar(
+        modifier = Modifier
+            .height(56.dp),
+        containerColor = Color(0xFFFFFFFF),
+        tonalElevation = 4.dp,
+        contentColor = Color(0xFF000000)
+
+
+    ) {
+        NavigationBarItem(
+            selected = true,
+            onClick = {
+                navHostController.navigate(Screen.HomeScreen)
+            },
+            modifier = Modifier
+                .clip(CircleShape)
+                .fillMaxSize(),
+
+            icon = {
+                Icon(
+                    Icons.Filled.Home,
+                    contentDescription = null
+                )
+            },
+
+            //colors = NavigationBarItemDefaults.colors(Color(0xFF5871B4), Color(0xFF000000), Color(0xFFAD5454)
+
+
+        )
+        NavigationBarItem(
+            selected = true,
+            onClick = { /*TODO*/ },
+            icon = {
+                Icon(
+                    Icons.Rounded.Call,
+                    contentDescription = null
+                )
+            },
+        )
+        NavigationBarItem(
+            selected = false,
+            onClick = {
+                navHostController.navigate(Screen.AccountScreen)
+            },
+            icon = {
+                Icon(
+                    Icons.Rounded.Add,
+                    contentDescription = null
+                )
+            },
+        )
+
+    }
+
+}
 
 
 
