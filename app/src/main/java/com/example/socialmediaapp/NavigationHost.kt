@@ -5,15 +5,18 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.socialmediaapp.data.entitiy.User
 import com.example.socialmediaapp.ui.screens.AccountScreen
 import com.example.socialmediaapp.ui.screens.HomeScreen
 import com.example.socialmediaapp.ui.screens.LoginScreen
 import com.example.socialmediaapp.ui.screens.SignupScreen
+import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirebaseViewModel
+import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
 import kotlinx.serialization.Serializable
 
 @Composable
-fun AppNavHost(modifier: Modifier,firebaseViewModel: FirebaseViewModel) {
+fun AppNavHost(modifier: Modifier,firebaseViewModel: FirebaseViewModel , authViewModel: AuthViewModel, firestoreViewModel: FirestoreViewModel) {
 
     val navController = rememberNavController()
     NavHost(
@@ -31,7 +34,7 @@ fun AppNavHost(modifier: Modifier,firebaseViewModel: FirebaseViewModel) {
             HomeScreen(firebaseViewModel = firebaseViewModel,navHostController = navController)
         }
         composable<Screen.AccountScreen> {
-            AccountScreen(firebaseViewModel = firebaseViewModel,navHostController = navController)
+            AccountScreen(firebaseViewModel = firebaseViewModel,navHostController = navController, user = User("",""), authViewModel = authViewModel, firestoreViewModel = firestoreViewModel)
         }
 
     }

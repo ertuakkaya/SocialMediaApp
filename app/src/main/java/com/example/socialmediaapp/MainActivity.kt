@@ -13,13 +13,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.socialmediaapp.ui.theme.SocialMediaAppTheme
+import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirebaseViewModel
+import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     val firebaseViewModel: FirebaseViewModel by viewModels()
+    val firestoreViewModel: FirestoreViewModel by viewModels()
+    val authViewModel: AuthViewModel by viewModels()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +32,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             SocialMediaAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    AppNavHost(modifier = Modifier.padding(innerPadding),firebaseViewModel = firebaseViewModel)
+                    AppNavHost(modifier = Modifier.padding(innerPadding),firebaseViewModel = firebaseViewModel, authViewModel = authViewModel, firestoreViewModel = firestoreViewModel)
                 }
             }
         }

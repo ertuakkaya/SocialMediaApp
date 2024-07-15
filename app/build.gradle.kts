@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.firebase.auth)
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.androidx.navigation.safe.args.generator)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -125,6 +126,18 @@ dependencies {
 
 
 
+    implementation("com.google.firebase:firebase-firestore-ktx") {
+        exclude(group = "xmlpull", module = "xmlpull")
+    }
+
 
 }
+
+configurations {
+    all {
+        exclude(group = "xmlpull", module = "xmlpull")
+    }
+}
+
+
 

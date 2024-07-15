@@ -118,6 +118,11 @@ class FirebaseViewModel @Inject constructor(
         _authState.value = AuthState.Unauthenticated
     }
 
+    // get current user
+    fun getCurrentUser(): FirebaseUser? {
+        return authRepository.getCurrentUser()
+    }
+
 
     /*
        fun addUserToFirestore(
