@@ -16,6 +16,7 @@ import com.example.socialmediaapp.ui.theme.SocialMediaAppTheme
 import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirebaseViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
+import com.example.socialmediaapp.ui.viewmodels.PostViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -24,6 +25,7 @@ class MainActivity : ComponentActivity() {
     val firebaseViewModel: FirebaseViewModel by viewModels()
     val firestoreViewModel: FirestoreViewModel by viewModels()
     val authViewModel: AuthViewModel by viewModels()
+    val postViewModel: PostViewModel by viewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,7 +34,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             SocialMediaAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    AppNavHost(modifier = Modifier.padding(innerPadding),firebaseViewModel = firebaseViewModel, authViewModel = authViewModel, firestoreViewModel = firestoreViewModel)
+                    AppNavHost(modifier = Modifier.padding(innerPadding),firebaseViewModel = firebaseViewModel, authViewModel = authViewModel, firestoreViewModel = firestoreViewModel, postViewModel = postViewModel)
                 }
             }
         }

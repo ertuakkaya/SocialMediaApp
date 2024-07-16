@@ -57,6 +57,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -78,6 +79,8 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.Screen
+import com.example.socialmediaapp.data.entitiy.Post
+import com.example.socialmediaapp.ui.viewmodels.PostViewModel
 import kotlin.math.absoluteValue
 
 
@@ -93,7 +96,11 @@ fun Components(){
 
 
 @Composable
-fun HomeScreenBodyContent(modifier: Modifier = Modifier) {
+fun HomeScreenBodyContent(modifier: Modifier = Modifier,postViewModel: PostViewModel) {
+
+    val posts by postViewModel.posts.collectAsState()
+
+
     Surface (
         color = Color(0xFFFFFFFF),
         modifier = modifier.fillMaxSize()
@@ -105,8 +112,14 @@ fun HomeScreenBodyContent(modifier: Modifier = Modifier) {
                 .padding(start = 24.dp, end = 24.dp, top = 0.dp, bottom = 0.dp),
             verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {
-            items(10) {
-                Post()
+//            items(10) { ///////////////
+//                Post()
+//            }
+//            items(posts.size) { index ->
+//                PostItem(post = posts[index], onLikeClick = { postViewModel.likePost(posts[index].id) })
+//            }
+            items(posts.size) { index ->
+               Post(post = posts[index], onLikeClick = { postViewModel.likePost(posts[index].id) })
             }
 
         }
@@ -115,13 +128,16 @@ fun HomeScreenBodyContent(modifier: Modifier = Modifier) {
 
 @Composable
 //@Preview
-fun Post(){
+fun Post(post: Post, onLikeClick: () -> Unit){
 
     var userLiked by remember { mutableStateOf(true) }
     var likeCount by remember { mutableStateOf(0) }
     var userCommented by remember { mutableStateOf(false) }
     var commentCount by remember { mutableStateOf(0) }
     var username by remember { mutableStateOf("username") }
+
+    likeCount = post.likeCount.toInt()
+    commentCount = post.commentCount
 
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
@@ -147,7 +163,8 @@ fun Post(){
                 verticalAlignment = Alignment.CenterVertically
             ){
                 AsyncImage(
-                    model = "https://picsum.photos/400/400",
+                    //model = "https://picsum.photos/400/400",
+                    model = if (post.profileImageUrl.isNotEmpty()) post.profileImageUrl else "https://picsum.photos/400/400",
                     contentDescription = "Translated description of what the image contains",
                     modifier = Modifier
                         .size(50.dp)
@@ -160,7 +177,8 @@ fun Post(){
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                Text(text = username)
+                //Text(text = username)
+                Text(text = post.userName)
 
 
             }
@@ -168,7 +186,8 @@ fun Post(){
 
             // Post image
             AsyncImage(
-                model = "https://picsum.photos/400/400",
+                //model = "https://picsum.photos/400/400",
+                model = if (post.postImageUrl.isNotEmpty()) post.postImageUrl else "https://picsum.photos/400/400",
                 contentDescription = "Translated description of what the image contains",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -177,7 +196,7 @@ fun Post(){
                 contentScale = ContentScale.FillWidth
             )
             // Post text
-            Text(text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.")
+            Text(text = if (post.postText.isNotEmpty()) post.postText else "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.")
 
             // Comment icon , comment count text, like count text , like button
             Row (

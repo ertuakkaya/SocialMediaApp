@@ -13,10 +13,11 @@ import com.example.socialmediaapp.ui.screens.SignupScreen
 import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirebaseViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
+import com.example.socialmediaapp.ui.viewmodels.PostViewModel
 import kotlinx.serialization.Serializable
 
 @Composable
-fun AppNavHost(modifier: Modifier,firebaseViewModel: FirebaseViewModel , authViewModel: AuthViewModel, firestoreViewModel: FirestoreViewModel) {
+fun AppNavHost(modifier: Modifier,firebaseViewModel: FirebaseViewModel , authViewModel: AuthViewModel, firestoreViewModel: FirestoreViewModel,postViewModel: PostViewModel) {
 
     val navController = rememberNavController()
     NavHost(
@@ -31,7 +32,7 @@ fun AppNavHost(modifier: Modifier,firebaseViewModel: FirebaseViewModel , authVie
             SignupScreen(navController = navController,firebaseViewModel = firebaseViewModel)
         }
         composable<Screen.HomeScreen> {
-            HomeScreen(firebaseViewModel = firebaseViewModel,navHostController = navController)
+            HomeScreen(firebaseViewModel = firebaseViewModel,navHostController = navController,postViewModel = postViewModel)
         }
         composable<Screen.AccountScreen> {
             AccountScreen(firebaseViewModel = firebaseViewModel,navHostController = navController, user = User("",""), authViewModel = authViewModel, firestoreViewModel = firestoreViewModel)

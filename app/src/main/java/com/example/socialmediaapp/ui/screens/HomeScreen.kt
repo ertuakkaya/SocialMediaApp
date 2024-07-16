@@ -48,11 +48,12 @@ import androidx.navigation.NavHostController
 import com.example.socialmediaapp.Screen
 import com.example.socialmediaapp.ui.viewmodels.AuthState
 import com.example.socialmediaapp.ui.viewmodels.FirebaseViewModel
+import com.example.socialmediaapp.ui.viewmodels.PostViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showSystemUi = true)
 @Composable
-fun HomeScreen(firebaseViewModel: FirebaseViewModel, navHostController: NavHostController) {
+fun HomeScreen(firebaseViewModel: FirebaseViewModel, navHostController: NavHostController, postViewModel: PostViewModel) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
     val authState = firebaseViewModel.authState.observeAsState()
@@ -140,7 +141,8 @@ fun HomeScreen(firebaseViewModel: FirebaseViewModel, navHostController: NavHostC
 
     ) { innerPadding ->
 
-        HomeScreenBodyContent(Modifier.padding(innerPadding))
+        HomeScreenBodyContent(Modifier.padding(innerPadding),postViewModel = postViewModel)
+        //PostListScreen( modifier = Modifier.padding(innerPadding),postViewModel = postViewModel)
 
     }
 }

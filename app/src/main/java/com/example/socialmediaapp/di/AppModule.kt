@@ -2,6 +2,8 @@ package com.example.socialmediaapp.di
 
 import com.example.socialmediaapp.data.repository.AuthRepository
 import com.example.socialmediaapp.data.repository.FirestoreRepository
+import com.example.socialmediaapp.data.repository.PostRepository
+import com.example.socialmediaapp.ui.viewmodels.PostViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -50,6 +52,12 @@ class AppModule {
     @Singleton
     fun provideAuthRepository(auth: FirebaseAuth) : AuthRepository {
         return AuthRepository(auth)
+    }
+
+    @Provides
+    @Singleton
+    fun providePostViewModel(postRepository: PostRepository) : PostViewModel {
+        return PostViewModel(postRepository)
     }
 
 
