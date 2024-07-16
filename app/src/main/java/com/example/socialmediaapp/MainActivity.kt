@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.socialmediaapp.ui.theme.SocialMediaAppTheme
 import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
+import com.example.socialmediaapp.ui.viewmodels.FirebaseStorageViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirebaseViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
 import com.example.socialmediaapp.ui.viewmodels.PostViewModel
@@ -26,6 +27,7 @@ class MainActivity : ComponentActivity() {
     val firestoreViewModel: FirestoreViewModel by viewModels()
     val authViewModel: AuthViewModel by viewModels()
     val postViewModel: PostViewModel by viewModels()
+    val firebaseStorageViewModel: FirebaseStorageViewModel by viewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,7 +36,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             SocialMediaAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    AppNavHost(modifier = Modifier.padding(innerPadding),firebaseViewModel = firebaseViewModel, authViewModel = authViewModel, firestoreViewModel = firestoreViewModel, postViewModel = postViewModel)
+                    AppNavHost(
+                        modifier = Modifier.padding(innerPadding),
+                        firebaseViewModel = firebaseViewModel,
+                        authViewModel = authViewModel,
+                        firestoreViewModel = firestoreViewModel,
+                        postViewModel = postViewModel,
+                        firebaseStorageViewModel = firebaseStorageViewModel
+                    )
                 }
             }
         }

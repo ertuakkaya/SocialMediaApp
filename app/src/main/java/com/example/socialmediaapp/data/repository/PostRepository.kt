@@ -20,6 +20,8 @@ class PostRepository @Inject constructor(private val firestore : FirebaseFiresto
         return newPostRef.id
     }
 
+
+    // get post by id
     fun getPostsFlow(): Flow<List<Post>> = flow {
         val snapshot = postsCollection
             .orderBy("timestamp", Query.Direction.DESCENDING)

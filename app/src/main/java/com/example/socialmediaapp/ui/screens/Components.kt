@@ -1,6 +1,7 @@
 package com.example.socialmediaapp.ui.screens
 
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -57,6 +58,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -80,7 +82,10 @@ import coil.compose.AsyncImage
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.Screen
 import com.example.socialmediaapp.data.entitiy.Post
+import com.example.socialmediaapp.ui.viewmodels.FirebaseStorageViewModel
 import com.example.socialmediaapp.ui.viewmodels.PostViewModel
+
+import com.google.firebase.firestore.firestoreSettings
 import kotlin.math.absoluteValue
 
 
@@ -112,12 +117,7 @@ fun HomeScreenBodyContent(modifier: Modifier = Modifier,postViewModel: PostViewM
                 .padding(start = 24.dp, end = 24.dp, top = 0.dp, bottom = 0.dp),
             verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {
-//            items(10) { ///////////////
-//                Post()
-//            }
-//            items(posts.size) { index ->
-//                PostItem(post = posts[index], onLikeClick = { postViewModel.likePost(posts[index].id) })
-//            }
+
             items(posts.size) { index ->
                Post(post = posts[index], onLikeClick = { postViewModel.likePost(posts[index].id) })
             }
@@ -131,13 +131,18 @@ fun HomeScreenBodyContent(modifier: Modifier = Modifier,postViewModel: PostViewM
 fun Post(post: Post, onLikeClick: () -> Unit){
 
     var userLiked by remember { mutableStateOf(true) }
-    var likeCount by remember { mutableStateOf(0) }
+    var likeCount by remember { mutableStateOf(post.likeCount) }
     var userCommented by remember { mutableStateOf(false) }
-    var commentCount by remember { mutableStateOf(0) }
-    var username by remember { mutableStateOf("username") }
+    var commentCount by remember { mutableStateOf(post.commentCount) }
+    var username by remember { mutableStateOf(post.userName) }
+    var profileImageUrl by remember { mutableStateOf(post.profileImageUrl) }
+    var postImageUrl by remember { mutableStateOf(post.postImageUrl) }
+    var postText by remember { mutableStateOf(post.postText) }
+    var timestamp by remember { mutableStateOf(post.timestamp) }
+    var likedBy by remember { mutableStateOf(post.likedBy) }
+    var comments by remember { mutableStateOf(post.comments) }
+    var commentText by remember { mutableStateOf("") }
 
-    likeCount = post.likeCount.toInt()
-    commentCount = post.commentCount
 
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
@@ -178,7 +183,7 @@ fun Post(post: Post, onLikeClick: () -> Unit){
                 Spacer(modifier = Modifier.width(16.dp))
 
                 //Text(text = username)
-                Text(text = post.userName)
+                Text(text = username)
 
 
             }
@@ -264,7 +269,7 @@ fun Post(post: Post, onLikeClick: () -> Unit){
                         )
                         IconButton(
                             onClick = {
-                                /*TODO*/
+
                                 userLiked = !userLiked
 
                             },
@@ -292,7 +297,13 @@ fun Post(post: Post, onLikeClick: () -> Unit){
 
 
 @Composable
-fun MakeAPostBody(modifier: Modifier = Modifier) {
+fun MakeAPostBody(modifier: Modifier = Modifier , firebaseStorageViewModel: FirebaseStorageViewModel) {
+
+    // firebase storage
+    val uploadStatus by firebaseStorageViewModel.uploadStatus.collectAsState()
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+
+
     val title = remember { mutableStateOf("") }
     val content = remember { mutableStateOf("") }
 
@@ -342,18 +353,31 @@ fun MakeAPostBody(modifier: Modifier = Modifier) {
                 .height(500.dp),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.elevatedCardColors(Color(0xFFFFFFFF)),
-            content = { HorizontalPagerSample(selectedImageUris = selectedImageUris)}
+            //content = { HorizontalPagerSample( if (selectedImageUris.isNotEmpty()) selectedImageUris else selectedImageUri)}
+            content = { HorizontalPagerSample(selectedImageUris.ifEmpty { listOf(selectedImageUri).filterNotNull() })}
 
         )
 
         Button(
             onClick = {
-                multiplePhotoPickerLauncher.launch(
+//                multiplePhotoPickerLauncher.launch(
+//                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+//                )
+                singlePhotoPickerLauncher.launch(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                 )
             }
         ) {
             Text(text = "Pick Multiple Image")
+        }
+
+
+
+        uploadStatus?.let { status ->
+            when { // TODO : Post Succes or Fail Screen
+                status.success -> Log.d("FirebaseStorageViewModel", "Image uploaded successfully. URL: ${status.imageUrl}")
+                else -> Log.d("FirebaseStorageViewModel", "Image upload fail. ")
+            }
         }
 
 
@@ -370,14 +394,27 @@ fun MakeAPostBody(modifier: Modifier = Modifier) {
         )
 
 
-        Button(
-            onClick = { /* Handle send post */ },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Post")
+        selectedImageUri?.let { uri ->
+            Button(
+                onClick = { firebaseStorageViewModel.uploadPostImage(uri) }, ////////////
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Post")
+            }
+        }
+
+//        Button(
+//            onClick = {
+//
+//            },
+//
+//        ) {
+//
         }
     }// Body Column
-}
+
+
+
 
 /*
 @Composable
@@ -667,6 +704,7 @@ fun BottomBarComponent(navHostController: NavHostController) {
 
 
     ) {
+        // HomeScreen
         NavigationBarItem(
             selected = true,
             onClick = {
@@ -687,9 +725,12 @@ fun BottomBarComponent(navHostController: NavHostController) {
 
 
         )
+        // MakeAPostScreen
         NavigationBarItem(
             selected = true,
-            onClick = { /*TODO*/ },
+            onClick = {
+                navHostController.navigate(Screen.MakeAPostScreen)
+            },
             icon = {
                 Icon(
                     Icons.Rounded.Call,
@@ -697,6 +738,8 @@ fun BottomBarComponent(navHostController: NavHostController) {
                 )
             },
         )
+
+        // AccountScreen
         NavigationBarItem(
             selected = false,
             onClick = {

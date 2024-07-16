@@ -126,9 +126,6 @@ dependencies {
 
 
 
-//    implementation("com.google.firebase:firebase-firestore-ktx") {
-//        exclude(group = "xmlpull", module = "xmlpull")
-//    }
 
 
 }

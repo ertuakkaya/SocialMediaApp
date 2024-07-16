@@ -32,7 +32,7 @@ import com.example.socialmediaapp.ui.viewmodels.PostViewModel
 fun PostListScreen(modifier: Modifier,postViewModel: PostViewModel) {
     val posts by postViewModel.posts.collectAsState()
 
-    
+
 
     LazyColumn {
         items(posts.size) { index ->

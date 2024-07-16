@@ -9,15 +9,24 @@ import com.example.socialmediaapp.data.entitiy.User
 import com.example.socialmediaapp.ui.screens.AccountScreen
 import com.example.socialmediaapp.ui.screens.HomeScreen
 import com.example.socialmediaapp.ui.screens.LoginScreen
+import com.example.socialmediaapp.ui.screens.MakeAPostScreen
 import com.example.socialmediaapp.ui.screens.SignupScreen
 import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
+import com.example.socialmediaapp.ui.viewmodels.FirebaseStorageViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirebaseViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
 import com.example.socialmediaapp.ui.viewmodels.PostViewModel
 import kotlinx.serialization.Serializable
 
 @Composable
-fun AppNavHost(modifier: Modifier,firebaseViewModel: FirebaseViewModel , authViewModel: AuthViewModel, firestoreViewModel: FirestoreViewModel,postViewModel: PostViewModel) {
+fun AppNavHost(
+    modifier: Modifier,
+    firebaseViewModel: FirebaseViewModel ,
+    authViewModel: AuthViewModel,
+    firestoreViewModel: FirestoreViewModel,
+    postViewModel: PostViewModel,
+    firebaseStorageViewModel: FirebaseStorageViewModel
+) {
 
     val navController = rememberNavController()
     NavHost(
@@ -36,6 +45,9 @@ fun AppNavHost(modifier: Modifier,firebaseViewModel: FirebaseViewModel , authVie
         }
         composable<Screen.AccountScreen> {
             AccountScreen(firebaseViewModel = firebaseViewModel,navHostController = navController, user = User("",""), authViewModel = authViewModel, firestoreViewModel = firestoreViewModel)
+        }
+        composable<Screen.MakeAPostScreen> {
+            MakeAPostScreen(navController = navController, firebaseStorageViewModel = firebaseStorageViewModel)
         }
 
     }
@@ -69,4 +81,7 @@ sealed class Screen {
 
     @Serializable
     object AccountScreen : Screen()
+
+    @Serializable
+    object MakeAPostScreen : Screen()
 }

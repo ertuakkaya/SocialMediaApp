@@ -18,13 +18,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.socialmediaapp.R
+import com.example.socialmediaapp.Screen
+import com.example.socialmediaapp.ui.viewmodels.FirebaseStorageViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
-fun MakeAPostScreen(){
+fun MakeAPostScreen(navController: NavController,firebaseStorageViewModel: FirebaseStorageViewModel){
 
     Scaffold (
         topBar = {
@@ -47,7 +50,10 @@ fun MakeAPostScreen(){
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = { /* Yapılacak işlem */ },
+                        onClick = {
+                            // Navigate back
+                            navController.navigateUp()
+                        },
                         modifier = Modifier.size(50.dp)
                     ) {
 
@@ -67,6 +73,6 @@ fun MakeAPostScreen(){
 
         },// Top bar
     ){innerPadding ->
-        MakeAPostBody(Modifier.padding(innerPadding))
+        MakeAPostBody(Modifier.padding(innerPadding), firebaseStorageViewModel = firebaseStorageViewModel)
     }
 }

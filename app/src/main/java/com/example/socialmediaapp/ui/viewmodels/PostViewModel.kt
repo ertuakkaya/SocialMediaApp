@@ -35,6 +35,20 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
             try {
                 postRepository.createPost(post)
                 // Optionally update the local list of posts
+
+                // Optionally navigate back
+
+                // Optionally show a success message
+
+                // Optionally clear the text fields
+
+                // Optionally refresh the posts
+
+                // Upload images to firebase storage ///////
+
+
+
+
             } catch (e: Exception) {
                 // Handle error
             }
