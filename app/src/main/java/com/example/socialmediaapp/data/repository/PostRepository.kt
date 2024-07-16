@@ -56,4 +56,10 @@ class PostRepository @Inject constructor(private val firestore : FirebaseFiresto
         postsCollection.document(postId).update("likeCount", FieldValue.increment(-1)).await()
     }
 
+    suspend fun deleteAllPosts() {
+        postsCollection.get().await().documents.forEach {
+            it.reference.delete()
+        }
+    }
+
 }

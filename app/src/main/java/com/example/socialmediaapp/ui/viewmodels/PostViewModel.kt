@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.socialmediaapp.data.entitiy.Post
 import com.example.socialmediaapp.data.repository.PostRepository
+import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +20,21 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     private val _posts = MutableStateFlow<List<Post>>(emptyList())
     val posts: StateFlow<List<Post>> = _posts.asStateFlow()
 
+    val dumyPost = Post(
+        id = "id",
+        userName = "firestore and firebase",
+        profileImageUrl = "profileImageUrl",
+        postImageUrl = "postImageUrl",
+        postText = "post deneme ",
+        timestamp = Timestamp.now(),
+        likeCount = 44,
+        commentCount = 0,
+        likedBy = listOf(),
+        comments = listOf(),
+
+
+    )
+
     init {
         viewModelScope.launch {
             postRepository.getPostsFlow().collect {
@@ -26,6 +42,11 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
                 //Log.d("PostViewModel ", "Posts: $it")
             }
         }
+
+        //deleteAllPosts()
+        //createPost(dumyPost)
+
+
     }
 
 
@@ -60,6 +81,31 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
             try {
                 postRepository.incrementLikeCount(postId)
                 // Optionally update the local post object
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
+    }
+
+    fun deletePost(postId: String) {
+        viewModelScope.launch {
+            try {
+                postRepository.deletePost(postId)
+                // Optionally update the local list of posts
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
+    }
+
+    fun deleteAllPosts() {
+        viewModelScope.launch {
+            try {
+                postRepository.deleteAllPosts()
+
+                // update post list
+
+
             } catch (e: Exception) {
                 // Handle error
             }

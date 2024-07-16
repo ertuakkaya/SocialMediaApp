@@ -21,48 +21,34 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.Face
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,22 +56,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.Screen
 import com.example.socialmediaapp.data.entitiy.Post
 import com.example.socialmediaapp.ui.viewmodels.FirebaseStorageViewModel
+import com.example.socialmediaapp.ui.viewmodels.MakeAPostViewModel
 import com.example.socialmediaapp.ui.viewmodels.PostViewModel
+import com.google.firebase.Timestamp
 
-import com.google.firebase.firestore.firestoreSettings
 import kotlin.math.absoluteValue
 
 
@@ -297,7 +279,7 @@ fun Post(post: Post, onLikeClick: () -> Unit){
 
 
 @Composable
-fun MakeAPostBody(modifier: Modifier = Modifier , firebaseStorageViewModel: FirebaseStorageViewModel) {
+fun MakeAPostBody(modifier: Modifier = Modifier , firebaseStorageViewModel: FirebaseStorageViewModel,makeAPostViewModel: MakeAPostViewModel,postViewModel: PostViewModel) {
 
     // firebase storage
     val uploadStatus by firebaseStorageViewModel.uploadStatus.collectAsState()
@@ -393,23 +375,55 @@ fun MakeAPostBody(modifier: Modifier = Modifier , firebaseStorageViewModel: Fire
             keyboardActions = KeyboardActions(onDone = { /* Handle send post */ })
         )
 
+        val scope = rememberCoroutineScope()
 
         selectedImageUri?.let { uri ->
             Button(
-                onClick = { firebaseStorageViewModel.uploadPostImage(uri) }, ////////////
+                onClick = {
+                    firebaseStorageViewModel.uploadPostImage(uri)
+                    val dumyPost = Post(
+                        id = "id",
+                        userName = "firestore and firebase",
+                        profileImageUrl = "profileImageUrl",
+                        postImageUrl = "postImageUrl",
+                        postText = "post deneme ",
+                        timestamp = Timestamp.now(),
+                        likeCount = 44,
+                        commentCount = 0,
+                        likedBy = listOf(),
+                        comments = listOf(),
+
+
+                        )
+
+                    postViewModel.createPost(dumyPost)
+
+                    val post = Post(
+                        id = "id",
+                        userName = "firestore and firebase",
+                        profileImageUrl = "profileImageUrl",
+                        postImageUrl = "postImageUrl",
+                        postText = "post deneme ",
+                        timestamp = Timestamp.now(),
+                        likeCount = 44,
+                        commentCount = 0,
+                        likedBy = listOf(),
+                        comments = listOf()
+
+
+                    )
+                    makeAPostViewModel.uploadImageAndPost(
+                        imageUri = uri, post = post)
+
+
+                          }, ////////////
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Post")
             }
         }
 
-//        Button(
-//            onClick = {
-//
-//            },
-//
-//        ) {
-//
+
         }
     }// Body Column
 
