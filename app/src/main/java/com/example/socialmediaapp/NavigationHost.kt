@@ -50,7 +50,14 @@ fun AppNavHost(
             AccountScreen(firebaseViewModel = firebaseViewModel,navHostController = navController, user = User("",""), authViewModel = authViewModel, firestoreViewModel = firestoreViewModel)
         }
         composable<Screen.MakeAPostScreen> {
-            MakeAPostScreen(navController = navController, firebaseStorageViewModel = firebaseStorageViewModel, makeAPostViewModel = makeAPostViewModel,postViewModel = postViewModel)
+            MakeAPostScreen(
+                navController = navController,
+                firebaseStorageViewModel = firebaseStorageViewModel,
+                makeAPostViewModel = makeAPostViewModel,
+                postViewModel = postViewModel,
+                authViewModel = authViewModel,
+                firestoreViewModel = firestoreViewModel
+            )
         }
 
     }

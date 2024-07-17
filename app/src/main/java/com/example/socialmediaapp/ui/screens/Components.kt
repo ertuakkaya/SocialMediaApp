@@ -35,6 +35,7 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,6 +45,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -63,7 +65,10 @@ import coil.compose.AsyncImage
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.Screen
 import com.example.socialmediaapp.data.entitiy.Post
+import com.example.socialmediaapp.data.entitiy.User
+import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirebaseStorageViewModel
+import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
 import com.example.socialmediaapp.ui.viewmodels.MakeAPostViewModel
 import com.example.socialmediaapp.ui.viewmodels.PostViewModel
 import com.google.firebase.Timestamp
@@ -279,7 +284,19 @@ fun Post(post: Post, onLikeClick: () -> Unit){
 
 
 @Composable
-fun MakeAPostBody(modifier: Modifier = Modifier , firebaseStorageViewModel: FirebaseStorageViewModel,makeAPostViewModel: MakeAPostViewModel,postViewModel: PostViewModel) {
+fun MakeAPostBody(
+    modifier: Modifier = Modifier,
+    firebaseStorageViewModel: FirebaseStorageViewModel,
+    makeAPostViewModel: MakeAPostViewModel,
+    postViewModel: PostViewModel,
+    authViewModel: AuthViewModel,
+    firestoreViewModel: FirestoreViewModel
+) {
+
+
+    val currentUser = authViewModel.getCurrentUser()
+    val userId = currentUser?.uid ?: ""
+
 
     // firebase storage
     val uploadStatus by firebaseStorageViewModel.uploadStatus.collectAsState()
@@ -299,7 +316,6 @@ fun MakeAPostBody(modifier: Modifier = Modifier , firebaseStorageViewModel: Fire
     }
 
 
-
     val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
@@ -316,8 +332,6 @@ fun MakeAPostBody(modifier: Modifier = Modifier , firebaseStorageViewModel: Fire
     //// Image Picker
 
 
-
-
     Column(
         modifier = modifier
             .padding(16.dp)
@@ -327,16 +341,14 @@ fun MakeAPostBody(modifier: Modifier = Modifier , firebaseStorageViewModel: Fire
     ) {
 
 
-
-
-        ElevatedCard (
+        ElevatedCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(500.dp),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.elevatedCardColors(Color(0xFFFFFFFF)),
             //content = { HorizontalPagerSample( if (selectedImageUris.isNotEmpty()) selectedImageUris else selectedImageUri)}
-            content = { HorizontalPagerSample(selectedImageUris.ifEmpty { listOf(selectedImageUri).filterNotNull() })}
+            content = { HorizontalPagerSample(selectedImageUris.ifEmpty { listOf(selectedImageUri).filterNotNull() }) }
 
         )
 
@@ -357,11 +369,14 @@ fun MakeAPostBody(modifier: Modifier = Modifier , firebaseStorageViewModel: Fire
 
         uploadStatus?.let { status ->
             when { // TODO : Post Succes or Fail Screen
-                status.success -> Log.d("FirebaseStorageViewModel", "Image uploaded successfully. URL: ${status.imageUrl}")
+                status.success -> Log.d(
+                    "FirebaseStorageViewModel",
+                    "Image uploaded successfully. URL: ${status.imageUrl}"
+                )
+
                 else -> Log.d("FirebaseStorageViewModel", "Image upload fail. ")
             }
         }
-
 
 
         // Content TextField
@@ -377,46 +392,67 @@ fun MakeAPostBody(modifier: Modifier = Modifier , firebaseStorageViewModel: Fire
 
         val scope = rememberCoroutineScope()
 
+
+        val userData by firestoreViewModel.userData.collectAsState()
+        val isLoading by firestoreViewModel.isLoading.collectAsState()
+        val error by firestoreViewModel.error.collectAsState()
+
+
+        LaunchedEffect(key1 = true) {
+            // Assuming you have a way to obtain the current user's ID
+            //val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+            userId?.let { userId ->
+                firestoreViewModel.getUserFromFirestore(userId)
+            }
+        }
+
+        val localUserData = userData
+        if (localUserData != null) {
+
+            Text(text = "User: ${localUserData.name}") // Assuming User has a name field
+            Text(text = "User: ${localUserData.userID}") // Assuming User has a name field
+            Text(text = "User: ${localUserData.email}") // Assuming User has a name field
+        } else {
+            Text(text = "No user data available")
+        }
+
+        when {
+            isLoading -> CircularProgressIndicator()
+            error != null -> Text(text = "Error: $error")
+            //userData != null -> Text(text = "User: ${userData.name}") // Assuming User has a name field
+            else -> Text(text = "No user data available")
+        }
+
+
+
+        val dumyPost = Post(
+            id = "",
+            userName = localUserData?.userName?: "N/A",
+            profileImageUrl = localUserData?.profileImageUrl?: "N/A",
+            postImageUrl = "postImageUrl",
+            postText = content.value,
+            timestamp = Timestamp.now(),
+            likeCount = 0,
+            commentCount = 0,
+            likedBy = listOf(),
+            comments = listOf(),
+            userId =  localUserData?.userID?: "N/A"
+
+
+        )
+
+        // Post Button
         selectedImageUri?.let { uri ->
             Button(
                 onClick = {
                     firebaseStorageViewModel.uploadPostImage(uri)
-                    val dumyPost = Post(
-                        id = "id",
-                        userName = "firestore and firebase",
-                        profileImageUrl = "profileImageUrl",
-                        postImageUrl = "postImageUrl",
-                        postText = "post deneme ",
-                        timestamp = Timestamp.now(),
-                        likeCount = 44,
-                        commentCount = 0,
-                        likedBy = listOf(),
-                        comments = listOf(),
-
-
-                        )
 
                     postViewModel.createPost(dumyPost)
 
-                    val post = Post(
-                        id = "id",
-                        userName = "firestore and firebase",
-                        profileImageUrl = "profileImageUrl",
-                        postImageUrl = "postImageUrl",
-                        postText = "post deneme ",
-                        timestamp = Timestamp.now(),
-                        likeCount = 44,
-                        commentCount = 0,
-                        likedBy = listOf(),
-                        comments = listOf()
 
 
-                    )
-                    makeAPostViewModel.uploadImageAndPost(
-                        imageUri = uri, post = post)
-
-
-                          }, ////////////
+                    postViewModel.loadPosts()
+                }, ////////////
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Post")
@@ -424,8 +460,8 @@ fun MakeAPostBody(modifier: Modifier = Modifier , firebaseStorageViewModel: Fire
         }
 
 
-        }
-    }// Body Column
+    }
+}// Body Column
 
 
 

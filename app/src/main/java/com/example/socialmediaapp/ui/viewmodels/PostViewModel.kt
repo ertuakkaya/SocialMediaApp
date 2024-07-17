@@ -36,17 +36,20 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     )
 
     init {
+
+        loadPosts()
+
+
+    }
+
+    // load post
+    fun loadPosts() {
         viewModelScope.launch {
             postRepository.getPostsFlow().collect {
                 _posts.value = it
                 //Log.d("PostViewModel ", "Posts: $it")
             }
         }
-
-        //deleteAllPosts()
-        //createPost(dumyPost)
-
-
     }
 
 

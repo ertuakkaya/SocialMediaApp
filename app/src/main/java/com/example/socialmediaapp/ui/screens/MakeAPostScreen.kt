@@ -20,7 +20,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.socialmediaapp.R
+import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirebaseStorageViewModel
+import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
 import com.example.socialmediaapp.ui.viewmodels.MakeAPostViewModel
 import com.example.socialmediaapp.ui.viewmodels.PostViewModel
 
@@ -28,7 +30,14 @@ import com.example.socialmediaapp.ui.viewmodels.PostViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
-fun MakeAPostScreen(navController: NavController,firebaseStorageViewModel: FirebaseStorageViewModel,makeAPostViewModel: MakeAPostViewModel,postViewModel: PostViewModel ){
+fun MakeAPostScreen(
+    navController: NavController,
+    firebaseStorageViewModel: FirebaseStorageViewModel,
+    makeAPostViewModel: MakeAPostViewModel,
+    postViewModel: PostViewModel,
+    authViewModel: AuthViewModel,
+    firestoreViewModel: FirestoreViewModel
+) {
 
     Scaffold (
         topBar = {
@@ -78,7 +87,9 @@ fun MakeAPostScreen(navController: NavController,firebaseStorageViewModel: Fireb
             Modifier.padding(innerPadding),
             firebaseStorageViewModel = firebaseStorageViewModel,
             makeAPostViewModel = makeAPostViewModel,
-            postViewModel = postViewModel
+            postViewModel = postViewModel,
+            firestoreViewModel = firestoreViewModel,
+            authViewModel = authViewModel
 
         )
     }

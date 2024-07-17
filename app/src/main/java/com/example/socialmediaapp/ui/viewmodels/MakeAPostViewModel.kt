@@ -26,6 +26,10 @@ class MakeAPostViewModel @Inject constructor(private val firebaseStorageReposito
     val uploadStatus: StateFlow<ImageUploadResult?> = _uploadStatus.asStateFlow()
 
 
+
+
+
+
     fun uploadImageAndPost(imageUri: Uri, post: Post) : Flow<PostResult> = flow{
         try {
             firebaseStorageRepository.uploadImage(imageUri, FirebaseStorageRepository.ImageType.POST)
