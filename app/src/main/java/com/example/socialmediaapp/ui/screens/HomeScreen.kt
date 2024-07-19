@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -25,11 +26,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -144,5 +148,32 @@ fun HomeScreen(firebaseViewModel: FirebaseViewModel, navHostController: NavHostC
         HomeScreenBodyContent(Modifier.padding(innerPadding),postViewModel = postViewModel)
         //PostListScreen( modifier = Modifier.padding(innerPadding),postViewModel = postViewModel)
 
+    }
+}
+
+
+@Composable
+fun HomeScreenBodyContent(modifier: Modifier = Modifier,postViewModel: PostViewModel) {
+
+    val posts by postViewModel.posts.collectAsState()
+
+
+    Surface (
+        color = Color(0xFFFFFFFF),
+        modifier = modifier.fillMaxSize()
+    ) {
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 24.dp, end = 24.dp, top = 0.dp, bottom = 0.dp),
+            verticalArrangement = Arrangement.spacedBy(32.dp)
+        ) {
+
+            items(posts.size) { index ->
+                Post(post = posts[index], onLikeClick = { postViewModel.likePost(posts[index].id) })
+            }
+
+        }
     }
 }

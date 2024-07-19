@@ -31,6 +31,14 @@ class FirestoreRepository @Inject constructor(private val firestore: FirebaseFir
             emit(null)
         }
     }
+//    fun getUserFromFirestore2(userID : String) : User? {
+//
+//
+//        val user1 = firestore.collection("users").document(userID).get().await()
+//
+//        return  user1.toObject(User::class.java)
+//
+//    }
 
     fun updateUserInFirestore(userID: String, user: User) = firestore.collection("users").document(userID).update(
         mapOf(

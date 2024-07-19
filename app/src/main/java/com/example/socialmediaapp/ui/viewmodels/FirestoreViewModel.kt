@@ -42,7 +42,12 @@ class FirestoreViewModel @Inject constructor(private val firestoreRepository: Fi
             }
         }
     }
+
+//    fun getUserFromFirestore2(userId: String) : User {
+//        return firestoreRepository.getUserFromFirestore(userId)
+//    }
     ///
+
 
     fun updateUserInFirestore(userID: String, user: User) {
         firestoreRepository.updateUserInFirestore(userID, user).addOnCompleteListener { task ->

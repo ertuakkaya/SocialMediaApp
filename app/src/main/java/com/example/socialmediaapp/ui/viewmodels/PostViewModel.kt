@@ -54,20 +54,8 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
         return "null"
     }
 
-    suspend fun uploadFile(uri : Uri, fileName : String) : Uri? {
-//        viewModelScope.launch {
-//            try {
-//
-//                postRepository.uploadFile(uri, fileName)
-//            } catch (e: Exception) {
-//                Log.d("PostViewModel uploadFile exception ", "uploadFile: $e")
-//            }
-//        }
-
-
-        return postRepository.uploadFile(uri, fileName)
-
-
+    suspend fun uploadFile(uri : Uri, fileName : String, imagePath : String) : Uri? {
+        return postRepository.uploadPostImage(uri, fileName, imagePath)
     }
 
     // load post

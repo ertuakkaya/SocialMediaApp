@@ -17,6 +17,7 @@ import com.example.socialmediaapp.ui.viewmodels.FirebaseViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
 import com.example.socialmediaapp.ui.viewmodels.MakeAPostViewModel
 import com.example.socialmediaapp.ui.viewmodels.PostViewModel
+import com.example.socialmediaapp.ui.viewmodels.UserViewModel
 import kotlinx.serialization.Serializable
 
 @Composable
@@ -28,6 +29,7 @@ fun AppNavHost(
     postViewModel: PostViewModel,
     firebaseStorageViewModel: FirebaseStorageViewModel,
     makeAPostViewModel: MakeAPostViewModel,
+    userViewModel: UserViewModel
 
 ) {
 
@@ -47,7 +49,14 @@ fun AppNavHost(
             HomeScreen(firebaseViewModel = firebaseViewModel,navHostController = navController,postViewModel = postViewModel)
         }
         composable<Screen.AccountScreen> {
-            AccountScreen(firebaseViewModel = firebaseViewModel,navHostController = navController, user = User("",""), authViewModel = authViewModel, firestoreViewModel = firestoreViewModel)
+            AccountScreen(
+                firebaseViewModel = firebaseViewModel,
+                navHostController = navController,
+                user = User("", ""),
+                authViewModel = authViewModel,
+                firestoreViewModel = firestoreViewModel,
+                userViewModel = userViewModel,
+            )
         }
         composable<Screen.MakeAPostScreen> {
             MakeAPostScreen(

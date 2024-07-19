@@ -19,6 +19,7 @@ import com.example.socialmediaapp.ui.viewmodels.FirebaseViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
 import com.example.socialmediaapp.ui.viewmodels.MakeAPostViewModel
 import com.example.socialmediaapp.ui.viewmodels.PostViewModel
+import com.example.socialmediaapp.ui.viewmodels.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -30,6 +31,7 @@ class MainActivity : ComponentActivity() {
     val postViewModel: PostViewModel by viewModels()
     val firebaseStorageViewModel: FirebaseStorageViewModel by viewModels()
     val makeAPostViewModel: MakeAPostViewModel by viewModels()
+    val userViewModel: UserViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +46,8 @@ class MainActivity : ComponentActivity() {
                         firestoreViewModel = firestoreViewModel,
                         postViewModel = postViewModel,
                         firebaseStorageViewModel = firebaseStorageViewModel,
-                        makeAPostViewModel = makeAPostViewModel
+                        makeAPostViewModel = makeAPostViewModel,
+                        userViewModel = userViewModel
                     )
                 }
             }

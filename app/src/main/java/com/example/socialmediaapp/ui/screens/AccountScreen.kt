@@ -1,5 +1,11 @@
 package com.example.socialmediaapp.ui.screens
 
+import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,9 +15,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -19,6 +28,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,9 +45,20 @@ import com.example.socialmediaapp.data.entitiy.User
 import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirebaseViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
+import com.example.socialmediaapp.ui.viewmodels.UserViewModel
+import com.example.socialmediaapp.util.uploadFile
+import kotlinx.coroutines.launch
+import java.util.UUID
 
 @Composable
-fun AccountScreen(user: User,firebaseViewModel: FirebaseViewModel, navHostController: NavHostController , firestoreViewModel: FirestoreViewModel , authViewModel: AuthViewModel){
+fun AccountScreen(
+    user: User,
+    firebaseViewModel: FirebaseViewModel,
+    navHostController: NavHostController,
+    firestoreViewModel: FirestoreViewModel,
+    authViewModel: AuthViewModel,
+    userViewModel: UserViewModel,
+) {
 
 
     //val user by firestoreViewModel.getUserFromFirestore(currentUserID).observeAsState(null)
@@ -74,7 +97,14 @@ fun AccountScreen(user: User,firebaseViewModel: FirebaseViewModel, navHostContro
         when {
             isLoading -> LoadingIndicator()
             error != null -> ErrorMessage(error!!)
-            userData != null -> AccountScreenBodyContent(userData!!, Modifier.padding(innerPadding), onSignOut = { firebaseViewModel.signOut() }, firestoreViewModel = firestoreViewModel, firebaseViewModel = firebaseViewModel)
+            userData != null -> AccountScreenBodyContent(
+                userData!!,
+                Modifier.padding(innerPadding),
+                onSignOut = { firebaseViewModel.signOut() },
+                firestoreViewModel = firestoreViewModel,
+                firebaseViewModel = firebaseViewModel,
+                userViewModel = userViewModel
+            )
             else -> Text("No user data available")
         }
 
@@ -121,9 +151,28 @@ fun AccountScreenBodyContent(
     onSignOut: () -> Unit,
     firestoreViewModel : FirestoreViewModel,
     firebaseViewModel: FirebaseViewModel,
+    userViewModel: UserViewModel
 
 
-    ) {
+
+
+    ){
+
+
+    /// Image Picker
+    var selectedImageUri by remember {
+        mutableStateOf<Uri?>(null)
+    }
+
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            selectedImageUri = uri
+        }
+    )
+
+    val coroutineScope = rememberCoroutineScope()
+
 
     Column(
         modifier = modifier
@@ -133,15 +182,68 @@ fun AccountScreenBodyContent(
     ) {
         if (user != null) {
             // Profile Image
-            AsyncImage(
-               // model = user.profileImageUrl,
-                model = if  (user.profileImageUrl != null) user.profileImageUrl else "https://picsum.photos/200",
-                contentDescription = "Profile Picture",
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
+            if (user.profileImageUrl != null) {
+                AsyncImage(
+                    model = user.profileImageUrl,
+                    contentDescription = "Profile Picture",
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                // show add profile image button
+                Button(
+                    onClick = {
+                        //TODO: Add profile
+
+                        singlePhotoPickerLauncher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+
+                        val filename = UUID.randomUUID()
+
+                        selectedImageUri?.let { uri ->
+
+
+                            //gs://socialmediaapp-76cee.appspot.com/user_profile_images
+                            coroutineScope.launch {
+                                val imageUrl = userViewModel.uploadProfilePicture(
+                                    uri,
+                                    filename.toString(),
+                                    "user_profile_images"
+                                )
+                                user.profileImageUrl = imageUrl.toString()
+
+                                //////////////////
+                                firestoreViewModel.updateUserInFirestore(user.userID!!, user)
+
+                                Log.d("AccountScreen", "AccountScreenBodyContent: $user")
+
+
+
+                            }
+
+
+                        }
+
+                    },
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clip(CircleShape),
+                ) {
+                    Icon(imageVector = Icons.Default.Add , contentDescription = "Add Profile Image")
+                }
+            }
+//            AsyncImage(
+//               // model = user.profileImageUrl,
+//                model = if  (user.profileImageUrl != null) user.profileImageUrl else "https://picsum.photos/200",
+//                contentDescription = "Profile Picture",
+//                modifier = Modifier
+//                    .size(120.dp)
+//                    .clip(CircleShape),
+//                contentScale = ContentScale.Crop
+//            )
 
             Spacer(modifier = Modifier.height(16.dp))
 

@@ -5,6 +5,7 @@ import android.util.Log
 import android.widget.Toast
 import com.example.socialmediaapp.data.entitiy.Comment
 import com.example.socialmediaapp.data.entitiy.Post
+import com.example.socialmediaapp.util.uploadFile
 import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
 import com.google.firebase.appcheck.internal.util.Logger.TAG
@@ -406,19 +407,21 @@ class PostRepository @Inject constructor(
     //////////////////////////////////////////////////////////////
     //https://firebase.google.com/docs/storage/android/upload-files#upload_from_a_local_file
     // uploload from locam file
-    suspend fun uploadFile(uri : Uri , fileName : String, imageType : String) : Uri {
-        var file = uri
-        val uploadTask = firebaseStorage.reference.child("$imageType/$fileName").putFile(file)
+    suspend fun uploadPostImage(uri : Uri, fileName : String, imagePath : String) : Uri {
+//        var file = uri
+//        val uploadTask = firebaseStorage.reference.child("$imageType/$fileName").putFile(file)
+//
+//        file = uploadTask.addOnFailureListener { e ->
+//            Log.w("uploadFile", "uploadFile: ", e)
+//        }.addOnSuccessListener { taskSnapshot ->
+//            taskSnapshot.metadata?.reference?.downloadUrl?.addOnSuccessListener {
+//                Log.d("uploadFile", "uploadFile: ${it}")
+//            }
+//        }.await().metadata?.reference?.downloadUrl?.await()!!
+//
+//        return file
 
-        file = uploadTask.addOnFailureListener { e ->
-            Log.w("uploadFile", "uploadFile: ", e)
-        }.addOnSuccessListener { taskSnapshot ->
-            taskSnapshot.metadata?.reference?.downloadUrl?.addOnSuccessListener {
-                Log.d("uploadFile", "uploadFile: ${it}")
-            }
-        }.await().metadata?.reference?.downloadUrl?.await()!!
-
-        return file
+        return uploadFile(uri, fileName, imagePath)
 
 
     }
