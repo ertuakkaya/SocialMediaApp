@@ -72,6 +72,11 @@ import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
 import com.example.socialmediaapp.ui.viewmodels.MakeAPostViewModel
 import com.example.socialmediaapp.ui.viewmodels.PostViewModel
 import com.google.firebase.Timestamp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import okhttp3.internal.wait
+import java.util.UUID
 
 import kotlin.math.absoluteValue
 
@@ -315,6 +320,7 @@ fun MakeAPostBody(
         mutableStateOf<List<Uri?>>(emptyList())
     }
 
+    var imageUrl by remember { mutableStateOf(postViewModel) }
 
     val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -423,13 +429,16 @@ fun MakeAPostBody(
             else -> Text(text = "No user data available")
         }
 
+        val postID = UUID.randomUUID().toString()
+        Log.d("PostID", postID)
+
 
 
         val dumyPost = Post(
-            id = "",
+            id = postID,
             userName = localUserData?.userName?: "N/A",
             profileImageUrl = localUserData?.profileImageUrl?: "N/A",
-            postImageUrl = "postImageUrl",
+            postImageUrl = postID,
             postText = content.value,
             timestamp = Timestamp.now(),
             likeCount = 0,
@@ -440,18 +449,48 @@ fun MakeAPostBody(
 
 
         )
+        Log.d("PostID", postID)
+
+
+
+        val coroutineScope = rememberCoroutineScope()
+
 
         // Post Button
         selectedImageUri?.let { uri ->
             Button(
                 onClick = {
-                    firebaseStorageViewModel.uploadPostImage(uri)
+                    val filename = postViewModel.generatePostID()
+                    //firebaseStorageViewModel.uploadPostImage(uri) //////////////////////////
+                    Log.d("filename", postID)
+//                    postViewModel.uploadFile(uri, filename)
+                    val imageUrl = firebaseStorageViewModel.uploadStatus.value?.imageUrl
 
-                    postViewModel.createPost(dumyPost)
+                    coroutineScope.launch {
+                        val url = postViewModel.uploadFile(uri, filename)
+//                        delay(1000)
+                        postViewModel.createPost(Post(
+                            id = postID,
+                            userName = localUserData?.userName?: "N/A",
+                            profileImageUrl = localUserData?.profileImageUrl?: "N/A",
+                            postImageUrl = if (url != null) url.toString() else "N/A", // imageUrl?: "N/A",
+                            postText = content.value,
+                            timestamp = Timestamp.now(),
+                            likeCount = 0,
+                            commentCount = 0,
+                            likedBy = listOf(),
+                            comments = listOf(),
+                            userId =  localUserData?.userID?: "N/A"
+                        ))
+
+                        postViewModel.loadPosts()
+                    }
 
 
 
-                    postViewModel.loadPosts()
+
+
+
                 }, ////////////
                 modifier = Modifier.fillMaxWidth()
             ) {

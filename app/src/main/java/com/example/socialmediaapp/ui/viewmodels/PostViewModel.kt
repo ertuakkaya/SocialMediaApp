@@ -1,5 +1,6 @@
 package com.example.socialmediaapp.ui.viewmodels
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -42,6 +44,32 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
 
     }
 
+
+    fun generatePostID() : String {
+        var savedPostID: String? = null
+        savedPostID = UUID.randomUUID().toString()
+        if(savedPostID != null) {
+            return savedPostID
+        }
+        return "null"
+    }
+
+    suspend fun uploadFile(uri : Uri, fileName : String) : Uri? {
+//        viewModelScope.launch {
+//            try {
+//
+//                postRepository.uploadFile(uri, fileName)
+//            } catch (e: Exception) {
+//                Log.d("PostViewModel uploadFile exception ", "uploadFile: $e")
+//            }
+//        }
+
+
+        return postRepository.uploadFile(uri, fileName)
+
+
+    }
+
     // load post
     fun loadPosts() {
         viewModelScope.launch {
@@ -57,18 +85,9 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     fun createPost(post: Post) {
         viewModelScope.launch {
             try {
-                postRepository.createPost(post)
-                // Optionally update the local list of posts
-
-                // Optionally navigate back
-
-                // Optionally show a success message
-
-                // Optionally clear the text fields
-
-                // Optionally refresh the posts
-
-                // Upload images to firebase storage ///////
+                postRepository.createPost(post).also {
+                    Log.d("PostViewModel", "createPost Id : $it")
+                }
 
 
 
@@ -78,6 +97,11 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
             }
         }
     }
+
+
+
+
+
 
     fun likePost(postId: String) {
         viewModelScope.launch {
@@ -111,6 +135,16 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
 
             } catch (e: Exception) {
                 // Handle error
+            }
+        }
+    }
+
+    fun getPostImageUrl(fileName: String) {
+        viewModelScope.launch {
+            try {
+                postRepository.getUrl(fileName)
+            } catch (e: Exception) {
+                Log.d("PostViewModel", "getPostImageUrl: $e")
             }
         }
     }
