@@ -4,6 +4,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.socialmediaapp.data.entitiy.Like
 import com.example.socialmediaapp.data.entitiy.Post
 import com.example.socialmediaapp.data.repository.PostRepository
 import com.google.firebase.Timestamp
@@ -91,10 +92,21 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
 
 
 
-    fun likePost(postId: String) {
+    fun likePost(postId: String, like : Like) {
         viewModelScope.launch {
             try {
-                postRepository.incrementLikeCount(postId)
+                postRepository.incrementLikeCount(postId,like)
+                // Optionally update the local post object
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
+    }
+
+    fun unlikePost(postId: String) {
+        viewModelScope.launch {
+            try {
+                postRepository.decrementLikeCount(postId)
                 // Optionally update the local post object
             } catch (e: Exception) {
                 // Handle error

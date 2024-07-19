@@ -4,6 +4,7 @@ import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import com.example.socialmediaapp.data.entitiy.Comment
+import com.example.socialmediaapp.data.entitiy.Like
 import com.example.socialmediaapp.data.entitiy.Post
 import com.example.socialmediaapp.util.uploadFile
 import com.google.firebase.Firebase
@@ -72,8 +73,14 @@ class PostRepository @Inject constructor(
         postsCollection.document(postId).update("commentCount", FieldValue.increment(1)).await()
     }
 
-    suspend fun incrementLikeCount(postId: String) {
+    suspend fun incrementLikeCount(postId: String,like : Like) {
         postsCollection.document(postId).update("likeCount", FieldValue.increment(1)).await()
+
+        // add Like to likedBy
+        postsCollection.document(postId)
+            .collection("likedBy")
+            .add(like).await()
+
     }
 
     suspend fun decrementLikeCount(postId: String) {
@@ -408,18 +415,7 @@ class PostRepository @Inject constructor(
     //https://firebase.google.com/docs/storage/android/upload-files#upload_from_a_local_file
     // uploload from locam file
     suspend fun uploadPostImage(uri : Uri, fileName : String, imagePath : String) : Uri {
-//        var file = uri
-//        val uploadTask = firebaseStorage.reference.child("$imageType/$fileName").putFile(file)
-//
-//        file = uploadTask.addOnFailureListener { e ->
-//            Log.w("uploadFile", "uploadFile: ", e)
-//        }.addOnSuccessListener { taskSnapshot ->
-//            taskSnapshot.metadata?.reference?.downloadUrl?.addOnSuccessListener {
-//                Log.d("uploadFile", "uploadFile: ${it}")
-//            }
-//        }.await().metadata?.reference?.downloadUrl?.await()!!
-//
-//        return file
+
 
         return uploadFile(uri, fileName, imagePath)
 
@@ -434,23 +430,7 @@ class PostRepository @Inject constructor(
     // get url
     fun getUrl(fileName: String) : String {
 
-//        val storage = Firebase.storage
-//        //val storage = firebaseStorage
-//
-//        val fileRef = storage.reference.child("post_images/$fileName")
-//
-//        fileRef.downloadUrl.addOnSuccessListener { uri ->
-//            // URL başarıyla alındı
-//            val url = uri.toString()
-//            //println("Dosya URL'si: $url")
-//            Log.d("getUrl", "getUrl: $url")
-//            // URL'yi burada kullanabilirsiniz
-//        }.addOnFailureListener { exception ->
-//            // Hata durumunda
-//            println("getUrl: ${exception.message}")
-//
-//
-//        }
+
         return fileName
     }
 

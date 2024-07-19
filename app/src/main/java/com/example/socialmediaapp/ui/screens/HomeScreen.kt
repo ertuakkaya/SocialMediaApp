@@ -171,7 +171,7 @@ fun HomeScreenBodyContent(modifier: Modifier = Modifier,postViewModel: PostViewM
         ) {
 
             items(posts.size) { index ->
-                Post(post = posts[index], onLikeClick = { postViewModel.likePost(posts[index].id) })
+                Post(post = posts[index], postViewModel = postViewModel)
             }
 
         }

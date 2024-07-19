@@ -157,7 +157,7 @@ fun MakeAPostBody(
         mutableStateOf<List<Uri?>>(emptyList())
     }
 
-    var imageUrl by remember { mutableStateOf(postViewModel) }
+    //var imageUrl by remember { mutableStateOf(postViewModel) }
 
     val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -190,7 +190,6 @@ fun MakeAPostBody(
                 .height(500.dp),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.elevatedCardColors(Color(0xFFFFFFFF)),
-            //content = { HorizontalPagerSample( if (selectedImageUris.isNotEmpty()) selectedImageUris else selectedImageUri)}
             content = { HorizontalPagerSample(selectedImageUris.ifEmpty { listOf(selectedImageUri).filterNotNull() }) }
 
         )

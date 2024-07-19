@@ -218,7 +218,7 @@ fun AccountScreenBodyContent(
                                 //////////////////
                                 firestoreViewModel.updateUserInFirestore(user.userID!!, user)
 
-                                Log.d("AccountScreen", "AccountScreenBodyContent: $user")
+                                Log.d("AccountScreen Profile Updated ", "AccountScreenBodyContent: $user")
 
 
 

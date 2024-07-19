@@ -64,6 +64,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.Screen
+import com.example.socialmediaapp.data.entitiy.Like
 import com.example.socialmediaapp.data.entitiy.Post
 import com.example.socialmediaapp.data.entitiy.User
 import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
@@ -95,7 +96,7 @@ fun Components(){
 
 @Composable
 //@Preview
-fun Post(post: Post, onLikeClick: () -> Unit){
+fun Post(post: Post,postViewModel: PostViewModel){
 
     var userLiked by remember { mutableStateOf(true) }
     var likeCount by remember { mutableStateOf(post.likeCount) }
@@ -134,18 +135,8 @@ fun Post(post: Post, onLikeClick: () -> Unit){
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ){
-                AsyncImage(
-                    //model = "https://picsum.photos/400/400",
-                    model = if (post.profileImageUrl.isNotEmpty()) post.profileImageUrl else "https://picsum.photos/400/400",
-                    contentDescription = "Translated description of what the image contains",
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clip(CircleShape),
-
-
-
-
-                )
+                // Profile pic
+                ProfileImage(profileImageUrl = profileImageUrl)
 
                 Spacer(modifier = Modifier.width(16.dp))
 
@@ -157,18 +148,11 @@ fun Post(post: Post, onLikeClick: () -> Unit){
 
 
             // Post image
-            AsyncImage(
-                //model = "https://picsum.photos/400/400",
-                model = if (post.postImageUrl.isNotEmpty()) post.postImageUrl else "https://picsum.photos/400/400",
-                contentDescription = "Translated description of what the image contains",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp)
-                    .clip(RoundedCornerShape(4.dp)),
-                contentScale = ContentScale.FillWidth
-            )
+
+            PostImage(postImageUrl =postImageUrl)
+
             // Post text
-            Text(text = if (post.postText.isNotEmpty()) post.postText else "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.")
+            Text(text = if (postText.isNotEmpty()) postText else "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.")
 
             // Comment icon , comment count text, like count text , like button
             Row (
@@ -236,8 +220,19 @@ fun Post(post: Post, onLikeClick: () -> Unit){
                         )
                         IconButton(
                             onClick = {
+                                if(!userLiked){
+                                    likeCount++
+                                    //postViewModel.likePost(post.id,post.userId)//////////////////////
+                                    val like = Like(userId = post.userId)
+                                    postViewModel.likePost(post.id, like)//////////////////////
 
+                                }
+                                else{
+                                    likeCount--
+                                    postViewModel.unlikePost(post.id)//////////////////////
+                                }
                                 userLiked = !userLiked
+
 
                             },
                             modifier = Modifier
@@ -260,6 +255,41 @@ fun Post(post: Post, onLikeClick: () -> Unit){
     }
 
 }
+
+@Composable
+fun ProfileImage(
+    profileImageUrl: String,
+    modifier: Modifier = Modifier,
+
+){
+    AsyncImage(
+        //model = "https://picsum.photos/400/400",
+        // model = if (post.profileImageUrl.isNotEmpty()) post.profileImageUrl else "https://picsum.photos/400/400",////////////////
+        model = if (profileImageUrl.isNotEmpty()) profileImageUrl else "https://picsum.photos/400/400",
+        contentDescription = "Translated description of what the image contains",
+        modifier = Modifier
+            .size(50.dp)
+            .clip(CircleShape),
+        )
+}
+
+
+@Composable
+fun PostImage(postImageUrl : String,
+              modifier: Modifier = Modifier){
+    // Post image
+    AsyncImage(
+        //model = "https://picsum.photos/400/400",
+        model = if (postImageUrl.isNotEmpty()) postImageUrl else "https://picsum.photos/400/400",
+        contentDescription = "Translated description of what the image contains",
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+            .clip(RoundedCornerShape(4.dp)),
+        contentScale = ContentScale.FillWidth
+    )
+}
+
 
 
 
