@@ -112,7 +112,7 @@ class PostRepository @Inject constructor(
 
     var post = Post(
         id  = "postDuzenleYeni",
-        userId = userId!!,
+        userId = "",
         userName = "",
         profileImageUrl = "",
         postImageUrl = "",
@@ -323,7 +323,7 @@ class PostRepository @Inject constructor(
         commentID = "commentId",
         commentText = "commentText",
         createdAt = Timestamp.now(),
-        userID = userId!!,
+        userID = "",
         userName = "ertuakkaya",
         profileImageUrl = ""
     )
