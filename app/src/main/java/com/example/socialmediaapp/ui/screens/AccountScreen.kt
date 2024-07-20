@@ -97,7 +97,8 @@ fun AccountScreen(
         when {
             isLoading -> LoadingIndicator()
             error != null -> ErrorMessage(error!!)
-            userData != null -> AccountScreenBodyContent(
+            //userData != null -> AccountScreenBodyContent(
+                userData != null -> AccountScreenBodyContentTRY(
                 userData!!,
                 Modifier.padding(innerPadding),
                 onSignOut = { firebaseViewModel.signOut() },
@@ -159,6 +160,10 @@ fun AccountScreenBodyContent(
     ){
 
 
+    var userProfileImageUrl by remember {
+        mutableStateOf<String>(user?.profileImageUrl ?: "")
+    }
+
     /// Image Picker
     var selectedImageUri by remember {
         mutableStateOf<Uri?>(null)
@@ -180,6 +185,22 @@ fun AccountScreenBodyContent(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+//        singlePhotoPickerLauncher.launch(
+//            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+//        )
+//        LaunchedEffect(selectedImageUri) {
+//            selectedImageUri.let { uri ->
+//                val filename = UUID.randomUUID().toString()
+//                coroutineScope.launch {
+//                    val imageUrl = userViewModel.uploadProfilePicture(uri!!,filename,"user_profile_images")
+//                    userProfileImageUrl = imageUrl.toString()
+//                    user?.profileImageUrl = imageUrl.toString()
+//                    firestoreViewModel.updateUserInFirestore(user?.userID!!, user)
+//                }
+//
+//            }
+//        }
         if (user != null) {
             // Profile Image
             if (user.profileImageUrl != null) {
@@ -202,9 +223,8 @@ fun AccountScreenBodyContent(
                         )
 
                         val filename = UUID.randomUUID()
-
                         selectedImageUri?.let { uri ->
-
+                            Log.d("AccountScreenBodyContent", "Selected Image URI: $uri")
 
                             //gs://socialmediaapp-76cee.appspot.com/user_profile_images
                             coroutineScope.launch {
@@ -213,19 +233,27 @@ fun AccountScreenBodyContent(
                                     filename.toString(),
                                     "user_profile_images"
                                 )
+                                Log.d("AccountScreenBodyContent imageUrl", ": $imageUrl")
                                 user.profileImageUrl = imageUrl.toString()
 
                                 //////////////////
                                 firestoreViewModel.updateUserInFirestore(user.userID!!, user)
 
-                                Log.d("AccountScreen Profile Updated ", "AccountScreenBodyContent: $user")
-
+                                Log.d(
+                                    "AccountScreen Profile Updated ",
+                                    "AccountScreenBodyContent: $user"
+                                )
 
 
                             }
 
 
                         }
+
+                        ////
+
+
+
 
                     },
                     modifier = Modifier
@@ -235,6 +263,7 @@ fun AccountScreenBodyContent(
                     Icon(imageVector = Icons.Default.Add , contentDescription = "Add Profile Image")
                 }
             }
+
 //            AsyncImage(
 //               // model = user.profileImageUrl,
 //                model = if  (user.profileImageUrl != null) user.profileImageUrl else "https://picsum.photos/200",
@@ -296,6 +325,19 @@ fun AccountScreenBodyContent(
                 style = MaterialTheme.typography.bodyLarge
             )
 
+            // profile image url
+            Text(
+                text = userProfileImageUrl ?: "No Profile Image",
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+            Button(
+                onClick = { },)
+            {
+
+            }
+
+
             Spacer(modifier = Modifier.height(8.dp))
 
 
@@ -323,6 +365,10 @@ fun AccountScreenBodyContent(
 
 
 }
+
+
+
+
 
 
 
