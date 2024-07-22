@@ -7,6 +7,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -269,7 +270,9 @@ fun ProfileImage(
         contentDescription = "Translated description of what the image contains",
         modifier = Modifier
             .size(50.dp)
+            .border(2.dp, Color.Gray, CircleShape)
             .clip(CircleShape),
+        contentScale = ContentScale.FillBounds
         )
 }
 
@@ -285,8 +288,9 @@ fun PostImage(postImageUrl : String,
         modifier = Modifier
             .fillMaxWidth()
             .height(300.dp)
+            .border(1.dp, Color.LightGray, RoundedCornerShape(4.dp))
             .clip(RoundedCornerShape(4.dp)),
-        contentScale = ContentScale.FillWidth
+        contentScale = ContentScale.FillWidth,
     )
 }
 

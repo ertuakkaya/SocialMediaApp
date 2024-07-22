@@ -6,6 +6,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -91,8 +92,7 @@ fun AccountScreen(
         when {
             isLoading -> LoadingIndicator()
             error != null -> ErrorMessage(error!!)
-            //userData != null -> AccountScreenBodyContent(
-                userData != null -> AccountScreenBodyContentTRY(
+                userData != null -> AccountScreenBodyContent(
                 userData!!,
                 Modifier.padding(innerPadding),
                 onSignOut = { firebaseViewModel.signOut() },
@@ -136,10 +136,171 @@ fun UserProfile(user: User) {
 }
 
 
-
-
 @Composable
 fun AccountScreenBodyContent(
+    user: User?,
+    modifier: Modifier,
+
+    onSignOut: () -> Unit,
+    firestoreViewModel : FirestoreViewModel,
+    firebaseViewModel: FirebaseViewModel,
+    userViewModel: UserViewModel
+
+
+
+
+){
+
+
+    var currentUser by remember {
+        mutableStateOf(user)
+    }
+
+    var isUploading by remember {
+        mutableStateOf(false)
+    }
+
+    var userProfileImageUrl by remember {
+        mutableStateOf<String>(user?.profileImageUrl ?: "")
+    }
+
+    /// Image Picker
+    var selectedImageUri by remember {
+        mutableStateOf<Uri?>(null)
+    }
+
+    val coroutineScope = rememberCoroutineScope()
+
+
+
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            uri?.let { selectedUri ->
+                isUploading = true
+                coroutineScope.launch {
+                    val updatedUser = uploadProfileImage(selectedUri, currentUser, userViewModel, firestoreViewModel)
+                    currentUser = updatedUser
+                    isUploading = false
+                }
+            }
+        }
+    )
+
+
+
+
+
+
+
+
+
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (currentUser != null) {
+            // Profile Image
+            Box(
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(CircleShape)
+            ) {
+                if (isUploading) {
+                    CircularProgressIndicator( ///////// Oploading Indicator
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                } else if (currentUser?.profileImageUrl != null) {
+                    AsyncImage(
+                        model = currentUser?.profileImageUrl,
+                        contentDescription = "Profile Picture",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Button(
+                        onClick = {
+                            singlePhotoPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Icon(imageVector = Icons.Default.Add, contentDescription = "Add Profile Image")
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Name (if available)
+            currentUser?.name?.let { name ->
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.headlineLarge,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            // User Name
+            Text(
+                text = "@${currentUser?.userName}" ?: "No Username",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            ElevatedCard(
+
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .height(180.dp)
+                    .fillMaxWidth()
+
+            ) {
+                // Card Content
+                Column {
+                    // Photos Text
+                    Text(
+                        text = "Photos: ",
+                        style = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier.padding(8.dp),
+                        fontStyle = MaterialTheme.typography.bodyMedium.fontStyle
+                    )
+
+                }
+            }
+
+
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Email
+            Text(
+                text = user?.email ?: "Email N/A",
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+            // profile image url
+            Text(
+                text = userProfileImageUrl ?: "No Profile Image",
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+        } else {
+            // User data not available
+            CircularProgressIndicator()
+        }
+    }
+
+}
+
+@Composable
+fun AccountScreenBodyContentOld(
     user: User?,
     modifier: Modifier,
 
