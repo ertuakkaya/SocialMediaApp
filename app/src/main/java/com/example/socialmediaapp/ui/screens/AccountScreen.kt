@@ -77,13 +77,7 @@ fun AccountScreen(
     ) { innerPadding ->
 
 
-        //val user = firestoreViewModel.getUserFromFirestore(firebaseViewModel.getCurrentUser()?.uid ?: "")
 
-//        AccountScreenBodyContent(
-//            modifier = Modifier.padding(innerPadding),
-//            user = firestoreViewModel.ge,
-//            onSignOut = { firebaseViewModel.signOut() }
-//        )
         val currentUserID = firebaseViewModel.getCurrentUser()?.uid ?: ""
 
         val userData by firestoreViewModel.userData.collectAsState()
