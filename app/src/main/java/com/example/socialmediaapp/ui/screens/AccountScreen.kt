@@ -5,10 +5,9 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,8 +18,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -47,7 +50,6 @@ import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirebaseViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
 import com.example.socialmediaapp.ui.viewmodels.UserViewModel
-import com.example.socialmediaapp.util.uploadFile
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -206,7 +208,7 @@ fun AccountScreenBodyContent(
             // Profile Image
             Box(
                 modifier = Modifier
-                    .size(120.dp)
+                    .size(150.dp)
                     .clip(CircleShape)
             ) {
                 if (isUploading) {
@@ -214,12 +216,8 @@ fun AccountScreenBodyContent(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else if (currentUser?.profileImageUrl != null) {
-                    AsyncImage(
-                        model = currentUser?.profileImageUrl,
-                        contentDescription = "Profile Picture",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
+
+                    ProfileImageComponent(user = currentUser!!)
                 } else {
                     Button(
                         onClick = {
@@ -232,7 +230,8 @@ fun AccountScreenBodyContent(
                         Icon(imageVector = Icons.Default.Add, contentDescription = "Add Profile Image")
                     }
                 }
-            }
+            } // Profile Image Box
+
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -254,6 +253,9 @@ fun AccountScreenBodyContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            DividerComponent()
+
+            // Photos Card
             ElevatedCard(
 
                 modifier = Modifier
@@ -285,20 +287,49 @@ fun AccountScreenBodyContent(
                 style = MaterialTheme.typography.bodyLarge
             )
 
-            // profile image url
-            Text(
-                text = userProfileImageUrl ?: "No Profile Image",
-                style = MaterialTheme.typography.bodyLarge
-            )
 
         } else {
             // User data not available
             CircularProgressIndicator()
         }
-    }
+
+        DividerComponent()
+
+        // Sign Out Button
+        SignOutButton(
+            onItemClick = { firebaseViewModel.signOut() }
+        )
+
+
+
+
+    }// Account Screen Column
 
 }
 
+
+@Composable
+fun DividerComponent()
+{
+    HorizontalDivider(
+        modifier = Modifier.padding(vertical = 16.dp),
+        thickness = 1.dp,
+        color = Color.Gray
+    )
+
+}
+
+@Composable
+fun SignOutButton( onItemClick : () -> Unit){
+    ElevatedButton(
+        onClick = { onItemClick()  },
+        shape = MaterialTheme.shapes.medium,
+    ) {
+        Text("Sign Out")
+    }
+}
+
+/*
 @Composable
 fun AccountScreenBodyContentOld(
     user: User?,
@@ -341,21 +372,7 @@ fun AccountScreenBodyContentOld(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-//        singlePhotoPickerLauncher.launch(
-//            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-//        )
-//        LaunchedEffect(selectedImageUri) {
-//            selectedImageUri.let { uri ->
-//                val filename = UUID.randomUUID().toString()
-//                coroutineScope.launch {
-//                    val imageUrl = userViewModel.uploadProfilePicture(uri!!,filename,"user_profile_images")
-//                    userProfileImageUrl = imageUrl.toString()
-//                    user?.profileImageUrl = imageUrl.toString()
-//                    firestoreViewModel.updateUserInFirestore(user?.userID!!, user)
-//                }
-//
-//            }
-//        }
+
         if (user != null) {
             // Profile Image
             if (user.profileImageUrl != null) {
@@ -367,6 +384,7 @@ fun AccountScreenBodyContentOld(
                         .clip(CircleShape),
                     contentScale = ContentScale.Crop
                 )
+
             } else {
                 // show add profile image button
                 Button(
@@ -419,15 +437,7 @@ fun AccountScreenBodyContentOld(
                 }
             }
 
-//            AsyncImage(
-//               // model = user.profileImageUrl,
-//                model = if  (user.profileImageUrl != null) user.profileImageUrl else "https://picsum.photos/200",
-//                contentDescription = "Profile Picture",
-//                modifier = Modifier
-//                    .size(120.dp)
-//                    .clip(CircleShape),
-//                contentScale = ContentScale.Crop
-//            )
+
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -449,12 +459,14 @@ fun AccountScreenBodyContentOld(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            ElevatedCard(
 
+            // Photos Card
+            ElevatedCard(
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
                     .height(180.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(8.dp)
 
             ) {
                 // Card Content
@@ -486,16 +498,9 @@ fun AccountScreenBodyContentOld(
                 style = MaterialTheme.typography.bodyLarge
             )
 
-            Button(
-                onClick = { },)
-            {
-
-            }
 
 
             Spacer(modifier = Modifier.height(8.dp))
-
-
 
 
 
@@ -517,8 +522,21 @@ fun AccountScreenBodyContentOld(
 
 
 
+}
 
+ */
 
+@Composable
+fun ProfileImageComponent(user : User){
+    AsyncImage(
+        model = user.profileImageUrl,
+        contentDescription = "Profile Picture",
+        modifier = Modifier
+            .size(150.dp)
+            .border(2.dp, Color.LightGray, CircleShape)
+            .clip(CircleShape),
+        contentScale = ContentScale.Crop
+    )
 }
 
 

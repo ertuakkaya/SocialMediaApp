@@ -1,10 +1,6 @@
 package com.example.socialmediaapp.ui.screens
 
 import android.net.Uri
-import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,37 +17,26 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Call
-import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -67,18 +52,7 @@ import com.example.socialmediaapp.R
 import com.example.socialmediaapp.Screen
 import com.example.socialmediaapp.data.entitiy.Like
 import com.example.socialmediaapp.data.entitiy.Post
-import com.example.socialmediaapp.data.entitiy.User
-import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
-import com.example.socialmediaapp.ui.viewmodels.FirebaseStorageViewModel
-import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
-import com.example.socialmediaapp.ui.viewmodels.MakeAPostViewModel
 import com.example.socialmediaapp.ui.viewmodels.PostViewModel
-import com.google.firebase.Timestamp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import okhttp3.internal.wait
-import java.util.UUID
 
 import kotlin.math.absoluteValue
 

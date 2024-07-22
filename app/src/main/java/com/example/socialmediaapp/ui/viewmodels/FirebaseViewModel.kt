@@ -36,7 +36,7 @@ class FirebaseViewModel @Inject constructor(
 
     private val _authState = MutableLiveData<AuthState>()
     val authState: LiveData<AuthState> = _authState
-
+    
 
     // when app launches, check if user is authenticated
     init {
@@ -116,6 +116,7 @@ class FirebaseViewModel @Inject constructor(
     fun signOut() {
         authRepository.signOut()
         _authState.value = AuthState.Unauthenticated
+
     }
 
     // get current user
@@ -124,82 +125,7 @@ class FirebaseViewModel @Inject constructor(
     }
 
 
-    /*
-       fun addUserToFirestore(
-           userName: String,
-           profileImageUrl: String?,
-           userID: String,
-           email: String,
-           name: String?
-       ) {
-           val user = User(
-               userID = userID,
-               userName = userName,
-               email = email,
-               profileImageUrl = profileImageUrl,
-               name = name
-           )
-           firestore.collection("users").document(userID).set(user)
-               .addOnSuccessListener {
-                   Log.d("Firestore", "User added with ID: $userID")
-               }
-               .addOnFailureListener {
-                   e -> Log.w("Firestore", "Error adding user", e)
-               }
-       }
-       */
 
-
-    /*
-      // send a password reset email
-      fun sendPasswordResetEmail(email: String) {
-          auth.sendPasswordResetEmail(email)
-              .addOnCompleteListener { task ->
-                  if (task.isSuccessful) {
-                      _authState.value = AuthState.Authenticated
-                  } else {
-                      _authState.value =
-                          AuthState.Error(task.exception?.message ?: "Something went wrong")
-                  }
-              }
-      }
-
-
-      // email verification
-      fun sendEmailVerification() {
-          auth.currentUser?.sendEmailVerification()
-              ?.addOnCompleteListener { task ->
-                  if (task.isSuccessful) {
-                      _authState.value = AuthState.Authenticated
-                  } else {
-                      _authState.value =
-                          AuthState.Error(task.exception?.message ?: "Something went wrong")
-                  }
-              }
-      }
-
-      // get user's email
-      fun getUserEmail() : String {
-          return auth.currentUser?.email ?: ""
-      }
-
-
-
-
-      // delete user
-      fun deleteUser() {
-          auth.currentUser?.delete()
-              ?.addOnCompleteListener { task ->
-                  if (task.isSuccessful) {
-                      _authState.value = AuthState.Authenticated
-                  } else {
-                      _authState.value =
-                          AuthState.Error(task.exception?.message ?: "Something went wrong")
-                  }
-              }
-      }
-
-      */
 
 
 }
