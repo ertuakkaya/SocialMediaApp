@@ -1,17 +1,22 @@
 package com.example.socialmediaapp
 
+import android.widget.Toast
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.socialmediaapp.data.entitiy.User
 import com.example.socialmediaapp.ui.screens.AccountScreen
 import com.example.socialmediaapp.ui.screens.HomeScreen
+import com.example.socialmediaapp.ui.screens.LoadingScreen
 import com.example.socialmediaapp.ui.screens.LoginScreen
 import com.example.socialmediaapp.ui.screens.MakeAPostScreen
 import com.example.socialmediaapp.ui.screens.SignupScreen
+import com.example.socialmediaapp.ui.viewmodels.AuthState
 import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirebaseStorageViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirebaseViewModel
@@ -34,13 +39,20 @@ fun AppNavHost(
 
 ) {
 
+
+
+
     val navController = rememberNavController()
     NavHost(
         navController = navController,
         startDestination = Screen.LoginScreen
     ) {
+
+
+
         composable<Screen.LoginScreen> {
             LoginScreen(navController = navController,firebaseViewModel = firebaseViewModel)
+
         }
 
         composable<Screen.SignupScreen> {
@@ -68,6 +80,10 @@ fun AppNavHost(
                 authViewModel = authViewModel,
                 firestoreViewModel = firestoreViewModel
             )
+        }
+
+        composable<Screen.LoadingScreen> {
+            LoadingScreen()
         }
 
     }
@@ -104,4 +120,7 @@ sealed class Screen {
 
     @Serializable
     object MakeAPostScreen : Screen()
+
+    @Serializable
+    object LoadingScreen : Screen()
 }

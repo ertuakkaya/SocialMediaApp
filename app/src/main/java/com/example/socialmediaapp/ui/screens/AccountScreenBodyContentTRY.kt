@@ -46,11 +46,6 @@ import java.util.UUID
 
 
 
-@Composable
-fun LoadingScreen()
-{
-
-}
 
 @Composable
 fun AccountScreenAvatarImage(user: User)

@@ -2,6 +2,7 @@ package com.example.socialmediaapp.ui.screens
 
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -32,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -41,11 +43,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.example.socialmediaapp.Screen
 import com.example.socialmediaapp.data.entitiy.User
+import com.example.socialmediaapp.ui.viewmodels.AuthState
 import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirebaseViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
@@ -63,6 +68,21 @@ fun AccountScreen(
     userViewModel: UserViewModel,
 ) {
 
+
+    val authState = firebaseViewModel.authState.observeAsState()
+    val context = LocalContext.current
+
+
+    // Launch effect, bu sayfa açıldığında çalışacak
+    LaunchedEffect(authState.value) {
+        when(authState.value){
+            is AuthState.Unauthenticated -> navHostController.navigate(Screen.LoginScreen)
+            is AuthState.Authenticated -> Unit // TODO: navigate to home
+            is AuthState.Error -> Toast.makeText(context,
+                (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT).show()
+            else -> Unit
+        }
+    }
 
     //val user by firestoreViewModel.getUserFromFirestore(currentUserID).observeAsState(null)
 
@@ -142,7 +162,6 @@ fun UserProfile(user: User) {
 fun AccountScreenBodyContent(
     user: User?,
     modifier: Modifier,
-
     onSignOut: () -> Unit,
     firestoreViewModel : FirestoreViewModel,
     firebaseViewModel: FirebaseViewModel,
@@ -291,6 +310,7 @@ fun AccountScreenBodyContent(
         } else {
             // User data not available
             CircularProgressIndicator()
+
         }
 
         DividerComponent()

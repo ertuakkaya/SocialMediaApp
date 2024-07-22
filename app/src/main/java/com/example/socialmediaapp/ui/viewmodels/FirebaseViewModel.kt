@@ -36,7 +36,9 @@ class FirebaseViewModel @Inject constructor(
 
     private val _authState = MutableLiveData<AuthState>()
     val authState: LiveData<AuthState> = _authState
-    
+
+
+
 
     // when app launches, check if user is authenticated
     init {
@@ -48,7 +50,8 @@ class FirebaseViewModel @Inject constructor(
 
         if (authRepository.getCurrentUser() == null) {
             _authState.value = AuthState.Unauthenticated
-        } else {
+        }
+        else {
             _authState.value = AuthState.Authenticated
         }
 

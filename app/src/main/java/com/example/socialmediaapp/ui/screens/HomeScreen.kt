@@ -93,7 +93,6 @@ fun HomeScreen(firebaseViewModel: FirebaseViewModel, navHostController: NavHostC
                     IconButton(
                         onClick = {
                             firebaseViewModel.signOut()
-                            navHostController.navigate(Screen.LoginScreen)
                                   },
                         modifier = Modifier
                             .size(50.dp)
