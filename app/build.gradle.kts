@@ -128,6 +128,10 @@ dependencies {
     implementation ("com.airbnb.android:lottie-compose:6.0.0")
 
 
+    // icons https://github.com/DevSrSouza/compose-icons?tab=readme-ov-file
+    implementation("br.com.devsrsouza.compose.icons:feather:1.1.0")
+
+
 
 
 

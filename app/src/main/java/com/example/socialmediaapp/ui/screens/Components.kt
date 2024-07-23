@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 
+
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -53,6 +54,8 @@ import com.example.socialmediaapp.Screen
 import com.example.socialmediaapp.data.entitiy.Like
 import com.example.socialmediaapp.data.entitiy.Post
 import com.example.socialmediaapp.ui.viewmodels.PostViewModel
+import compose.icons.FeatherIcons
+import compose.icons.feathericons.Home
 
 import kotlin.math.absoluteValue
 
@@ -556,7 +559,7 @@ private fun HorizontalPagerIndicator(
 fun BottomBarComponent(navHostController: NavHostController) {
     NavigationBar(
         modifier = Modifier
-            .height(56.dp),
+            .height(60.dp),
         containerColor = Color(0xFFFFFFFF),
         tonalElevation = 4.dp,
         contentColor = Color(0xFF000000)
@@ -565,17 +568,18 @@ fun BottomBarComponent(navHostController: NavHostController) {
     ) {
         // HomeScreen
         NavigationBarItem(
-            selected = true,
+            selected = false,
             onClick = {
                 navHostController.navigate(Screen.HomeScreen)
+
             },
             modifier = Modifier
-                .clip(CircleShape)
+                //.clip(CircleShape)
                 .fillMaxSize(),
 
             icon = {
                 Icon(
-                    Icons.Filled.Home,
+                    imageVector =  FeatherIcons.Home,
                     contentDescription = null
                 )
             },

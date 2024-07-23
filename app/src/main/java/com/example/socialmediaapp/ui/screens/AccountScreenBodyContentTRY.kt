@@ -62,26 +62,3 @@ fun AccountScreenAvatarImage(user: User)
 
 
 
-suspend fun uploadProfileImage(
-    uri: Uri,
-    user: User?,
-    userViewModel: UserViewModel,
-    firestoreViewModel: FirestoreViewModel
-): User? {
-    val filename = UUID.randomUUID().toString()
-    Log.d("AccountScreenBodyContent", "Selected Image URI: $uri")
-
-    val imageUrl = userViewModel.uploadProfilePicture(
-        uri,
-        filename,
-        "user_profile_images"
-    )
-    Log.d("AccountScreenBodyContent imageUrl", ": $imageUrl")
-
-    return user?.let { nonNullUser ->
-        val updatedUser = nonNullUser.copy(profileImageUrl = imageUrl.toString())
-        firestoreViewModel.updateUserInFirestore(updatedUser.userID!!, updatedUser)
-        Log.d("AccountScreen Profile Updated", "AccountScreenBodyContent: $updatedUser")
-        updatedUser
-    }
-}
