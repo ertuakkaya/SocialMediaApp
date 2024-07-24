@@ -4,6 +4,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.socialmediaapp.data.entitiy.Like
 import com.example.socialmediaapp.data.entitiy.Post
 import com.example.socialmediaapp.data.repository.PostRepository
@@ -67,6 +68,19 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
                 //Log.d("PostViewModel ", "Posts: $it")
             }
         }
+    }
+
+
+    fun GetLikesByUserID() : Boolean{
+        var result = false
+        viewModelScope.launch {
+            try {
+                result = postRepository.getLikesByUserId()
+            } catch (e: Exception) {
+                Log.d("PostViewModel", "GetLikesByUserID: $e")
+            }
+        }
+        return result
     }
 
 

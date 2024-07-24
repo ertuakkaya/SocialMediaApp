@@ -80,9 +80,10 @@ fun Components(){
 
 @Composable
 //@Preview
-fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreViewModel){
+fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreViewModel) {
 
-    var userLiked by remember { mutableStateOf(false) }
+
+    var userLiked by remember { mutableStateOf(postViewModel.GetLikesByUserID()) }
     var likeCount by remember { mutableStateOf(post.likedBy.size) }
     var userCommented by remember { mutableStateOf(false) }
     var commentCount by remember { mutableStateOf(post.commentCount) }
@@ -100,7 +101,7 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
     val isLoading by firestoreViewModel.isLoading.collectAsState()
     val error by firestoreViewModel.error.collectAsState()
 
-
+    Log.d("Post", "Post: $userLiked")
     // User data is loading
     LaunchedEffect(key1 = true) {
 

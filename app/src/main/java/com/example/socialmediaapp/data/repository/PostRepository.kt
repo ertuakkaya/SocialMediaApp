@@ -94,6 +94,18 @@ class PostRepository @Inject constructor(
         }
     }
 
+    suspend fun getLikesByUserId(): Boolean {
+        val snapshot = postsCollection
+            .whereArrayContains("likedBy", firebaseAuth.currentUser?.uid!!)
+            .get()
+            .await()
+        if (snapshot.isEmpty) {
+            return false
+        }else{
+            return true
+
+        }
+    }
 
 
 

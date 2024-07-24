@@ -12,7 +12,10 @@ data class Post(val id: String = "",
                 val likeCount: Int = 0,
                 val timestamp: Timestamp = Timestamp.now(),
                 val likedBy: List<Like> = emptyList(),
-                val comments: List<Comment> = emptyList()
+                val comments: List<Comment> = emptyList(),
+
+
+
 )
 
 
