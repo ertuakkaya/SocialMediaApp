@@ -129,26 +129,57 @@ class PostRepository @Inject constructor(
     // /posts/tDB9co8mVoIKm7hWbZHN
    // posts document id = tDB9co8mVoIKm7hWbZHN
     // current user id = GmxAlLex17gxyiux1sPegopWEYX2
-    fun AddLike(postID : String, userId : String? = currentUSer?.uid)
-    {
+    fun AddLike(postID: String, userId: String? = currentUSer?.uid) {
         // post Id > document name
 
         val postRef = firestore.collection("posts").document("tDB9co8mVoIKm7hWbZHN")
         postRef.get()
             .addOnSuccessListener { document ->
-                if (document != null){
-                    val currentArray = document.get("likedBy") as? ArrayList<String> ?: ArrayList()
-                    currentArray.add("GmxAlLex17gxyiux1sPegopWEYX2")
+                document.let { noNullDocument ->
 
-                    postRef.update("likedBy",currentArray)
-                        .addOnSuccessListener {
-                            Log.d("AddLike PostRepo", "DocumentSnapshot added with ID: ${document.id}")
-                        }
-                        .addOnFailureListener { e ->
-                            Log.w("AddLike PostRepo", "Error adding document", e)
-                        }
+                    val currentArray = noNullDocument.get("likedBy") as? ArrayList<String> ?: ArrayList()
+
+                    Log.d("AddLike PostRepo", "Current Array: $currentArray")
+
+                    // check if the user is already in the list. it so unlike the post and delete the user from the list
+                    if (currentArray.contains("GmxAlLex17gxyiux1sPegopWEYX2")) {
+
+
+                        // unlike the post
+                        currentArray.remove("GmxAlLex17gxyiux1sPegopWEYX2")
+                        postRef.update("likedBy", currentArray)
+                            .addOnSuccessListener {
+                                Log.d(
+                                    "AddLike PostRepo",
+                                    "DocumentSnapshot removod with ID: ${noNullDocument.id}, likedBy: $currentArray"
+                                )
+                                Log.d("AddLike PostRepo", "User unliked this post")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w("AddLike PostRepo", "Error adding document", e)
+                            }
+                        //return@addOnSuccessListener
+                    } else {
+                        currentArray.add("GmxAlLex17gxyiux1sPegopWEYX2")
+
+                        postRef.update("likedBy", currentArray)
+
+                            .addOnSuccessListener {
+                                Log.d(
+                                    "AddLike PostRepo",
+                                    "DocumentSnapshot added with ID: ${noNullDocument.id}"
+                                )
+                            }
+
+                            .addOnFailureListener { e ->
+                                Log.w("AddLike PostRepo", "Error adding document", e)
+                            }
+
+                        Log.d("AddLike PostRepo", "User liked this post")
+                    }
 
                 }
+
             }
             .addOnFailureListener { e ->
                 Log.d("AddLike PostRepo", "Error getting documents.", e)
