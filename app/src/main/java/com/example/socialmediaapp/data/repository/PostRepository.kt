@@ -6,6 +6,7 @@ import android.widget.Toast
 import com.example.socialmediaapp.data.entitiy.Comment
 import com.example.socialmediaapp.data.entitiy.Like
 import com.example.socialmediaapp.data.entitiy.Post
+import com.example.socialmediaapp.data.entitiy.User
 import com.example.socialmediaapp.util.uploadFile
 import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
@@ -73,7 +74,7 @@ class PostRepository @Inject constructor(
         postsCollection.document(postId).update("commentCount", FieldValue.increment(1)).await()
     }
 
-    suspend fun incrementLikeCount(postId: String,like : Like) {
+    suspend fun incrementLikeCount(postId: String,like : Like,) {
         postsCollection.document(postId).update("likeCount", FieldValue.increment(1)).await()
 
         // add Like to likedBy

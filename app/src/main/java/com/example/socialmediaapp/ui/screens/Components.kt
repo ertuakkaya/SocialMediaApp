@@ -1,6 +1,7 @@
 package com.example.socialmediaapp.ui.screens
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,6 +36,8 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,7 +56,10 @@ import com.example.socialmediaapp.R
 import com.example.socialmediaapp.Screen
 import com.example.socialmediaapp.data.entitiy.Like
 import com.example.socialmediaapp.data.entitiy.Post
+import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
+import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
 import com.example.socialmediaapp.ui.viewmodels.PostViewModel
+import com.google.firebase.Timestamp
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.Home
 
@@ -74,10 +80,10 @@ fun Components(){
 
 @Composable
 //@Preview
-fun Post(post: Post,postViewModel: PostViewModel){
+fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreViewModel){
 
-    var userLiked by remember { mutableStateOf(true) }
-    var likeCount by remember { mutableStateOf(post.likeCount) }
+    var userLiked by remember { mutableStateOf(false) }
+    var likeCount by remember { mutableStateOf(post.likedBy.size) }
     var userCommented by remember { mutableStateOf(false) }
     var commentCount by remember { mutableStateOf(post.commentCount) }
     var username by remember { mutableStateOf(post.userName) }
@@ -88,6 +94,19 @@ fun Post(post: Post,postViewModel: PostViewModel){
     var likedBy by remember { mutableStateOf(post.likedBy) }
     var comments by remember { mutableStateOf(post.comments) }
     var commentText by remember { mutableStateOf("") }
+
+    // userData is currentUser : User
+    val userData by firestoreViewModel.userData.collectAsState()
+    val isLoading by firestoreViewModel.isLoading.collectAsState()
+    val error by firestoreViewModel.error.collectAsState()
+
+
+    // User data is loading
+    LaunchedEffect(key1 = true) {
+
+            val user = firestoreViewModel.getUserFromFirestore(post.userId)
+    }
+
 
 
     ElevatedCard(
@@ -201,7 +220,8 @@ fun Post(post: Post,postViewModel: PostViewModel){
                                 if(!userLiked){
                                     likeCount++
                                     //postViewModel.likePost(post.id,post.userId)//////////////////////
-                                    val like = Like(userId = post.userId)
+                                    val like = Like(user = userData!! , createdAt = Timestamp.now())
+                                    Log.d("Post", "Like: $like -- user : ${userData}")
                                     postViewModel.likePost(post.id, like)//////////////////////
 
                                 }
