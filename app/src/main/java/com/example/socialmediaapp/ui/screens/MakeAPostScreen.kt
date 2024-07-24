@@ -298,7 +298,7 @@ fun MakeAPostBody(
                             timestamp = Timestamp.now(),
                             likeCount = 0,
                             commentCount = 0,
-                            likedBy = listOf(),
+                            likedBy = emptyList(),
                             comments = listOf(),
                             userId =  localUserData?.userID?: "N/A"
                         )

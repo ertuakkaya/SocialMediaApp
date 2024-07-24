@@ -75,7 +75,8 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
         var result = false
         viewModelScope.launch {
             try {
-                result = postRepository.getLikesByUserId()
+//                result = postRepository.getLikesByUserId()
+                postRepository.getLikesByUserId()
             } catch (e: Exception) {
                 Log.d("PostViewModel", "GetLikesByUserID: $e")
             }
@@ -159,6 +160,20 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
                 postRepository.getUrl(fileName)
             } catch (e: Exception) {
                 Log.d("PostViewModel", "getPostImageUrl: $e")
+            }
+        }
+    }
+
+    init {
+        AddLike("1","1")
+    }
+
+    fun AddLike(postID : String, userID : String){
+        viewModelScope.launch {
+            try {
+                postRepository.AddLike(postID,userID)
+            } catch (e: Exception) {
+                Log.d("PostViewModel", "AddLike: $e")
             }
         }
     }

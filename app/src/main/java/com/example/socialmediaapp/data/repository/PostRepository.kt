@@ -95,24 +95,99 @@ class PostRepository @Inject constructor(
     }
 
     suspend fun getLikesByUserId(): Boolean {
-        val snapshot = postsCollection
-            .whereArrayContains("likedBy", firebaseAuth.currentUser?.uid!!)
-            .get()
-            .await()
-        if (snapshot.isEmpty) {
-            return false
-        }else{
-            return true
+//        val deneme = postsCollection.document(post.id)
+//        val snapshot = postsCollection.document().collection("likedBy").whereEqualTo("user", firebaseAuth.currentUser).get().await()
+//        val snapshot = postsCollection.document("tDB9co8mVoIKm7hWbZHN").collection("likedBy").get().await()
+//        val snapshot1 = postsCollection.document("/posts/tDB9co8mVoIKm7hWbZHN/likedBy/").get().await()
+//        val like = snapshot1.toObject(Like::class.java)
+//            .whereEqualTo("likedBy", firebaseAuth.currentUser!!)
+////            .whereArrayContains("likedBy", firebaseAuth.currentUser!!)
+//            .get()
+//            .await()
 
-        }
+        val deneme = postsCollection.whereArrayContains("likedBy", "/users/"+firebaseAuth.currentUser?.uid.toString()).get().await()
+
+        val userList = deneme.toObjects(User::class.java)
+//        Log.d("likedBy", snapshot.documents.toString())
+//        Log.d("likedBy like ", like.toString())
+        Log.d("likedBy deneme ", deneme.documents.toString())
+        Log.d("likedBy userlist ", userList.size.toString())
+//        return !snapshot.isEmpty
+
+        return false
+//        if (snapshot.isEmpty) {
+//            return false
+//        }else{
+//            return true
+//        }
+    }
+    ///////
+
+
+
+
+    // /posts/tDB9co8mVoIKm7hWbZHN
+   // posts document id = tDB9co8mVoIKm7hWbZHN
+    // current user id = GmxAlLex17gxyiux1sPegopWEYX2
+    fun AddLike(postID : String, userId : String? = currentUSer?.uid)
+    {
+        // post Id > document name
+
+        val postRef = firestore.collection("posts").document("tDB9co8mVoIKm7hWbZHN")
+        postRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null){
+                    val currentArray = document.get("likedBy") as? ArrayList<String> ?: ArrayList()
+                    currentArray.add("GmxAlLex17gxyiux1sPegopWEYX2")
+
+                    postRef.update("likedBy",currentArray)
+                        .addOnSuccessListener {
+                            Log.d("AddLike PostRepo", "DocumentSnapshot added with ID: ${document.id}")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w("AddLike PostRepo", "Error adding document", e)
+                        }
+
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.d("AddLike PostRepo", "Error getting documents.", e)
+            }
+
+
+//        firestore.collection("posts")
+//            .document("tDB9co8mVoIKm7hWbZHN")
+//            .collection("likedBy")
+//            .add("GmxAlLex17gxyiux1sPegopWEYX2").addOnCompleteListener { task ->
+//                if (task.isSuccessful) {
+//                    Log.d("AddLike PostRepo", "DocumentSnapshot added with ID: ${task.result}")
+//                } else {
+//                    Log.w("AddLike PostRepo", "Error adding document", task.exception)
+//                }
+//                  it is getting error
+//            }
     }
 
+    fun addLikeGemini(postId: String, userId: String = currentUSer?.uid ?: "") {
+        if (userId.isBlank()) {Log.w("AddLike PostRepo", "Cannot add like: User ID is missing")
+            return
+        }
 
+        val likeRef = firestore.collection("posts")
+            .document(postId)
+            .collection("likedBy")
+            .document(userId) // UseuserId as the document ID for efficient lookups
 
-    //////////////////////
-    // firestore
-    // firebaseStorage
-    // firebaseAuth
+        likeRef.set(mapOf("timestamp" to FieldValue.serverTimestamp())) // Store a timestamp for potential ordering or analytics
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("AddLike PostRepo", "Like added for post: $postId, by user: $userId")
+                } else {
+                    Log.w("AddLike PostRepo", "Error adding like", task.exception)
+                }
+            }
+    }
+
 
 
 

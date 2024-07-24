@@ -84,7 +84,7 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
 
 
     var userLiked by remember { mutableStateOf(postViewModel.GetLikesByUserID()) }
-    var likeCount by remember { mutableStateOf(post.likedBy.size) }
+    var likeCount by remember { mutableStateOf(post.likeCount) }
     var userCommented by remember { mutableStateOf(false) }
     var commentCount by remember { mutableStateOf(post.commentCount) }
     var username by remember { mutableStateOf(post.userName) }
