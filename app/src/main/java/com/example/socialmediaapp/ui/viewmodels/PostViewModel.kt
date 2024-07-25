@@ -12,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
@@ -165,22 +166,22 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
 
     init {
         //LikeOrUnlike("1","1")
-        CheckIfUserLikedThePost("1","1")
+        //CheckIfUserLikedThePost("1","1")
 
 
     }
 
-    fun LikeOrUnlike(postID : String, userID : String) : Int {
-        var likeCount = 0
-        viewModelScope.launch {
-            try {
-                likeCount =  postRepository.LikeOrUnlike(postID,userID)
-            } catch (e: Exception) {
-                Log.d("PostViewModel", "likeOrUnlike: $e")
-            }
-        }
-        return likeCount
-    }
+//    fun LikeOrUnlike(postID : String, userID : String) : Int {
+//        var likeCount = 0
+//        viewModelScope.launch {
+//            try {
+//                likeCount =  postRepository.LikeOrUnlike(postID,userID)
+//            } catch (e: Exception) {
+//                Log.d("PostViewModel", "likeOrUnlike: $e")
+//            }
+//        }
+//        return likeCount
+//    }
 
 //    fun CheckIfUserLikedThePost(postId: String , userID: String) : Boolean
 //    {
@@ -196,20 +197,44 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
 //        return result
 //    }
 
-    private val _isPostLiked = MutableStateFlow<Boolean?>(null)
-    val isPostLiked: StateFlow<Boolean?> = _isPostLiked.asStateFlow()
+//    private val _isPostLiked = MutableStateFlow<Boolean?>(null)
+//    val isPostLiked: StateFlow<Boolean?> = _isPostLiked.asStateFlow()
+//
+//    fun CheckIfUserLikedThePost(postId: String, userId: String) {
+//        viewModelScope.launch {
+//            try {
+//                val result = postRepository.CheckIfUserLikedThePost(postId, userId)
+//                _isPostLiked.value = result
+//                Log.d("PostViewModel", "checkIfUserLikedThePost: $result")
+//
+//            } catch (e: Exception) {
+//                Log.d("PostViewModel", "checkIfUserLikedThePost: $e")
+//                _isPostLiked.value = false
+//            }
+//        }
+//    }
 
-    fun CheckIfUserLikedThePost(postId: String, userId: String) {
+    private val _postStates = MutableStateFlow<Map<String, PostState>>(emptyMap())
+    val postStates: StateFlow<Map<String, PostState>> = _postStates.asStateFlow()
+
+    fun checkIfUserLikedThePost(postId: String, userId: String) {
         viewModelScope.launch {
-            try {
-                val result = postRepository.CheckIfUserLikedThePost(postId, userId)
-                _isPostLiked.value = result
-                Log.d("PostViewModel", "checkIfUserLikedThePost: $result")
+            val isLiked = postRepository.checkIfUserLikedThePost(postId, userId)
+            updatePostState(postId) { it.copy(isLiked = isLiked) }
+        }
+    }
 
-            } catch (e: Exception) {
-                Log.d("PostViewModel", "checkIfUserLikedThePost: $e")
-                _isPostLiked.value = false
-            }
+    fun likeOrUnlikePost(postId: String, userId: String) {
+        viewModelScope.launch {
+            val (isLiked, likeCount) = postRepository.likeOrUnlike(postId, userId)
+            updatePostState(postId) { it.copy(isLiked = isLiked, likeCount = likeCount) }
+        }
+    }
+
+    private fun updatePostState(postId: String, update: (PostState) -> PostState) {
+        _postStates.update { currentMap ->
+            val currentState = currentMap[postId] ?: PostState()
+            currentMap + (postId to update(currentState))
         }
     }
 
@@ -224,3 +249,8 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
 //    }
 
 }
+
+data class PostState(
+    val isLiked: Boolean = false,
+    val likeCount: Int = 0
+)

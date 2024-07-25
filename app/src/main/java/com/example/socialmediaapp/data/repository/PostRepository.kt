@@ -20,9 +20,11 @@ import com.google.firebase.firestore.toObject
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.storage
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
@@ -122,71 +124,127 @@ class PostRepository @Inject constructor(
 
 
 
-    // /posts/tDB9co8mVoIKm7hWbZHN
-   // posts document id = tDB9co8mVoIKm7hWbZHN
-    // current user id = GmxAlLex17gxyiux1sPegopWEYX2
-    fun LikeOrUnlike(postID: String, userId: String? = currentUSer?.uid) :Int {
-
-        val postRef = firestore.collection("posts").document("tDB9co8mVoIKm7hWbZHN")
-        var likeCount = 0
-
-        postRef.get()
-            .addOnSuccessListener { document ->
-                document.let { noNullDocument ->
-
-                    val currentArray = noNullDocument.get("likedBy") as? ArrayList<String> ?: ArrayList()
-
-                    Log.d("AddLike PostRepo", "Current Array: $currentArray")
-
-                    // check if the user is already in the list. it so unlike the post and delete the user from the list
-                    if (currentArray.contains("GmxAlLex17gxyiux1sPegopWEYX2")) { // if the user is already liked the post
-
-
-                        // unlike the post
-                        currentArray.remove("GmxAlLex17gxyiux1sPegopWEYX2")
-                        postRef.update("likedBy", currentArray)
-                            .addOnSuccessListener {
-                                Log.d(
-                                    "AddLike PostRepo",
-                                    "DocumentSnapshot removod with ID: ${noNullDocument.id}, likedBy: $currentArray"
-                                )
-                                Log.d("AddLike PostRepo", "User unliked this post")
-                            }
-                            .addOnFailureListener { e ->
-                                Log.w("AddLike PostRepo", "Error adding document", e)
-                            }
-                    } else { // if the user is not liked the post
-                        currentArray.add("GmxAlLex17gxyiux1sPegopWEYX2")
-
-                        postRef.update("likedBy", currentArray)
-
-                            .addOnSuccessListener {
-                                Log.d(
-                                    "AddLike PostRepo",
-                                    "DocumentSnapshot added with ID: ${noNullDocument.id}"
-                                )
-                            }
-
-                            .addOnFailureListener { e ->
-                                Log.w("AddLike PostRepo", "Error adding document", e)
-                            }
-
-                        Log.d("AddLike PostRepo", "User liked this post")
-                    }
-//                    getLikeCount(currentArray).let {
-//                        Log.d("AddLike PostRepo", "Like Count: $it")
+//    // /posts/tDB9co8mVoIKm7hWbZHN
+//   // posts document id = tDB9co8mVoIKm7hWbZHN
+//    // current user id = GmxAlLex17gxyiux1sPegopWEYX2
+//    fun LikeOrUnlike(postID: String, userId: String? = currentUSer?.uid) :Int {
+//
+//        val postRef = firestore.collection("posts").document("tDB9co8mVoIKm7hWbZHN")
+//        var likeCount = 0
+//
+//        postRef.get()
+//            .addOnSuccessListener { document ->
+//                document.let { noNullDocument ->
+//
+//                    val currentArray = noNullDocument.get("likedBy") as? ArrayList<String> ?: ArrayList()
+//
+//                    Log.d("AddLike PostRepo", "Current Array: $currentArray")
+//
+//                    // check if the user is already in the list. it so unlike the post and delete the user from the list
+//                    if (currentArray.contains("GmxAlLex17gxyiux1sPegopWEYX2")) { // if the user is already liked the post
+//
+//
+//                        // unlike the post
+//                        currentArray.remove("GmxAlLex17gxyiux1sPegopWEYX2")
+//                        postRef.update("likedBy", currentArray)
+//                            .addOnSuccessListener {
+//                                Log.d(
+//                                    "AddLike PostRepo",
+//                                    "DocumentSnapshot removod with ID: ${noNullDocument.id}, likedBy: $currentArray"
+//                                )
+//                                Log.d("AddLike PostRepo", "User unliked this post")
+//                            }
+//                            .addOnFailureListener { e ->
+//                                Log.w("AddLike PostRepo", "Error adding document", e)
+//                            }
+//                    } else { // if the user is not liked the post
+//                        currentArray.add("GmxAlLex17gxyiux1sPegopWEYX2")
+//
+//                        postRef.update("likedBy", currentArray)
+//
+//                            .addOnSuccessListener {
+//                                Log.d(
+//                                    "AddLike PostRepo",
+//                                    "DocumentSnapshot added with ID: ${noNullDocument.id}"
+//                                )
+//                            }
+//
+//                            .addOnFailureListener { e ->
+//                                Log.w("AddLike PostRepo", "Error adding document", e)
+//                            }
+//
+//                        Log.d("AddLike PostRepo", "User liked this post")
 //                    }
-                    likeCount = currentArray.size
+////                    getLikeCount(currentArray).let {
+////                        Log.d("AddLike PostRepo", "Like Count: $it")
+////                    }
+//                    likeCount = currentArray.size
+//
+//                }
+//
+//
+//            }
+//            .addOnFailureListener { e ->
+//                Log.d("AddLike PostRepo", "Error getting documents.", e)
+//            }
+//
+//        return likeCount
+//    }
+//    // /posts/tDB9co8mVoIKm7hWbZHN
+//    // posts document id = tDB9co8mVoIKm7hWbZHN
+//    // current user id = GmxAlLex17gxyiux1sPegopWEYX2
+//    suspend fun CheckIfUserLikedThePost(postID: String, userId: String?) : Boolean {
+//
+//
+//        return try {
+//            val postRef = firestore.collection("posts").document("tDB9co8mVoIKm7hWbZHN")
+//            val document = postRef.get().await()
+//            val likedBy = document.get("likedBy") as? ArrayList<String> ?: ArrayList()
+//            Log.d("CheckIfUserLikedThePost", "likedBy:  $likedBy")
+//            likedBy.contains("GmxAlLex17gxyiux1sPegopWEYX2")
+//
+//        } catch (e: Exception) {
+//            Log.e("checkIfUserLikedThePost", "Error checking if user liked post: ${e.message}", e)
+//            false
+//        }
+//    }
 
-                }
+    suspend fun likeOrUnlike(postId: String, userId: String): Pair<Boolean, Int> = withContext(
+        Dispatchers.IO) {
+        val postRef = firestore.collection("posts").document(postId)
 
+        try {
+            val document = postRef.get().await()
+            val currentArray = document.get("likedBy") as? ArrayList<String> ?: ArrayList()
 
+            val isLiked = if (currentArray.contains(userId)) {
+                currentArray.remove(userId)
+                false
+            } else {
+                currentArray.add(userId)
+                true
             }
-            .addOnFailureListener { e ->
-                Log.d("AddLike PostRepo", "Error getting documents.", e)
-            }
 
-        return likeCount
+            postRef.update("likedBy", currentArray).await()
+
+            Pair(isLiked, currentArray.size)
+        } catch (e: Exception) {
+            Log.e("LikeOrUnlike", "Error updating like status: ${e.message}", e)
+            Pair(false, 0)
+        }
+    }
+
+    suspend fun checkIfUserLikedThePost(postId: String, userId: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val postRef = firestore.collection("posts").document(postId)
+            val document = postRef.get().await()
+            val likedBy = document.get("likedBy") as? ArrayList<String> ?: ArrayList()
+            Log.d("CheckIfUserLikedThePost", "likedBy: $likedBy")
+            likedBy.contains(userId)
+        } catch (e: Exception) {
+            Log.e("CheckIfUserLikedThePost", "Error checking if user liked post: ${e.message}", e)
+            false
+        }
     }
 
 
@@ -200,73 +258,10 @@ class PostRepository @Inject constructor(
         return currentArray.size
     }
 
-    // /posts/tDB9co8mVoIKm7hWbZHN
-    // posts document id = tDB9co8mVoIKm7hWbZHN
-    // current user id = GmxAlLex17gxyiux1sPegopWEYX2
-    suspend fun CheckIfUserLikedThePost(postID: String, userId: String?) : Boolean {
-
-//        val postRef = firestore.collection("posts").document("tDB9co8mVoIKm7hWbZHN")
-//
-//        var result = false
-//
-//        postRef.get()
-//            .addOnSuccessListener { document ->
-//                document.let { noNullDocument ->
-//
-//                    val currentArray = noNullDocument.get("likedBy") as? ArrayList<String> ?: ArrayList()
-//
-//                    // check if the user is already in the list.
-//                    if (currentArray.contains("GmxAlLex17gxyiux1sPegopWEYX2")) { // if the user is already liked the post
-//                        Log.d("CheckIfUserLikedThePost PostRepo if contains ", "currentArray: $currentArray")
-//                        result = true // if the user is liked the post return true
-//
-//                    } else { // if the user is not liked the post
-//                        Log.d("CheckIfUserLikedThePost PostRepo else ", "currentArray: $currentArray")
-//                       result = false // if the user is not liked the post return false
-//                    }
-//
-//
-//                }
-//
-//            }
-//            .addOnFailureListener { e ->
-//                Log.d("AddLike PostRepo", "Error getting documents.", e)
-//            }
-//
-//        Log.d("CheckIfUserLikedThePost PostRepo", "CheckIfUserLikedThePost: $result")
-//        //return result
 
 
-        return try {
-            val postRef = firestore.collection("posts").document("tDB9co8mVoIKm7hWbZHN")
-            val document = postRef.get().await()
-            val likedBy = document.get("likedBy") as? ArrayList<String> ?: ArrayList()
-            Log.d("CheckIfUserLikedThePost", "likedBy:  $likedBy")
-            likedBy.contains("GmxAlLex17gxyiux1sPegopWEYX2")
 
-        } catch (e: Exception) {
-            Log.e("checkIfUserLikedThePost", "Error checking if user liked post: ${e.message}", e)
-            false
-        }
-    }
 
-    fun checkIfUserLikedPostCopilot(postID: String, userId: String?): Boolean {
-        val postRef = firestore.collection("posts").document(postID)
-        var result = false
-
-        postRef.get()
-            .addOnSuccessListener { document ->
-                document?.let {
-                    val currentArray = it.get("likedBy") as? ArrayList<String> ?: ArrayList()
-                    result = currentArray.contains(userId)
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.d("PostRepo", "Error getting documents.", e)
-            }
-
-        return result
-    }
 
 
 

@@ -59,6 +59,7 @@ import com.example.socialmediaapp.data.entitiy.Like
 import com.example.socialmediaapp.data.entitiy.Post
 import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
+import com.example.socialmediaapp.ui.viewmodels.PostState
 import com.example.socialmediaapp.ui.viewmodels.PostViewModel
 import com.google.firebase.Timestamp
 import compose.icons.FeatherIcons
@@ -85,7 +86,7 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
 
 
     var userLiked by remember { mutableStateOf(postViewModel.GetLikesByUserID()) }
-    var likeCount by remember { mutableStateOf(post.likeCount) }
+    //var likeCount by remember { mutableStateOf(post.likedBy.size) }
     var userCommented by remember { mutableStateOf(false) }
     var commentCount by remember { mutableStateOf(post.commentCount) }
     var username by remember { mutableStateOf(post.userName) }
@@ -110,18 +111,33 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
     }
 
 
-    val isPostLiked by postViewModel.isPostLiked.collectAsState()
+//    // CheckIfUserLikedThePost Viewmodel fonksiyonunu çağırarak, post beğenilmiş mi kontrol edin
+//    val isPostLiked by postViewModel.isPostLiked.collectAsState()
+//
+//    LaunchedEffect(post.id, post.userId) {
+//        postViewModel.CheckIfUserLikedThePost(post.id, post.userId)
+//    }
+
+//    // isPostLiked değerini kullanarak UI'ı oluşturun
+//    when (isPostLiked) {
+//        true -> userLiked = true  //Log.d("Post Composable " , "isPostLiked True : $isPostLiked")// Text("Post beğenildi")
+//
+//
+//        false -> userLiked = false //Log.d("Post Composable " , "isPostLiked False : $isPostLiked") //Text("Post beğenilmedi")
+//        null -> CircularProgressIndicator()
+//    }
+
+    //////
+
+
+    val postStates by postViewModel.postStates.collectAsState()
+    val currentPostState = postStates[post.id] ?: PostState()
+
+    val isPostLiked = currentPostState.isLiked
+    val likeCount = currentPostState.likeCount
 
     LaunchedEffect(post.id, post.userId) {
-        postViewModel.CheckIfUserLikedThePost(post.id, post.userId)
-    }
-
-    // isPostLiked değerini kullanarak UI'ı oluşturun
-    when (isPostLiked) {
-        true -> Log.d("Post Composable " , "isPostLiked True : $isPostLiked")// Text("Post beğenildi")
-
-        false -> Log.d("Post Composable " , "isPostLiked False : $isPostLiked") //Text("Post beğenilmedi")
-        null -> CircularProgressIndicator()
+        postViewModel.checkIfUserLikedThePost(post.id, post.userId)
     }
 
 
@@ -225,40 +241,63 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
 
 
                         Text(
-                            text = if (userLiked) {
+                            text = if (isPostLiked!!) {
                                 if (likeCount > 1) "You and ${likeCount - 1} Liked" else "You Liked"
                             } else {
                                 "$likeCount Like"
                             },
                         )
+//                        IconButton(
+//                            onClick = {
+//                                if(isPostLiked!!){
+//                                    //likeCount++
+//                                    //postViewModel.likePost(post.id,post.userId)//////////////////////
+//                                    val like = Like(user = userData!! , createdAt = Timestamp.now())
+//                                    Log.d("Post", "Like: $like -- user : ${userData}")
+//                                    //postViewModel.likePost(post.id, like)//////////////////////
+//                                    likeCount = postViewModel.LikeOrUnlike(post.id,post.userId)
+//
+//                                }
+//                                else{
+//                                    //likeCount--
+//                                    //postViewModel.unlikePost(post.id)//////////////////////
+//                                    likeCount = postViewModel.LikeOrUnlike(post.id,post.userId)
+//                                }
+//                                //isPostLiked = !isPostLiked!!
+//
+//
+//                            },
+//                            modifier = Modifier
+//                                .size(50.dp)
+//                        ) {
+//
+//                            Icon(
+//                                painter = if(isPostLiked!!) painterResource(id = R.drawable.like_filled) else painterResource(id = R.drawable.like_unfilled),
+//                                contentDescription = null,
+//                                modifier = Modifier.size(32.dp)
+//                            )
+//                        }
                         IconButton(
                             onClick = {
-                                if(!userLiked){
-                                    likeCount++
-                                    //postViewModel.likePost(post.id,post.userId)//////////////////////
-                                    val like = Like(user = userData!! , createdAt = Timestamp.now())
-                                    Log.d("Post", "Like: $like -- user : ${userData}")
-                                    postViewModel.likePost(post.id, like)//////////////////////
-
-                                }
-                                else{
-                                    likeCount--
-                                    postViewModel.unlikePost(post.id)//////////////////////
-                                }
-                                userLiked = !userLiked
-
-
+                                postViewModel.likeOrUnlikePost(post.id, post.userId)
                             },
-                            modifier = Modifier
-                                .size(50.dp)
+                            modifier = Modifier.size(50.dp)
                         ) {
-
                             Icon(
-                                painter = if(userLiked) painterResource(id = R.drawable.like_filled) else painterResource(id = R.drawable.like_unfilled),
+                                painter = if(isPostLiked) painterResource(id = R.drawable.like_filled)
+                                else painterResource(id = R.drawable.like_unfilled),
                                 contentDescription = null,
                                 modifier = Modifier.size(32.dp)
                             )
                         }
+
+                        Text(
+                            text = if (isPostLiked) {
+                                if (likeCount > 1) "You and ${likeCount - 1} Liked" else "You Liked"
+                            } else {
+                                "$likeCount Like"
+                            }
+                        )
 
                     }
 
