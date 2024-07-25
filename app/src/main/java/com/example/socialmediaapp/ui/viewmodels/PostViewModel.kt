@@ -4,7 +4,6 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.socialmediaapp.data.entitiy.Like
 import com.example.socialmediaapp.data.entitiy.Post
 import com.example.socialmediaapp.data.repository.PostRepository
@@ -165,17 +164,63 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     }
 
     init {
-        AddLike("1","1")
+        //LikeOrUnlike("1","1")
+        CheckIfUserLikedThePost("1","1")
+
+
     }
 
-    fun AddLike(postID : String, userID : String){
+    fun LikeOrUnlike(postID : String, userID : String) : Int {
+        var likeCount = 0
         viewModelScope.launch {
             try {
-                postRepository.AddLike(postID,userID)
+                likeCount =  postRepository.LikeOrUnlike(postID,userID)
             } catch (e: Exception) {
-                Log.d("PostViewModel", "AddLike: $e")
+                Log.d("PostViewModel", "likeOrUnlike: $e")
+            }
+        }
+        return likeCount
+    }
+
+//    fun CheckIfUserLikedThePost(postId: String , userID: String) : Boolean
+//    {
+//        var result = false
+//        viewModelScope.launch {
+//            try {
+//                result = postRepository.CheckIfUserLikedThePost(postId,userID)
+//            } catch (e: Exception) {
+//                Log.d("PostViewModel", "CheckIfUserLikedThePost: $e")
+//            }
+//        }
+//        Log.d("PostViewModel CheckIfUserLikedThePost", "CheckIfUserLikedThePost: $result")
+//        return result
+//    }
+
+    private val _isPostLiked = MutableStateFlow<Boolean?>(null)
+    val isPostLiked: StateFlow<Boolean?> = _isPostLiked.asStateFlow()
+
+    fun CheckIfUserLikedThePost(postId: String, userId: String) {
+        viewModelScope.launch {
+            try {
+                val result = postRepository.CheckIfUserLikedThePost(postId, userId)
+                _isPostLiked.value = result
+                Log.d("PostViewModel", "checkIfUserLikedThePost: $result")
+
+            } catch (e: Exception) {
+                Log.d("PostViewModel", "checkIfUserLikedThePost: $e")
+                _isPostLiked.value = false
             }
         }
     }
+
+//    fun getLikeCount(){
+//        viewModelScope.launch {
+//            try {
+//                postRepository.getLikeCount()
+//            } catch (e: Exception) {
+//                Log.d("PostViewModel", "getLikeCount: $e")
+//            }
+//        }
+//    }
 
 }

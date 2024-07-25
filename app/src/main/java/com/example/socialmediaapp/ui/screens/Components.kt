@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -108,6 +109,20 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
             val user = firestoreViewModel.getUserFromFirestore(post.userId)
     }
 
+
+    val isPostLiked by postViewModel.isPostLiked.collectAsState()
+
+    LaunchedEffect(post.id, post.userId) {
+        postViewModel.CheckIfUserLikedThePost(post.id, post.userId)
+    }
+
+    // isPostLiked değerini kullanarak UI'ı oluşturun
+    when (isPostLiked) {
+        true -> Log.d("Post Composable " , "isPostLiked True : $isPostLiked")// Text("Post beğenildi")
+
+        false -> Log.d("Post Composable " , "isPostLiked False : $isPostLiked") //Text("Post beğenilmedi")
+        null -> CircularProgressIndicator()
+    }
 
 
     ElevatedCard(
