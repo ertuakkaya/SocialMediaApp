@@ -51,6 +51,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.socialmediaapp.Screen
 import com.example.socialmediaapp.ui.viewmodels.AuthState
+import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirebaseViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
 import com.example.socialmediaapp.ui.viewmodels.PostViewModel
@@ -58,7 +59,13 @@ import com.example.socialmediaapp.ui.viewmodels.PostViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showSystemUi = true)
 @Composable
-fun HomeScreen(firebaseViewModel: FirebaseViewModel, navHostController: NavHostController, postViewModel: PostViewModel , firestoreViewModel: FirestoreViewModel) {
+fun HomeScreen(
+    firebaseViewModel: FirebaseViewModel,
+    navHostController: NavHostController,
+    postViewModel: PostViewModel,
+    firestoreViewModel: FirestoreViewModel,
+    authViewModel: AuthViewModel
+) {
 
     // scroll behavior for the top app bar
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
@@ -147,7 +154,12 @@ fun HomeScreen(firebaseViewModel: FirebaseViewModel, navHostController: NavHostC
 
     ) { innerPadding ->
 
-        HomeScreenBodyContent(Modifier.padding(innerPadding),postViewModel = postViewModel, firestoreViewModel = firestoreViewModel )
+        HomeScreenBodyContent(
+            Modifier.padding(innerPadding),
+            postViewModel = postViewModel,
+            firestoreViewModel = firestoreViewModel,
+            authViewModel = authViewModel
+        )
         //PostListScreen( modifier = Modifier.padding(innerPadding),postViewModel = postViewModel)
 
     }
@@ -155,7 +167,7 @@ fun HomeScreen(firebaseViewModel: FirebaseViewModel, navHostController: NavHostC
 
 
 @Composable
-fun HomeScreenBodyContent(modifier: Modifier = Modifier,postViewModel: PostViewModel,firestoreViewModel: FirestoreViewModel) {
+fun HomeScreenBodyContent(modifier: Modifier = Modifier,postViewModel: PostViewModel,firestoreViewModel: FirestoreViewModel,authViewModel: AuthViewModel) {
 
     // Observe the posts from the postViewModel
     val posts by postViewModel.posts.collectAsState()
@@ -174,7 +186,7 @@ fun HomeScreenBodyContent(modifier: Modifier = Modifier,postViewModel: PostViewM
         ) {
 
             items(posts.size) { index ->
-                Post(post = posts[index], postViewModel = postViewModel, firestoreViewModel = firestoreViewModel )
+                Post(post = posts[index], postViewModel = postViewModel, firestoreViewModel = firestoreViewModel, authViewModel = authViewModel  )
             }
 
         }

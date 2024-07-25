@@ -238,15 +238,7 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
         }
     }
 
-//    fun getLikeCount(){
-//        viewModelScope.launch {
-//            try {
-//                postRepository.getLikeCount()
-//            } catch (e: Exception) {
-//                Log.d("PostViewModel", "getLikeCount: $e")
-//            }
-//        }
-//    }
+
 
 }
 

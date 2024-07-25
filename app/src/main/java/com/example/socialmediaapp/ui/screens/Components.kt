@@ -82,7 +82,7 @@ fun Components(){
 
 @Composable
 //@Preview
-fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreViewModel) {
+fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreViewModel,authViewModel: AuthViewModel) {
 
 
     var userLiked by remember { mutableStateOf(postViewModel.GetLikesByUserID()) }
@@ -103,31 +103,21 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
     val isLoading by firestoreViewModel.isLoading.collectAsState()
     val error by firestoreViewModel.error.collectAsState()
 
+    var userID = authViewModel.getCurrentUser()?.uid ?: "N/A"
+    var currentUserID = userData?.userID?: "N/A"
+
+
+
     Log.d("Post", "Post: $userLiked")
     // User data is loading
     LaunchedEffect(key1 = true) {
 
-            val user = firestoreViewModel.getUserFromFirestore(post.userId)
+            val user = firestoreViewModel.getUserFromFirestore(userID) ///TODO: BUG
     }
 
 
-//    // CheckIfUserLikedThePost Viewmodel fonksiyonunu çağırarak, post beğenilmiş mi kontrol edin
-//    val isPostLiked by postViewModel.isPostLiked.collectAsState()
-//
-//    LaunchedEffect(post.id, post.userId) {
-//        postViewModel.CheckIfUserLikedThePost(post.id, post.userId)
-//    }
 
-//    // isPostLiked değerini kullanarak UI'ı oluşturun
-//    when (isPostLiked) {
-//        true -> userLiked = true  //Log.d("Post Composable " , "isPostLiked True : $isPostLiked")// Text("Post beğenildi")
-//
-//
-//        false -> userLiked = false //Log.d("Post Composable " , "isPostLiked False : $isPostLiked") //Text("Post beğenilmedi")
-//        null -> CircularProgressIndicator()
-//    }
-
-    //////
+    Log.d("current user ID", "Current User ID: $currentUserID ")
 
 
     val postStates by postViewModel.postStates.collectAsState()
@@ -136,8 +126,8 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
     val isPostLiked = currentPostState.isLiked
     val likeCount = currentPostState.likeCount
 
-    LaunchedEffect(post.id, post.userId) {
-        postViewModel.checkIfUserLikedThePost(post.id, post.userId)
+    LaunchedEffect(post.id, currentUserID) {
+        postViewModel.checkIfUserLikedThePost(post.id, currentUserID)
     }
 
 
@@ -279,7 +269,7 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
 //                        }
                         IconButton(
                             onClick = {
-                                postViewModel.likeOrUnlikePost(post.id, post.userId)
+                                postViewModel.likeOrUnlikePost(post.id, currentUserID)
                             },
                             modifier = Modifier.size(50.dp)
                         ) {
@@ -291,13 +281,13 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
                             )
                         }
 
-                        Text(
-                            text = if (isPostLiked) {
-                                if (likeCount > 1) "You and ${likeCount - 1} Liked" else "You Liked"
-                            } else {
-                                "$likeCount Like"
-                            }
-                        )
+//                        Text(
+//                            text = if (isPostLiked) {
+//                                if (likeCount > 1) "You and ${likeCount - 1} Liked" else "You Liked"
+//                            } else {
+//                                "$likeCount Like"
+//                            }
+//                        )
 
                     }
 

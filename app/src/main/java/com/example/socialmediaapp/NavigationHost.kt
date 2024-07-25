@@ -59,7 +59,13 @@ fun AppNavHost(
             SignupScreen(navController = navController,firebaseViewModel = firebaseViewModel)
         }
         composable<Screen.HomeScreen> {
-            HomeScreen(firebaseViewModel = firebaseViewModel,navHostController = navController,postViewModel = postViewModel,firestoreViewModel = firestoreViewModel)
+            HomeScreen(
+                firebaseViewModel = firebaseViewModel,
+                navHostController = navController,
+                postViewModel = postViewModel,
+                firestoreViewModel = firestoreViewModel,
+                authViewModel = authViewModel
+            )
         }
         composable<Screen.AccountScreen> {
             AccountScreen(
