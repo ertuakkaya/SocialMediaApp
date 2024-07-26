@@ -322,7 +322,7 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
      * @param userID : String
      * @return User
      */
-    fun getUser(userID: String = "GmxAlLex17gxyiux1sPegopWEYX2") {
+    suspend fun getUser(userID: String = "GmxAlLex17gxyiux1sPegopWEYX2") {
         //var user = User()
         Log.d("PostViewModel getUser", "getUser is called")
         viewModelScope.launch {

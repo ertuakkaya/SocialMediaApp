@@ -701,11 +701,16 @@ fun SettingSectionComponent() {
 }
 
 
-
+/**
+ *  Bottom bar component for the Account screen
+ *  @param verticalPadding : Int is the vertical padding for the bottom bar
+ *  @param horizontalPadding : Int is the horizontal padding for the bottom bar
+ */
 @Composable
-fun DividerComponent() {
+fun DividerComponent(verticalPadding : Int = 16 , horizontalPadding : Int = 0) {
     HorizontalDivider(
-        modifier = Modifier.padding(vertical = 16.dp),
+        modifier = Modifier
+            .padding(vertical = verticalPadding.dp),
         thickness = 1.dp,
         color = Color.LightGray
     )

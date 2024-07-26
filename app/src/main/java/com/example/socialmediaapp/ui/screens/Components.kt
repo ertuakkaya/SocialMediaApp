@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 
 
+
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -50,11 +52,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.Screen
 import com.example.socialmediaapp.data.entitiy.Like
@@ -67,6 +71,7 @@ import com.example.socialmediaapp.ui.viewmodels.PostViewModel
 import com.google.firebase.Timestamp
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.Home
+import compose.icons.feathericons.Send
 
 import kotlin.math.absoluteValue
 
@@ -125,6 +130,11 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
      */
     LaunchedEffect(Unit) {
         postViewModel.getUser(post.userId)
+
+        ////
+        postViewModel.updatePostState(post.id) {
+            it.copy(likeCount = post.likedBy.size, commentCount = post.comments.size)
+        }
     }
 
     val currentUser by postViewModel.user.collectAsState()
@@ -279,7 +289,7 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
                 }
             }// Row // Comment icon , comment count text, like count text , like button
 
-            DividerComponent()
+            DividerComponent(verticalPadding = 1)
             Log.d("Post" , "Current user : $currentUser")
             CommentSection(postViewModel = postViewModel, post = post)
 
@@ -301,6 +311,21 @@ fun CommentSection(
     post: Post,
 ) {
 
+   AddComment(postViewModel = postViewModel, post = post)
+
+
+}
+
+@Composable
+fun AddComment(
+    postViewModel: PostViewModel,
+    post: Post,
+){
+
+
+
+
+    // User data is loading
     LaunchedEffect(Unit) {
         postViewModel.getUser(post.userId)
     }
@@ -309,29 +334,89 @@ fun CommentSection(
     Log.d("CommentSection", "User: $currentUser")
 
 
+
     var commentText by remember { mutableStateOf("") }
 
 
 
-    TextField(
-        value = commentText,
-        onValueChange = { commentText = it },
-    )
-    DividerComponent()
-    Button(
-        onClick = {
-            postViewModel.addComment(post.id,  commentText, currentUser!!)
-        }
+    Row (
+        modifier = Modifier
+            .fillMaxWidth()
+
+            .wrapContentHeight(),
+
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = "Add Comment")
+
+        Box( modifier = Modifier
+            .size(50.dp)
+            .border(2.dp, Color.Gray, CircleShape)
+            .clip(CircleShape),)
+        {
+            currentUser.let {
+                if (it != null) {
+                    AsyncImage(
+                        //model = "https://picsum.photos/400/400",
+                        // model = if (post.profileImageUrl.isNotEmpty()) post.profileImageUrl else "https://picsum.photos/400/400",////////////////
+//            model = if (currentUser!!.profileImageUrl!!.isNotEmpty()) currentUser?.profileImageUrl else "https://picsum.photos/400/400",
+                        model = currentUser?.profileImageUrl,
+//            model = ImageRequest.Builder(LocalContext.current)
+//                .data(user?.profileImageUrl ?: "https://picsum.photos/400/400")
+//                .crossfade(true)
+//                .build(),
+                        contentDescription = "Translated description of what the image contains",
+                        modifier = Modifier
+                            .size(50.dp)
+                            .border(2.dp, Color.Gray, CircleShape)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+                else{
+                    CircularProgressIndicator()
+                }
+            }
+        }
+
+
+
+        TextField(
+            value = commentText,
+            onValueChange = { commentText = it },
+            modifier = Modifier
+                .weight(7f)
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+
+
+        )
+
+        IconButton(
+            onClick = {
+                postViewModel.addComment(post.id,  commentText, currentUser!!)
+            },
+            modifier = Modifier
+                .weight(1f)
+        ) {
+            Icon(imageVector = FeatherIcons.Send, contentDescription = "Send" )
+        }
+        
     }
+
 }
+
+
 
 
 @Composable
 fun ProfileImage(
     profileImageUrl: String,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
+        .size(50.dp)
+        .border(2.dp, Color.Gray, CircleShape)
+        .clip(CircleShape)
+
 
 ){
     AsyncImage(
@@ -339,7 +424,7 @@ fun ProfileImage(
         // model = if (post.profileImageUrl.isNotEmpty()) post.profileImageUrl else "https://picsum.photos/400/400",////////////////
         model = if (profileImageUrl.isNotEmpty()) profileImageUrl else "https://picsum.photos/400/400",
         contentDescription = "Translated description of what the image contains",
-        modifier = Modifier
+        modifier = modifier
             .size(50.dp)
             .border(2.dp, Color.Gray, CircleShape)
             .clip(CircleShape),
