@@ -56,8 +56,8 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun providePostViewModel(postRepository: PostRepository) : PostViewModel {
-        return PostViewModel(postRepository)
+    fun providePostViewModel(postRepository: PostRepository,firestoreRepository: FirestoreRepository) : PostViewModel {
+        return PostViewModel(postRepository,firestoreRepository)
     }
 
 

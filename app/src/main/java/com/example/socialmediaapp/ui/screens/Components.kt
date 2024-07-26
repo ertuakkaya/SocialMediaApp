@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Call
+import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
@@ -36,6 +37,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -57,6 +59,7 @@ import com.example.socialmediaapp.R
 import com.example.socialmediaapp.Screen
 import com.example.socialmediaapp.data.entitiy.Like
 import com.example.socialmediaapp.data.entitiy.Post
+import com.example.socialmediaapp.data.entitiy.User
 import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
 import com.example.socialmediaapp.ui.viewmodels.PostState
@@ -113,7 +116,20 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
     LaunchedEffect(key1 = true) {
 
             val user = firestoreViewModel.getUserFromFirestore(userID)
+
     }
+
+
+    /**
+     * currentUser is the currently logged in user of the app.
+     */
+    LaunchedEffect(Unit) {
+        postViewModel.getUser(post.userId)
+    }
+
+    val currentUser by postViewModel.user.collectAsState()
+    Log.d("postViewModel.user.collectAsState() ", "User: $currentUser")
+
 
 
 
@@ -241,36 +257,7 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
                                 "$likeCount Like"
                             },
                         )
-//                        IconButton(
-//                            onClick = {
-//                                if(isPostLiked!!){
-//                                    //likeCount++
-//                                    //postViewModel.likePost(post.id,post.userId)//////////////////////
-//                                    val like = Like(user = userData!! , createdAt = Timestamp.now())
-//                                    Log.d("Post", "Like: $like -- user : ${userData}")
-//                                    //postViewModel.likePost(post.id, like)//////////////////////
-//                                    likeCount = postViewModel.LikeOrUnlike(post.id,post.userId)
-//
-//                                }
-//                                else{
-//                                    //likeCount--
-//                                    //postViewModel.unlikePost(post.id)//////////////////////
-//                                    likeCount = postViewModel.LikeOrUnlike(post.id,post.userId)
-//                                }
-//                                //isPostLiked = !isPostLiked!!
-//
-//
-//                            },
-//                            modifier = Modifier
-//                                .size(50.dp)
-//                        ) {
-//
-//                            Icon(
-//                                painter = if(isPostLiked!!) painterResource(id = R.drawable.like_filled) else painterResource(id = R.drawable.like_unfilled),
-//                                contentDescription = null,
-//                                modifier = Modifier.size(32.dp)
-//                            )
-//                        }
+
                         IconButton(
                             onClick = {
                                 postViewModel.likeOrUnlikePost(post.id, currentUserID)
@@ -285,23 +272,61 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
                             )
                         }
 
-//                        Text(
-//                            text = if (isPostLiked) {
-//                                if (likeCount > 1) "You and ${likeCount - 1} Liked" else "You Liked"
-//                            } else {
-//                                "$likeCount Like"
-//                            }
-//                        )
+
 
                     }
 
                 }
             }// Row // Comment icon , comment count text, like count text , like button
 
+            DividerComponent()
+            Log.d("Post" , "Current user : $currentUser")
+            CommentSection(postViewModel = postViewModel, post = post)
+
         }// Card Column
     }
 
 }
+
+/**
+ * CommentSection is a composable function that displays the comment section of a post.
+ * @param postViewModel: PostViewModel is the ViewModel class that contains the logic for the Post screen.
+ * @param post: Post is the post whose comments are to be displayed.
+ * @param currentUser: User is the currently logged in user of the app.
+ * @see PostViewModel.addComment
+ */
+@Composable
+fun CommentSection(
+    postViewModel: PostViewModel,
+    post: Post,
+) {
+
+    LaunchedEffect(Unit) {
+        postViewModel.getUser(post.userId)
+    }
+
+    val currentUser by postViewModel.user.collectAsState()
+    Log.d("CommentSection", "User: $currentUser")
+
+
+    var commentText by remember { mutableStateOf("") }
+
+
+
+    TextField(
+        value = commentText,
+        onValueChange = { commentText = it },
+    )
+    DividerComponent()
+    Button(
+        onClick = {
+            postViewModel.addComment(post.id,  commentText, currentUser!!)
+        }
+    ) {
+        Text(text = "Add Comment")
+    }
+}
+
 
 @Composable
 fun ProfileImage(

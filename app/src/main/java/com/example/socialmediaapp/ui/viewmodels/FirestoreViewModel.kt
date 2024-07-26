@@ -43,6 +43,8 @@ class FirestoreViewModel @Inject constructor(private val firestoreRepository: Fi
         }
     }
 
+
+
 //    fun getUserFromFirestore2(userId: String) : User {
 //        return firestoreRepository.getUserFromFirestore(userId)
 //    }

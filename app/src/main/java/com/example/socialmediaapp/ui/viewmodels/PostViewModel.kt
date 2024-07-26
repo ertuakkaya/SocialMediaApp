@@ -8,6 +8,7 @@ import com.example.socialmediaapp.data.entitiy.Comment
 import com.example.socialmediaapp.data.entitiy.Like
 import com.example.socialmediaapp.data.entitiy.Post
 import com.example.socialmediaapp.data.entitiy.User
+import com.example.socialmediaapp.data.repository.FirestoreRepository
 import com.example.socialmediaapp.data.repository.PostRepository
 import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +21,7 @@ import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
-class PostViewModel @Inject constructor(private val postRepository: PostRepository) : ViewModel() {
+class PostViewModel @Inject constructor(private val postRepository: PostRepository,private val firestoreRepository: FirestoreRepository) : ViewModel() {
 
 
     private val _posts = MutableStateFlow<List<Post>>(emptyList())
@@ -252,6 +253,11 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     private val _comments = MutableStateFlow<List<Comment>>(emptyList())
     val comments: StateFlow<List<Comment>> = _comments.asStateFlow()
 
+
+    /**
+     * loadComments is loading comments
+     * @param postID : String = "tDB9co8mVoIKm7hWbZHN"
+     */
     fun loadComments(postID: String = "tDB9co8mVoIKm7hWbZHN"){
         viewModelScope.launch {
             try {
@@ -268,19 +274,32 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
 
 
     init {
-        //LikeOrUnlike("1","1")
-        //CheckIfUserLikedThePost("1","1")
+
+        //getUser()
 
         //addComment()
+
         loadComments()
 
 
     }
 
-    fun addComment(postID: String = "tDB9co8mVoIKm7hWbZHN", comment: String = "deneme1"){
+
+
+
+    /**
+     *   addComment is getting postID and comment
+     *   @param postID : String = "tDB9co8mVoIKm7hWbZHN"
+     *   @param comment : String = "deneme1"
+     *
+     *
+     *
+     */
+    fun addComment(postID: String = "tDB9co8mVoIKm7hWbZHN", comment: String = "deneme1",user : User = User()) {
+
         viewModelScope.launch {
             try {
-                val newComment = postRepository.addComment(postID, comment)
+                val newComment = postRepository.addComment(postID, comment, user)
                 _comments.value = _comments.value + newComment
                 updatePostState(postID){
                     it.copy(commentCount = it.commentCount + 1)
@@ -294,6 +313,34 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
         }
     }
 
+    // user flow is getting user from firestore
+    private val _user = MutableStateFlow<User?>(null)
+    val user: StateFlow<User?> = _user.asStateFlow()
+
+    /**
+     * getUser is getting currently logged in user from firestore
+     * @param userID : String
+     * @return User
+     */
+    fun getUser(userID: String = "GmxAlLex17gxyiux1sPegopWEYX2") {
+        //var user = User()
+        Log.d("PostViewModel getUser", "getUser is called")
+        viewModelScope.launch {
+            try {
+                firestoreRepository.getUserFromFirestore(userID).collect{user ->
+                    _user.value = user
+                    Log.d("PostViewModel getUser", "_user.value: ${_user.value}")
+
+                }
+            } catch (e: Exception){
+                // Exeption log
+                Log.e("PostViewModel getUser", " Error getting user", e)
+
+            }
+        }
+
+    }
+
 }
 
 
@@ -303,3 +350,4 @@ data class PostState(
     val likeCount: Int = 0,
     val commentCount: Int = 0,
 )
+

@@ -20,6 +20,12 @@ class FirestoreRepository @Inject constructor(private val firestore: FirebaseFir
    // fun getUserFromFirestore(userID: String) = firestore.collection("users").document(userID).get()
 
 
+    /**
+     *  getUserFromFirestore function is a suspend function that returns a Flow of User?.
+     *  @param userID: String is the ID of the user whose data is to be fetched from Firestore.
+     *  @return Flow<User?> is the Flow of User? that is emitted when the data is fetched from Firestore.
+     */
+
     fun getUserFromFirestore(userID : String) : Flow<User?> = flow {
         try {
             val snapshot = withContext(Dispatchers.IO) {

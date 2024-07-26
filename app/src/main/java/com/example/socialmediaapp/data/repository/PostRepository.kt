@@ -176,6 +176,14 @@ class PostRepository @Inject constructor(
 
     ////// Comment Section
 
+
+    /**
+     * Load comments for a post
+     * @param postID: The ID of the post to load comments for
+     * @return  Comment: A list of comments for the post
+     *
+     */
+
     suspend fun getComments(postID: String): List<Comment> = withContext(Dispatchers.IO) {
         val commentsRef = firestore.collection("posts").document(postID).collection("comments")
         val snapshot = commentsRef.orderBy("createdAt", Query.Direction.DESCENDING).get().await()
@@ -184,7 +192,14 @@ class PostRepository @Inject constructor(
     }
 
 
-    suspend fun addComment(postID: String, commentText: String) : Comment = withContext(Dispatchers.IO){
+    /**
+     * Add a comment to a post
+     * @param postID: The ID of the post to add the comment to
+     * @param commentText: The text of the comment
+     * @return The added comment
+     */
+
+    suspend fun addComment(postID: String, commentText: String, user : User ) : Comment = withContext(Dispatchers.IO){
 
         val postRef = firestore.collection("posts").document(postID)
         val commentsRef = postRef.collection("comments")
@@ -194,9 +209,9 @@ class PostRepository @Inject constructor(
             commentID = commentsRef.document().id,
             commentText = commentText,
             createdAt = Timestamp.now(),
-            userID = currentUser!!.uid,
-            userName = "username", // TODO: get user.username
-            profileImageUrl = "dummy url" // TODO: get user.profileImageUrl
+            userID = user.userID ?: "null", // TODO: get user.userID
+            userName = user.userName ?: "null", // TODO: get user.username
+            profileImageUrl = user.profileImageUrl ?: "null" // TODO: get user.profileImageUrl
         )
 
         val docRef = commentsRef.add(newComment).await()
@@ -205,7 +220,7 @@ class PostRepository @Inject constructor(
         Log.d("addComment Repo", "Comment added with ID: ${docRef.id}")
 
 
-
+        // Return the added comment with the generated ID
         newComment.copy(commentID = docRef.id)
 
 
