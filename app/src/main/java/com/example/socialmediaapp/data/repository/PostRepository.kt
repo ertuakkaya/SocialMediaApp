@@ -2,6 +2,8 @@ package com.example.socialmediaapp.data.repository
 
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import com.example.socialmediaapp.data.entitiy.Comment
 import com.example.socialmediaapp.data.entitiy.Like
 import com.example.socialmediaapp.data.entitiy.Post
@@ -124,90 +126,7 @@ class PostRepository @Inject constructor(
 
 
 
-//    // /posts/tDB9co8mVoIKm7hWbZHN
-//   // posts document id = tDB9co8mVoIKm7hWbZHN
-//    // current user id = GmxAlLex17gxyiux1sPegopWEYX2
-//    fun LikeOrUnlike(postID: String, userId: String? = currentUSer?.uid) :Int {
-//
-//        val postRef = firestore.collection("posts").document("tDB9co8mVoIKm7hWbZHN")
-//        var likeCount = 0
-//
-//        postRef.get()
-//            .addOnSuccessListener { document ->
-//                document.let { noNullDocument ->
-//
-//                    val currentArray = noNullDocument.get("likedBy") as? ArrayList<String> ?: ArrayList()
-//
-//                    Log.d("AddLike PostRepo", "Current Array: $currentArray")
-//
-//                    // check if the user is already in the list. it so unlike the post and delete the user from the list
-//                    if (currentArray.contains("GmxAlLex17gxyiux1sPegopWEYX2")) { // if the user is already liked the post
-//
-//
-//                        // unlike the post
-//                        currentArray.remove("GmxAlLex17gxyiux1sPegopWEYX2")
-//                        postRef.update("likedBy", currentArray)
-//                            .addOnSuccessListener {
-//                                Log.d(
-//                                    "AddLike PostRepo",
-//                                    "DocumentSnapshot removod with ID: ${noNullDocument.id}, likedBy: $currentArray"
-//                                )
-//                                Log.d("AddLike PostRepo", "User unliked this post")
-//                            }
-//                            .addOnFailureListener { e ->
-//                                Log.w("AddLike PostRepo", "Error adding document", e)
-//                            }
-//                    } else { // if the user is not liked the post
-//                        currentArray.add("GmxAlLex17gxyiux1sPegopWEYX2")
-//
-//                        postRef.update("likedBy", currentArray)
-//
-//                            .addOnSuccessListener {
-//                                Log.d(
-//                                    "AddLike PostRepo",
-//                                    "DocumentSnapshot added with ID: ${noNullDocument.id}"
-//                                )
-//                            }
-//
-//                            .addOnFailureListener { e ->
-//                                Log.w("AddLike PostRepo", "Error adding document", e)
-//                            }
-//
-//                        Log.d("AddLike PostRepo", "User liked this post")
-//                    }
-////                    getLikeCount(currentArray).let {
-////                        Log.d("AddLike PostRepo", "Like Count: $it")
-////                    }
-//                    likeCount = currentArray.size
-//
-//                }
-//
-//
-//            }
-//            .addOnFailureListener { e ->
-//                Log.d("AddLike PostRepo", "Error getting documents.", e)
-//            }
-//
-//        return likeCount
-//    }
-//    // /posts/tDB9co8mVoIKm7hWbZHN
-//    // posts document id = tDB9co8mVoIKm7hWbZHN
-//    // current user id = GmxAlLex17gxyiux1sPegopWEYX2
-//    suspend fun CheckIfUserLikedThePost(postID: String, userId: String?) : Boolean {
-//
-//
-//        return try {
-//            val postRef = firestore.collection("posts").document("tDB9co8mVoIKm7hWbZHN")
-//            val document = postRef.get().await()
-//            val likedBy = document.get("likedBy") as? ArrayList<String> ?: ArrayList()
-//            Log.d("CheckIfUserLikedThePost", "likedBy:  $likedBy")
-//            likedBy.contains("GmxAlLex17gxyiux1sPegopWEYX2")
-//
-//        } catch (e: Exception) {
-//            Log.e("checkIfUserLikedThePost", "Error checking if user liked post: ${e.message}", e)
-//            false
-//        }
-//    }
+
 
     suspend fun likeOrUnlike(postId: String, userId: String): Pair<Boolean, Int> = withContext(
         Dispatchers.IO) {
@@ -227,7 +146,14 @@ class PostRepository @Inject constructor(
 
             postRef.update("likedBy", currentArray).await()
 
+            /**
+             * Return a Pair of two values:
+             * isLiked and the updated like count
+             *
+             */
             Pair(isLiked, currentArray.size)
+
+
         } catch (e: Exception) {
             Log.e("LikeOrUnlike", "Error updating like status: ${e.message}", e)
             Pair(false, 0)
@@ -248,16 +174,42 @@ class PostRepository @Inject constructor(
     }
 
 
+    ////// Comment Section
 
-    // /posts/tDB9co8mVoIKm7hWbZHN
-    // posts document id = tDB9co8mVoIKm7hWbZHN
-    // current user id = GmxAlLex17gxyiux1sPegopWEYX2
-    fun getLikeCount( currentArray : ArrayList<String>) : Int {
+    suspend fun getComments(postID: String): List<Comment> = withContext(Dispatchers.IO) {
+        val commentsRef = firestore.collection("posts").document(postID).collection("comments")
+        val snapshot = commentsRef.orderBy("createdAt", Query.Direction.DESCENDING).get().await()
+        snapshot.toObjects(Comment::class.java)
 
-
-        return currentArray.size
     }
 
+
+    suspend fun addComment(postID: String, commentText: String) : Comment = withContext(Dispatchers.IO){
+
+        val postRef = firestore.collection("posts").document(postID)
+        val commentsRef = postRef.collection("comments")
+        val currentUser = FirebaseAuth.getInstance().currentUser // TODO: Use Dependency Injection
+
+        val newComment = Comment(
+            commentID = commentsRef.document().id,
+            commentText = commentText,
+            createdAt = Timestamp.now(),
+            userID = currentUser!!.uid,
+            userName = "username", // TODO: get user.username
+            profileImageUrl = "dummy url" // TODO: get user.profileImageUrl
+        )
+
+        val docRef = commentsRef.add(newComment).await()
+        postRef.update("commentCount", FieldValue.increment(1)).await()
+
+        Log.d("addComment Repo", "Comment added with ID: ${docRef.id}")
+
+
+
+        newComment.copy(commentID = docRef.id)
+
+
+    }
 
 
 
@@ -543,6 +495,9 @@ class PostRepository @Inject constructor(
 
             }
     }
+
+
+
 
    /////////////////////////////////////////////////////// Firebase Storage
 

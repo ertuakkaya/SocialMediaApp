@@ -112,7 +112,7 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
     // User data is loading
     LaunchedEffect(key1 = true) {
 
-            val user = firestoreViewModel.getUserFromFirestore(userID) ///TODO: BUG
+            val user = firestoreViewModel.getUserFromFirestore(userID)
     }
 
 
@@ -125,6 +125,10 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
 
     val isPostLiked = currentPostState.isLiked
     val likeCount = currentPostState.likeCount
+
+    val commentCount1 = currentPostState.commentCount
+
+    //val currentCommentCount = currentPostState.commentCount
 
     LaunchedEffect(post.id, currentUserID) {
         postViewModel.checkIfUserLikedThePost(post.id, currentUserID)

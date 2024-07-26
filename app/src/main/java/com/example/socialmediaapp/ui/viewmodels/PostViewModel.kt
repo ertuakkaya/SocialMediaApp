@@ -4,8 +4,10 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.socialmediaapp.data.entitiy.Comment
 import com.example.socialmediaapp.data.entitiy.Like
 import com.example.socialmediaapp.data.entitiy.Post
+import com.example.socialmediaapp.data.entitiy.User
 import com.example.socialmediaapp.data.repository.PostRepository
 import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -164,59 +166,37 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
         }
     }
 
-    init {
-        //LikeOrUnlike("1","1")
-        //CheckIfUserLikedThePost("1","1")
 
 
-    }
-
-//    fun LikeOrUnlike(postID : String, userID : String) : Int {
-//        var likeCount = 0
-//        viewModelScope.launch {
-//            try {
-//                likeCount =  postRepository.LikeOrUnlike(postID,userID)
-//            } catch (e: Exception) {
-//                Log.d("PostViewModel", "likeOrUnlike: $e")
-//            }
-//        }
-//        return likeCount
-//    }
-
-//    fun CheckIfUserLikedThePost(postId: String , userID: String) : Boolean
-//    {
-//        var result = false
-//        viewModelScope.launch {
-//            try {
-//                result = postRepository.CheckIfUserLikedThePost(postId,userID)
-//            } catch (e: Exception) {
-//                Log.d("PostViewModel", "CheckIfUserLikedThePost: $e")
-//            }
-//        }
-//        Log.d("PostViewModel CheckIfUserLikedThePost", "CheckIfUserLikedThePost: $result")
-//        return result
-//    }
-
-//    private val _isPostLiked = MutableStateFlow<Boolean?>(null)
-//    val isPostLiked: StateFlow<Boolean?> = _isPostLiked.asStateFlow()
-//
-//    fun CheckIfUserLikedThePost(postId: String, userId: String) {
-//        viewModelScope.launch {
-//            try {
-//                val result = postRepository.CheckIfUserLikedThePost(postId, userId)
-//                _isPostLiked.value = result
-//                Log.d("PostViewModel", "checkIfUserLikedThePost: $result")
-//
-//            } catch (e: Exception) {
-//                Log.d("PostViewModel", "checkIfUserLikedThePost: $e")
-//                _isPostLiked.value = false
-//            }
-//        }
-//    }
+    /**
+     *      _postStates is getting postID and PostState
+     *      PostState is getting isLiked, likeCount, commentCount
+     *      postStates is getting postID and PostState
+     *
+     *
+     *
+     *      using :
+     *      val postStates by postViewModel.postStates.collectAsState()
+     *      val currentPostState = postStates[post.id] ?: PostState()
+     *
+     *      val isPostLiked = currentPostState.isLiked
+     *      val likeCount = currentPostState.likeCount
+     */
 
     private val _postStates = MutableStateFlow<Map<String, PostState>>(emptyMap())
     val postStates: StateFlow<Map<String, PostState>> = _postStates.asStateFlow()
 
+
+
+
+
+
+    /**
+     *    checkIfUserLikedThePost is getting postID and userID
+     *    updatePostState is getting postID and update function
+     *    update function is getting PostState and returning PostState
+     *
+     */
     fun checkIfUserLikedThePost(postId: String, userId: String) {
         viewModelScope.launch {
             val isLiked = postRepository.checkIfUserLikedThePost(postId, userId)
@@ -224,25 +204,102 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
         }
     }
 
+
+    /**
+     *    likeOrUnlikePost is getting postID and userID
+     *    updatePostState is getting postID and update function
+     *    update function is getting PostState and returning PostState
+     *
+     */
     fun likeOrUnlikePost(postId: String, userId: String) {
         viewModelScope.launch {
             val (isLiked, likeCount) = postRepository.likeOrUnlike(postId, userId)
-            updatePostState(postId) { it.copy(isLiked = isLiked, likeCount = likeCount) }
+
+
+            /**
+             *     updatePostState is getting postID and update function
+             *     update function is getting PostState and returning PostState
+             *     PostState is getting isLiked, likeCount, commentCount
+             */
+            updatePostState(postId) {
+                it.copy(isLiked = isLiked, likeCount = likeCount)
+            }
+
+
         }
     }
 
-    private fun updatePostState(postId: String, update: (PostState) -> PostState) {
+    /**
+     *   updatePostState is getting postID and update function
+     *   update function is getting PostState and returning PostState
+     *   _postStates is returning postID and PostState
+     */
+    fun updatePostState(postId: String, update: (PostState) -> PostState) {
         _postStates.update { currentMap ->
             val currentState = currentMap[postId] ?: PostState()
             currentMap + (postId to update(currentState))
         }
+
+    }
+
+    /////// Comment Section
+
+    /**
+     *    test1 : ID  GmxAlLex17gxyiux1sPegopWEYX2
+     *    last post ID : tDB9co8mVoIKm7hWbZHN
+     */
+
+    private val _comments = MutableStateFlow<List<Comment>>(emptyList())
+    val comments: StateFlow<List<Comment>> = _comments.asStateFlow()
+
+    fun loadComments(postID: String = "tDB9co8mVoIKm7hWbZHN"){
+        viewModelScope.launch {
+            try {
+                val loadedComments = postRepository.getComments(postID)
+                _comments.value = loadedComments
+
+                Log.d("PostViewModel loadComment", "Comments: $loadedComments")
+            } catch (e: Exception){
+                // Exeption log
+                Log.e("PostViewModel loadComment", "Error loading comments", e)
+            }
+        }
     }
 
 
+    init {
+        //LikeOrUnlike("1","1")
+        //CheckIfUserLikedThePost("1","1")
+
+        //addComment()
+        loadComments()
+
+
+    }
+
+    fun addComment(postID: String = "tDB9co8mVoIKm7hWbZHN", comment: String = "deneme1"){
+        viewModelScope.launch {
+            try {
+                val newComment = postRepository.addComment(postID, comment)
+                _comments.value = _comments.value + newComment
+                updatePostState(postID){
+                    it.copy(commentCount = it.commentCount + 1)
+
+                }
+
+            } catch (e: Exception){
+                // Exeption log
+                Log.e("PostViewModel addComment", " Error adding comment", e)
+            }
+        }
+    }
 
 }
 
+
+
 data class PostState(
     val isLiked: Boolean = false,
-    val likeCount: Int = 0
+    val likeCount: Int = 0,
+    val commentCount: Int = 0,
 )
