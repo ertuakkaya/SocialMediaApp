@@ -2,8 +2,6 @@ package com.example.socialmediaapp.data.repository
 
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import com.example.socialmediaapp.data.entitiy.Comment
 import com.example.socialmediaapp.data.entitiy.Like
 import com.example.socialmediaapp.data.entitiy.Post
@@ -28,6 +26,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import com.example.socialmediaapp.util.Result
 
 
 class PostRepository @Inject constructor(
@@ -184,12 +183,36 @@ class PostRepository @Inject constructor(
      *
      */
 
-    suspend fun getComments(postID: String): List<Comment> = withContext(Dispatchers.IO) {
-        val commentsRef = firestore.collection("posts").document(postID).collection("comments")
-        val snapshot = commentsRef.orderBy("createdAt", Query.Direction.DESCENDING).get().await()
-        snapshot.toObjects(Comment::class.java)
+//    suspend fun getComments(postID: String): List<Comment> = withContext(Dispatchers.IO) {
+//        val commentsRef = firestore.collection("posts").document(postID).collection("comments")
+//        val snapshot = commentsRef.orderBy("createdAt", Query.Direction.DESCENDING).get().await()
+//        snapshot.toObjects(Comment::class.java)
+//
+//    }
+
+    suspend fun getComments(postID: String) : Flow<Result<List<Comment>>> = flow {
+        emit(Result.Loading)
+        try {
+            val commentsRef = firestore.collection("posts").document(postID).collection("comments")
+            val snapshot = commentsRef.orderBy("createdAt", Query.Direction.DESCENDING).get().await()
+            //val comments = snapshot.toObjects(Comment::class.java)
+            if (snapshot.isEmpty) {
+                emit(Result.Failure(Exception("No comments found")))
+            } else {
+                val comments = snapshot.toObjects(Comment::class.java)
+                //emit(Result.Success(comments))
+                comments?.let {
+                    emit(Result.Success(it))
+                }
+            }
+            //emit(Result.Success(comments))
+        }catch (e: Exception){
+            emit(Result.Failure(e))
+        }
 
     }
+
+
 
 
     /**
@@ -594,5 +617,7 @@ class PostRepository @Inject constructor(
     }
 
 }
+
+
 
 

@@ -26,11 +26,9 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Call
-import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
@@ -52,28 +50,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.Screen
-import com.example.socialmediaapp.data.entitiy.Like
+import com.example.socialmediaapp.data.entitiy.Comment
 import com.example.socialmediaapp.data.entitiy.Post
-import com.example.socialmediaapp.data.entitiy.User
 import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
 import com.example.socialmediaapp.ui.viewmodels.PostState
 import com.example.socialmediaapp.ui.viewmodels.PostViewModel
-import com.google.firebase.Timestamp
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.Home
 import compose.icons.feathericons.Send
 
 import kotlin.math.absoluteValue
+
+import com.example.socialmediaapp.util.Result
 
 
 @Composable
@@ -311,11 +307,85 @@ fun CommentSection(
     post: Post,
 ) {
 
-   AddComment(postViewModel = postViewModel, post = post)
+    /// comment try
+    val commentState by postViewModel.commentsState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        postViewModel.loadComments(post.id)
+    }
+
+
+    /**
+     * Comment state is the state of the comments of the post.
+     * It can be in one of the following states:
+     * 1. Loading: The comments are being loaded.
+     * 2. Success: The comments have been successfully loaded.
+     * 3. Failure: An error occurred while loading the comments.
+     *
+     *
+     */
+    when (val state = commentState) {
+        is Result.Loading -> LoadingIndicator()
+        is Result.Success -> CommentListComponent(postViewModel = postViewModel, comments = state.data)//Log.d("CommentSection Success", "Comments: ${state.data}")
+        is Result.Failure -> Log.e("CommentSection error", state.exception.message ?: "An unknown error occurred")//ErrorMessage(state.exception.message ?: "An unknown error occurred")
+    }
+
+    // comment try end
+
+
+    Column {
+        AddComment(postViewModel = postViewModel, post = post)
+
+    }
+
 
 
 }
 
+@Composable
+fun CommentListComponent(
+    postViewModel: PostViewModel,
+    comments : List<Comment>,
+    modifier: Modifier = Modifier
+){
+
+
+
+    Column(
+        modifier = modifier
+    ){
+        comments.forEach { comment ->
+            CommentComponent(comment = comment)
+        }
+    }
+}
+
+@Composable
+fun CommentComponent(comment: Comment) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        ProfileImage(profileImageUrl = comment.profileImageUrl)
+
+        Text(text = comment.userName)
+
+        Text(text = comment.commentText)
+
+    }
+}
+
+
+/**
+ * AddComment is a composable function that displays the comment section of a post.
+ * @param postViewModel: PostViewModel is the ViewModel class that contains the logic for the Post screen.
+ * @param post: Post is the post whose comments are to be displayed.
+ * @see PostViewModel.addComment
+ * @see PostViewModel.commentsState
+ */
 @Composable
 fun AddComment(
     postViewModel: PostViewModel,
@@ -336,6 +406,8 @@ fun AddComment(
 
 
     var commentText by remember { mutableStateOf("") }
+
+
 
 
 

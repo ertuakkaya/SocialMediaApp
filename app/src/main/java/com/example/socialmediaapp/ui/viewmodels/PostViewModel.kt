@@ -10,11 +10,14 @@ import com.example.socialmediaapp.data.entitiy.Post
 import com.example.socialmediaapp.data.entitiy.User
 import com.example.socialmediaapp.data.repository.FirestoreRepository
 import com.example.socialmediaapp.data.repository.PostRepository
+import com.example.socialmediaapp.util.Result
 import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -250,27 +253,81 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
      *    last post ID : tDB9co8mVoIKm7hWbZHN
      */
 
-    private val _comments = MutableStateFlow<List<Comment>>(emptyList())
-    val comments: StateFlow<List<Comment>> = _comments.asStateFlow()
-
+        private val _comments = MutableStateFlow<List<Comment>>(emptyList())
+        val comments: StateFlow<List<Comment>> = _comments.asStateFlow()
+//
+//
+//    /**
+//     * loadComments is loading comments
+//     * @param postID : String = "tDB9co8mVoIKm7hWbZHN"
+//     */
+//    fun loadComments(postID: String = "tDB9co8mVoIKm7hWbZHN"){
+//        viewModelScope.launch {
+//            try {
+//                val loadedComments = postRepository.getComments(postID)
+//                _comments.value = loadedComments
+//
+//                Log.d("PostViewModel loadComment", "Comments: $loadedComments")
+//            } catch (e: Exception){
+//                // Exeption log
+//                Log.e("PostViewModel loadComment", "Error loading comments", e)
+//            }
+//        }
+//    }
 
     /**
-     * loadComments is loading comments
-     * @param postID : String = "tDB9co8mVoIKm7hWbZHN"
+     *
+     *
+     *
+     *      viewModelScope.launch {
+     *             userRepository.getUser(userId).collect { result ->
+     *                 _userData.value = result
+     *             }
+     *         }
      */
-    fun loadComments(postID: String = "tDB9co8mVoIKm7hWbZHN"){
-        viewModelScope.launch {
-            try {
-                val loadedComments = postRepository.getComments(postID)
-                _comments.value = loadedComments
 
-                Log.d("PostViewModel loadComment", "Comments: $loadedComments")
-            } catch (e: Exception){
-                // Exeption log
-                Log.e("PostViewModel loadComment", "Error loading comments", e)
+
+    /// deneme  başlangıcı
+
+    private val _commentState = MutableStateFlow <Result <List<Comment>>> (Result.Loading)
+    val commentsState : StateFlow<Result<List<Comment>>> = _commentState.asStateFlow()
+
+    //private var currentComments : <Result <List<Comment>>> (Result.Loading)
+
+    // loadComment deneme
+    /*
+    fun loadComments1(postId: String){
+        viewModelScope.launch {
+            postRepository.getComments(postId)
+                .onStart {
+                    _commentState.value = Result.Loading
+                }
+                .catch { e ->
+                    _commentState.value = Result.Failure(e)
+                }
+                .collect{ comments ->
+                    currentComments = comments
+                    _commentState.value = Result.Success(comments)
+
+                }
+        }
+    }
+    */
+    // loadComment deneme sonu
+
+
+
+
+    fun loadComments(postID : String){
+        viewModelScope.launch {
+            postRepository.getComments(postID = postID).collect{ result ->
+                _commentState.value = result
+
             }
         }
     }
+
+    //// deneme sonu
 
 
     init {
@@ -279,7 +336,7 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
 
         //addComment()
 
-        loadComments()
+        //loadComments()
 
 
     }
