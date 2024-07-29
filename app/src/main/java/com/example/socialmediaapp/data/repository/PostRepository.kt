@@ -69,23 +69,9 @@ class PostRepository @Inject constructor(
         postsCollection.document(postId).delete().await()
     }
 
-    suspend fun incrementCommentCount(postId: String) {
-        postsCollection.document(postId).update("commentCount", FieldValue.increment(1)).await()
-    }
 
-    suspend fun incrementLikeCount(postId: String,like : Like,) {
-        postsCollection.document(postId).update("likeCount", FieldValue.increment(1)).await()
 
-        // add Like to likedBy
-        postsCollection.document(postId)
-            .collection("likedBy")
-            .add(like).await()
 
-    }
-
-    suspend fun decrementLikeCount(postId: String) {
-        postsCollection.document(postId).update("likeCount", FieldValue.increment(-1)).await()
-    }
 
     suspend fun deleteAllPosts() {
         postsCollection.get().await().documents.forEach {
@@ -183,19 +169,17 @@ class PostRepository @Inject constructor(
      *
      */
 
-//    suspend fun getComments(postID: String): List<Comment> = withContext(Dispatchers.IO) {
-//        val commentsRef = firestore.collection("posts").document(postID).collection("comments")
-//        val snapshot = commentsRef.orderBy("createdAt", Query.Direction.DESCENDING).get().await()
-//        snapshot.toObjects(Comment::class.java)
-//
-//    }
+
+
+
 
     suspend fun getComments(postID: String) : Flow<Result<List<Comment>>> = flow {
         emit(Result.Loading)
         try {
             val commentsRef = firestore.collection("posts").document(postID).collection("comments")
             val snapshot = commentsRef.orderBy("createdAt", Query.Direction.DESCENDING).get().await()
-            //val comments = snapshot.toObjects(Comment::class.java)
+
+
             if (snapshot.isEmpty) {
                 emit(Result.Failure(Exception("No comments found")))
             } else {
@@ -210,6 +194,19 @@ class PostRepository @Inject constructor(
             emit(Result.Failure(e))
         }
 
+    }
+
+
+    suspend fun fetchLastComment(postID: String) : Comment? = withContext(Dispatchers.IO) {
+        try {
+            val commentsRef = firestore.collection("posts").document(postID).collection("comments")
+            val snapshot = commentsRef.orderBy("createdAt", Query.Direction.DESCENDING).limit(1).get().await()
+            val lastComment = snapshot.toObjects(Comment::class.java).firstOrNull()
+            lastComment
+        } catch (e: Exception) {
+            Log.e("FetchLastComment", "Error fetching last comment: ${e.message}", e)
+            null
+        }
     }
 
 

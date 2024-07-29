@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,15 +13,19 @@ import androidx.compose.foundation.layout.Column
 
 
 import androidx.compose.foundation.layout.Row
+
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -51,6 +56,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -58,6 +64,7 @@ import coil.compose.AsyncImage
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.Screen
 import com.example.socialmediaapp.data.entitiy.Comment
+import com.example.socialmediaapp.data.entitiy.Like
 import com.example.socialmediaapp.data.entitiy.Post
 import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
@@ -207,92 +214,206 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ){
+
+//                // Comment icon and Text Row
+//                Box(
+//                    modifier = Modifier
+//                        .size(50.dp)
+//                        .weight(1f),
+//                    content = {
+//                        CommentSectionPost(
+//                            userCommented = userCommented,
+//                            commentCount = commentCount,
+//                            postViewModel = postViewModel,
+//                            post = post
+//                        )
+//                    }
+//                )
                 // Comment icon and Text Row
                 Box(
                     modifier = Modifier
                         .size(50.dp)
-                        .weight(1f)
-                ){
-                    // Comment icon and Text Row
-                    Row (
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically
-                    ){
-                        // Comment icon
-                        IconButton(
-                            onClick = { /*TODO*/ },
-                            modifier = Modifier
-                                .size(50.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Person, // Icon için uygun bir image vector seçin
-                                contentDescription = "Logout",
-                                modifier = Modifier.size(32.dp)
-                            )
-                        }
-                        Text(
-                            text = if (userCommented) {
-                                if (commentCount > 1) "You and ${commentCount - 1} Commented" else "You Commented"
-                            } else {
-                                "$commentCount Comment"
-                            },
+                        .weight(1f),
+                    content = {
+                        CommentSectionPost(
+                            userCommented = userCommented,
+                            commentCount = commentCount,
+                            postViewModel = postViewModel,
+                            post = post
                         )
-                    }// Comment icon and Text Row
-                }// Comment icon and Text Row
+                    }
+                )
 
                 // Like icon and Text Row
                 Box(
                     modifier = Modifier
                         .size(50.dp)
-                        .weight(1f)
-                ){
-                    Row (
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.CenterVertically
-                    ){
-
-
-                        Text(
-                            text = if (isPostLiked!!) {
-                                if (likeCount > 1) "You and ${likeCount - 1} Liked" else "You Liked"
-                            } else {
-                                "$likeCount Like"
-                            },
+                        .weight(1f),
+                    content = {
+                        LikeSeciton(
+                            isPostLiked = isPostLiked,
+                            likeCount = likeCount,
+                            postViewModel = postViewModel,
+                            post = post,
+                            currentUserID = currentUserID
                         )
-
-                        IconButton(
-                            onClick = {
-                                postViewModel.likeOrUnlikePost(post.id, currentUserID)
-                            },
-                            modifier = Modifier.size(50.dp)
-                        ) {
-                            Icon(
-                                painter = if(isPostLiked) painterResource(id = R.drawable.like_filled)
-                                else painterResource(id = R.drawable.like_unfilled),
-                                contentDescription = null,
-                                modifier = Modifier.size(32.dp)
-                            )
-                        }
-
-
-
                     }
+                )
 
-                }
             }// Row // Comment icon , comment count text, like count text , like button
 
             DividerComponent(verticalPadding = 1)
             Log.d("Post" , "Current user : $currentUser")
-            CommentSection(postViewModel = postViewModel, post = post)
+
+
+            // Yeni eklenen CommentSection
+            CommentSection(
+                postViewModel = postViewModel,
+                post = post,
+                onLoadComment = {
+                    // Yorumları yükleme işlemi burada gerçekleştirilebilir
+                    postViewModel.loadComments(post.id)
+                }
+            )
+
+
+//            val lastComment by postViewModel.lastComment.collectAsState()
+//
+//            LaunchedEffect (Unit){
+//                postViewModel.fetchLastComment(post.id)
+//            }
+//
+//            lastComment.let {comment ->
+//                //CommentSection(postViewModel = postViewModel, post = post)
+//                Text(text = comment?.commentText ?: "No comments yet")
+//            }
+
+
+
 
         }// Card Column
     }
 
 }
+
+
+/**
+ * LikeSection is a composable function that displays the like section of a post.
+ * @param isPostLiked: Boolean is a boolean value that indicates whether the post is liked by the current user.
+ * @param likeCount: Int is the number of likes on the post.
+ * @param postViewModel: PostViewModel is the ViewModel class that contains the logic for the Post screen.
+ * @param post: Post is the post whose likes are to be displayed.
+ * @param currentUserID: String is the ID of the currently logged in user.
+ *
+ */
+@Composable
+fun LikeSeciton(
+    isPostLiked: Boolean,
+    likeCount: Int,
+    postViewModel: PostViewModel,
+    post: Post,
+    currentUserID: String
+) {
+
+
+        Row (
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+
+
+            Text(
+                text = if (isPostLiked!!) {
+                    if (likeCount > 1) "You and ${likeCount - 1} Liked" else "You Liked"
+                } else {
+                    "$likeCount Like"
+                },
+            )
+
+            IconButton(
+                onClick = {
+                    postViewModel.likeOrUnlikePost(post.id, currentUserID)
+                },
+                modifier = Modifier.size(50.dp)
+            ) {
+                Icon(
+                    painter = if(isPostLiked) painterResource(id = R.drawable.like_filled)
+                    else painterResource(id = R.drawable.like_unfilled),
+                    contentDescription = null,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+
+
+
+        }
+
+
+}
+
+
+
+@Composable
+fun CommentSectionPost(
+    userCommented: Boolean,
+    commentCount: Int,
+    postViewModel: PostViewModel,
+    post: Post
+){
+
+    var isClicked by remember {
+        mutableStateOf(false)
+    }
+
+    // Comment icon and Text Row
+    Row (
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically
+    ){
+        // Comment icon
+        IconButton(
+            onClick = {
+                isClicked = !isClicked
+            },
+            modifier = Modifier
+                .size(50.dp),
+            content = {
+                Icon(
+                    imageVector = Icons.Default.Person, // Icon için uygun bir image vector seçin
+                    contentDescription = "Logout",
+                    modifier = Modifier.size(32.dp)
+                )
+                if (isClicked){
+
+
+
+
+                }else{
+                    return@IconButton
+                }
+
+
+
+            }
+        )
+
+        Text(
+            text = if (userCommented) {
+                if (commentCount > 1) "You and ${commentCount - 1} Commented" else "You Commented"
+            } else {
+                "$commentCount Comment"
+            },
+        )
+    }// Comment icon and Text Row
+}
+
+
+
+
 
 /**
  * CommentSection is a composable function that displays the comment section of a post.
@@ -301,64 +422,73 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
  * @param currentUser: User is the currently logged in user of the app.
  * @see PostViewModel.addComment
  */
+
+
 @Composable
 fun CommentSection(
     postViewModel: PostViewModel,
     post: Post,
+    onLoadComment: () -> Unit
 ) {
-
-    /// comment try
+    var isExpanded by remember { mutableStateOf(false) }
     val commentState by postViewModel.commentsState.collectAsState()
 
-    LaunchedEffect(Unit) {
-        postViewModel.loadComments(post.id)
-    }
-
-
-    /**
-     * Comment state is the state of the comments of the post.
-     * It can be in one of the following states:
-     * 1. Loading: The comments are being loaded.
-     * 2. Success: The comments have been successfully loaded.
-     * 3. Failure: An error occurred while loading the comments.
-     *
-     *
-     */
-    when (val state = commentState) {
-        is Result.Loading -> LoadingIndicator()
-        is Result.Success -> CommentListComponent(postViewModel = postViewModel, comments = state.data)//Log.d("CommentSection Success", "Comments: ${state.data}")
-        is Result.Failure -> Log.e("CommentSection error", state.exception.message ?: "An unknown error occurred")//ErrorMessage(state.exception.message ?: "An unknown error occurred")
-    }
-
-    // comment try end
-
-
     Column {
-        AddComment(postViewModel = postViewModel, post = post)
+        Row(
+            modifier = Modifier
+                .clickable {
+                    isExpanded = !isExpanded
+                    if (isExpanded) {
+                        onLoadComment()
+                    }
+                }
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = "Comments"
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(text = "${post.commentCount} comments")
+        }
 
+        if (isExpanded) {
+            when (val state = commentState) {
+                is Result.Loading -> LoadingIndicator()
+                is Result.Success -> if (state.data.isEmpty()) {
+                    Text(text = "No comments yet")
+                } else {
+                    CommentListComponent(postViewModel = postViewModel, comments = state.data)
+                }
+                is Result.Failure -> ErrorMessage(state.exception.message ?: "An unknown error occurred")
+            }
+
+            AddComment(postViewModel = postViewModel, post = post)
+        }
     }
-
-
-
 }
+
+
+
 
 @Composable
 fun CommentListComponent(
     postViewModel: PostViewModel,
-    comments : List<Comment>,
+    comments: List<Comment>,
     modifier: Modifier = Modifier
-){
-
-
-
-    Column(
+) {
+    LazyColumn(
         modifier = modifier
-    ){
-        comments.forEach { comment ->
+            .heightIn(max = 150.dp)
+    ) {
+        items(comments) { comment ->
             CommentComponent(comment = comment)
         }
     }
 }
+
+
 
 @Composable
 fun CommentComponent(comment: Comment) {
@@ -370,11 +500,10 @@ fun CommentComponent(comment: Comment) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         ProfileImage(profileImageUrl = comment.profileImageUrl)
-
-        Text(text = comment.userName)
-
-        Text(text = comment.commentText)
-
+        Column {
+            Text(text = comment.userName, fontWeight = FontWeight.Bold)
+            Text(text = comment.commentText)
+        }
     }
 }
 

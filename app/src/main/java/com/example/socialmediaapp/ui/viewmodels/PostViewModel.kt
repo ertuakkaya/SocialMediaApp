@@ -13,6 +13,7 @@ import com.example.socialmediaapp.data.repository.PostRepository
 import com.example.socialmediaapp.util.Result
 import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -48,6 +49,7 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     init {
 
         loadPosts()
+
 
 
     }
@@ -113,27 +115,9 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
 
 
 
-    fun likePost(postId: String, like : Like) {
-        viewModelScope.launch {
-            try {
-                postRepository.incrementLikeCount(postId,like)
-                // Optionally update the local post object
-            } catch (e: Exception) {
-                // Handle error
-            }
-        }
-    }
 
-    fun unlikePost(postId: String) {
-        viewModelScope.launch {
-            try {
-                postRepository.decrementLikeCount(postId)
-                // Optionally update the local post object
-            } catch (e: Exception) {
-                // Handle error
-            }
-        }
-    }
+
+
 
     fun deletePost(postId: String) {
         viewModelScope.launch {
@@ -160,15 +144,7 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
         }
     }
 
-    fun getPostImageUrl(fileName: String) {
-        viewModelScope.launch {
-            try {
-                postRepository.getUrl(fileName)
-            } catch (e: Exception) {
-                Log.d("PostViewModel", "getPostImageUrl: $e")
-            }
-        }
-    }
+
 
 
 
@@ -255,69 +231,17 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
 
         private val _comments = MutableStateFlow<List<Comment>>(emptyList())
         val comments: StateFlow<List<Comment>> = _comments.asStateFlow()
-//
-//
-//    /**
-//     * loadComments is loading comments
-//     * @param postID : String = "tDB9co8mVoIKm7hWbZHN"
-//     */
-//    fun loadComments(postID: String = "tDB9co8mVoIKm7hWbZHN"){
-//        viewModelScope.launch {
-//            try {
-//                val loadedComments = postRepository.getComments(postID)
-//                _comments.value = loadedComments
-//
-//                Log.d("PostViewModel loadComment", "Comments: $loadedComments")
-//            } catch (e: Exception){
-//                // Exeption log
-//                Log.e("PostViewModel loadComment", "Error loading comments", e)
-//            }
-//        }
-//    }
-
-    /**
-     *
-     *
-     *
-     *      viewModelScope.launch {
-     *             userRepository.getUser(userId).collect { result ->
-     *                 _userData.value = result
-     *             }
-     *         }
-     */
 
 
-    /// deneme  başlangıcı
+
+
+
+    // loadComment deneme sonu
 
     private val _commentState = MutableStateFlow <Result <List<Comment>>> (Result.Loading)
     val commentsState : StateFlow<Result<List<Comment>>> = _commentState.asStateFlow()
 
-    //private var currentComments : <Result <List<Comment>>> (Result.Loading)
-
-    // loadComment deneme
-    /*
-    fun loadComments1(postId: String){
-        viewModelScope.launch {
-            postRepository.getComments(postId)
-                .onStart {
-                    _commentState.value = Result.Loading
-                }
-                .catch { e ->
-                    _commentState.value = Result.Failure(e)
-                }
-                .collect{ comments ->
-                    currentComments = comments
-                    _commentState.value = Result.Success(comments)
-
-                }
-        }
-    }
-    */
-    // loadComment deneme sonu
-
-
-
-
+    // worked but bugged
     fun loadComments(postID : String){
         viewModelScope.launch {
             postRepository.getComments(postID = postID).collect{ result ->
@@ -327,7 +251,11 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
         }
     }
 
-    //// deneme sonu
+
+
+
+
+
 
 
     init {
@@ -396,6 +324,22 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
             }
         }
 
+    }
+
+
+    private val _lastComment = MutableStateFlow<Comment?>(null)
+    val lastComment: StateFlow<Comment?> get() = _lastComment.asStateFlow()
+
+    fun fetchLastComment(postID : String) {
+        viewModelScope.launch {
+            try {
+                val comment = postRepository.fetchLastComment(postID = postID)
+                _lastComment.value = comment
+
+            } catch (e: Exception) {
+                Log.d("PostViewModel", "fetchLastComment: $e")
+            }
+        }
     }
 
 }
