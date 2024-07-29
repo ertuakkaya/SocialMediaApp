@@ -286,6 +286,7 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
             try {
                 val newComment = postRepository.addComment(postID, comment, user)
                 _comments.value = _comments.value + newComment
+                _commentState.value = Result.Success(_comments.value) ///////////
                 updatePostState(postID){
                     it.copy(commentCount = it.commentCount + 1)
 

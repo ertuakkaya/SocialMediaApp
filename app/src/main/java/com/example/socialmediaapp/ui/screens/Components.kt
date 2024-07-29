@@ -2,6 +2,7 @@ package com.example.socialmediaapp.ui.screens
 
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -33,16 +34,19 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -57,6 +61,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -546,7 +551,8 @@ fun CommentSection(
                 is Result.Failure -> ErrorMessage(state.exception.message ?: "An unknown error occurred")
             }
 
-            AddComment(postViewModel = postViewModel, post = post)
+            AddComment(postViewModel = postViewModel, post = post )
+
         }
     }
 }
@@ -606,7 +612,7 @@ fun AddComment(
 ){
 
 
-
+    //var showSnackBar by remember { mutableStateOf(showSnackBar) }
 
     // User data is loading
     LaunchedEffect(Unit) {
@@ -619,6 +625,7 @@ fun AddComment(
 
 
     var commentText by remember { mutableStateOf("") }
+
 
 
 
@@ -677,19 +684,40 @@ fun AddComment(
 
         )
 
+
+
+
         IconButton(
             onClick = {
                 postViewModel.addComment(post.id,  commentText, currentUser!!)
+                commentText = ""
+                //showSnackBar = true
+
             },
             modifier = Modifier
                 .weight(1f)
         ) {
             Icon(imageVector = FeatherIcons.Send, contentDescription = "Send" )
+
         }
         
     }
 
 }
+
+@Composable
+fun SnackBarComponent(onDismiss: () -> Unit){
+    Snackbar {
+        Text(text = "Comment added successfully")
+        IconButton(onClick = onDismiss) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Close"
+            )
+        }
+    }
+}
+
 
 
 

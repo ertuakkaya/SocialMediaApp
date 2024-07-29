@@ -45,6 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirebaseStorageViewModel
@@ -60,7 +61,7 @@ import java.util.UUID
 @Composable
 @Preview
 fun MakeAPostScreen(
-    navController: NavController,
+    navController: NavHostController,
     firebaseStorageViewModel: FirebaseStorageViewModel,
     makeAPostViewModel: MakeAPostViewModel,
     postViewModel: PostViewModel,
@@ -111,6 +112,9 @@ fun MakeAPostScreen(
             )
 
         },// Top bar
+        bottomBar = {
+            BottomBarComponent(navHostController = navController)
+        }
     ){innerPadding ->
         MakeAPostBody(
             Modifier.padding(innerPadding),
