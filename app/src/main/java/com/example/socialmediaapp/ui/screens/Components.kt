@@ -28,8 +28,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.Add
@@ -59,7 +61,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.Screen
@@ -77,6 +81,9 @@ import compose.icons.feathericons.Send
 import kotlin.math.absoluteValue
 
 import com.example.socialmediaapp.util.Result
+import compose.icons.feathericons.MessageCircle
+import compose.icons.feathericons.PlusCircle
+import compose.icons.feathericons.User
 
 
 @Composable
@@ -117,6 +124,9 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
     var userID = authViewModel.getCurrentUser()?.uid ?: "N/A"
     var currentUserID = userData?.userID?: "N/A"
 
+
+    var isCommentsExpanded by remember { mutableStateOf(false) }
+    val commentState by postViewModel.commentsState.collectAsState()
 
 
     Log.d("Post", "Post: $userLiked")
@@ -215,20 +225,7 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
                 verticalAlignment = Alignment.CenterVertically
             ){
 
-//                // Comment icon and Text Row
-//                Box(
-//                    modifier = Modifier
-//                        .size(50.dp)
-//                        .weight(1f),
-//                    content = {
-//                        CommentSectionPost(
-//                            userCommented = userCommented,
-//                            commentCount = commentCount,
-//                            postViewModel = postViewModel,
-//                            post = post
-//                        )
-//                    }
-//                )
+                /*
                 // Comment icon and Text Row
                 Box(
                     modifier = Modifier
@@ -239,15 +236,30 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
                             userCommented = userCommented,
                             commentCount = commentCount,
                             postViewModel = postViewModel,
-                            post = post
+                            post = post,
                         )
+//                        // Yorumları gösterme bölümü
+//                        if (isCommentsExpanded) {
+//                            when (val state = commentState) {
+//                                is Result.Loading -> LoadingIndicator()
+//                                is Result.Success -> if (state.data.isEmpty()) {
+//                                    Text(text = "No comments yet")
+//                                } else {
+//                                    CommentListComponent()
+//                                }
+//                                is Result.Failure -> ErrorMessage(state.exception.message ?: "An unknown error occurred")
+//                            }
+//
+//                            // Yorum ekleme bölümü
+//                            AddComment(postViewModel = postViewModel, post = post)
+//                        }
                     }
                 )
-
+                */
                 // Like icon and Text Row
                 Box(
                     modifier = Modifier
-                        .size(50.dp)
+                        //.size(50.dp)
                         .weight(1f),
                     content = {
                         LikeSeciton(
@@ -326,10 +338,11 @@ fun LikeSeciton(
 
             Text(
                 text = if (isPostLiked!!) {
-                    if (likeCount > 1) "You and ${likeCount - 1} Liked" else "You Liked"
+                    if (likeCount > 1) "You & ${likeCount - 1} Liked" else "You Liked"
                 } else {
                     "$likeCount Like"
                 },
+                fontSize = 12.sp,
             )
 
             IconButton(
@@ -363,6 +376,50 @@ fun CommentSectionPost(
     post: Post
 ){
 
+    /**
+     *              Column {
+     *         Row(
+     *             modifier = Modifier
+     *                 .clickable {
+     *                     isExpanded = !isExpanded
+     *                     if (isExpanded) {
+     *                         onLoadComment()
+     *                     }
+     *                 }
+     *                 .padding(vertical = 8.dp),
+     *             verticalAlignment = Alignment.CenterVertically
+     *         ) {
+     *             Icon(
+     *                 imageVector = Icons.Default.Person,
+     *                 contentDescription = "Comments"
+     *             )
+     *             Spacer(modifier = Modifier.width(8.dp))
+     *             Text(text = "${post.commentCount} comments")
+     *         }
+     *
+     *         if (isExpanded) {
+     *             when (val state = commentState) {
+     *                 is Result.Loading -> LoadingIndicator()
+     *                 is Result.Success -> if (state.data.isEmpty()) {
+     *                     Text(text = "No comments yet")
+     *                 } else {
+     *                     CommentListComponent(postViewModel = postViewModel, comments = state.data)
+     *                 }
+     *                 is Result.Failure -> ErrorMessage(state.exception.message ?: "An unknown error occurred")
+     *             }
+     *
+     *             AddComment(postViewModel = postViewModel, post = post)
+     *         }
+     *     }
+     */
+
+    var isExpanded by remember { mutableStateOf(false) }
+
+    val commentState by postViewModel.commentsState.collectAsState()
+
+
+
+
     var isClicked by remember {
         mutableStateOf(false)
     }
@@ -370,7 +427,13 @@ fun CommentSectionPost(
     // Comment icon and Text Row
     Row (
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable {
+                isExpanded = !isExpanded
+                if (isExpanded) {
+                    postViewModel.loadComments(post.id)
+                }
+            },
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ){
@@ -411,6 +474,25 @@ fun CommentSectionPost(
     }// Comment icon and Text Row
 }
 
+//@Composable
+//fun CommentSectionPost(
+//    userCommented: Boolean,
+//    commentCount: Int,
+//    postViewModel: PostViewModel,
+//    post: Post,
+//    onCommentClick: () -> Unit
+//) {
+//    IconButton(
+//        onClick = onCommentClick
+//    ) {
+//        Icon(
+//            imageVector = Icons.Default.Person,
+//            contentDescription = "Comments"
+//        )
+//    }
+//    Text(text = "$commentCount")
+//}
+
 
 
 
@@ -446,7 +528,7 @@ fun CommentSection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = Icons.Default.Person,
+                imageVector = FeatherIcons.MessageCircle,
                 contentDescription = "Comments"
             )
             Spacer(modifier = Modifier.width(8.dp))
@@ -490,6 +572,7 @@ fun CommentListComponent(
 
 
 
+
 @Composable
 fun CommentComponent(comment: Comment) {
     Row(
@@ -506,6 +589,7 @@ fun CommentComponent(comment: Comment) {
         }
     }
 }
+
 
 
 /**
@@ -937,21 +1021,25 @@ private fun HorizontalPagerIndicator(
 
 @Composable
 fun BottomBarComponent(navHostController: NavHostController) {
+
+    val navBackStackEntry by navHostController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
     NavigationBar(
         modifier = Modifier
             .height(60.dp),
         containerColor = Color(0xFFFFFFFF),
-        tonalElevation = 4.dp,
+        tonalElevation = 16.dp,
         contentColor = Color(0xFF000000)
 
 
     ) {
         // HomeScreen
         NavigationBarItem(
-            selected = false,
+            selected = currentRoute.toString() == "com.example.socialmediaapp.Screen.HomeScreen",
             onClick = {
                 navHostController.navigate(Screen.HomeScreen)
-
+                Log.d("BottomBarComponent", "HomeScreen $currentRoute")
             },
             modifier = Modifier
                 //.clip(CircleShape)
@@ -970,13 +1058,13 @@ fun BottomBarComponent(navHostController: NavHostController) {
         )
         // MakeAPostScreen
         NavigationBarItem(
-            selected = true,
+            selected = currentRoute.toString() == "com.example.socialmediaapp.Screen.MakeAPostScreen",
             onClick = {
                 navHostController.navigate(Screen.MakeAPostScreen)
             },
             icon = {
                 Icon(
-                    Icons.Rounded.Call,
+                    FeatherIcons.PlusCircle,
                     contentDescription = null
                 )
             },
@@ -984,13 +1072,13 @@ fun BottomBarComponent(navHostController: NavHostController) {
 
         // AccountScreen
         NavigationBarItem(
-            selected = false,
+            selected = currentRoute.toString() == "com.example.socialmediaapp.Screen.AccountScreen",
             onClick = {
                 navHostController.navigate(Screen.AccountScreen)
             },
             icon = {
                 Icon(
-                    Icons.Rounded.Add,
+                    FeatherIcons.User,
                     contentDescription = null
                 )
             },

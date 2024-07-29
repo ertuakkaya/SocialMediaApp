@@ -53,6 +53,9 @@ fun AppNavHost(
         composable<Screen.LoginScreen> {
             LoginScreen(navController = navController,firebaseViewModel = firebaseViewModel)
 
+
+
+
         }
 
         composable<Screen.SignupScreen> {
@@ -130,3 +133,4 @@ sealed class Screen {
     @Serializable
     object LoadingScreen : Screen()
 }
+
