@@ -16,6 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -47,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.socialmediaapp.R
+import com.example.socialmediaapp.Screen
 import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirebaseStorageViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
@@ -55,6 +57,9 @@ import com.example.socialmediaapp.ui.viewmodels.PostViewModel
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.launch
 import java.util.UUID
+import com.example.socialmediaapp.data.entitiy.Post
+import compose.icons.FeatherIcons
+import compose.icons.feathericons.Check
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -122,10 +127,34 @@ fun MakeAPostScreen(
             makeAPostViewModel = makeAPostViewModel,
             postViewModel = postViewModel,
             firestoreViewModel = firestoreViewModel,
-            authViewModel = authViewModel
+            authViewModel = authViewModel,
+            navController = navController
 
         )
     }
+}
+
+
+@Composable
+fun SuccesDialogComponent(
+    onDismissRequest: () -> Unit
+) {
+    AlertDialog(
+        title = {
+            Text("Post Succesful")
+        },
+        icon = {
+            Icon(imageVector = FeatherIcons.Check, contentDescription = "")
+        },
+
+        onDismissRequest = {
+           onDismissRequest()
+        },
+
+        confirmButton = {
+
+        }
+    )
 }
 
 
@@ -136,7 +165,8 @@ fun MakeAPostBody(
     makeAPostViewModel: MakeAPostViewModel,
     postViewModel: PostViewModel,
     authViewModel: AuthViewModel,
-    firestoreViewModel: FirestoreViewModel
+    firestoreViewModel: FirestoreViewModel,
+    navController: NavHostController
 ) {
 
 
@@ -145,8 +175,21 @@ fun MakeAPostBody(
 
 
     // firebase storage
-    val uploadStatus by firebaseStorageViewModel.uploadStatus.collectAsState()
+    val uploadStatus by postViewModel.uploadStatus.collectAsState()
     var imageUri by remember { mutableStateOf<Uri?>(null) }
+
+
+
+    uploadStatus?.let { status ->
+        Log.d("FirebaseStorageViewModel", "Image upload status: $status")
+        when { // TODO : Post Succes or Fail Screen
+            status.success -> SuccesDialogComponent(onDismissRequest = {
+                navController.navigate(Screen.HomeScreen)
+            })
+            else -> Log.d("FirebaseStorageViewModel", "Image upload fail. ")
+        }
+    }
+
 
 
     val title = remember { mutableStateOf("") }
@@ -211,16 +254,7 @@ fun MakeAPostBody(
 
 
 
-        uploadStatus?.let { status ->
-            when { // TODO : Post Succes or Fail Screen
-                status.success -> Log.d(
-                    "FirebaseStorageViewModel",
-                    "Image uploaded successfully. URL: ${status.imageUrl}"
-                )
 
-                else -> Log.d("FirebaseStorageViewModel", "Image upload fail. ")
-            }
-        }
 
 
         // Content TextField
@@ -251,20 +285,11 @@ fun MakeAPostBody(
         }
 
         val localUserData = userData
-        if (localUserData != null) {
-
-            Text(text = "User: ${localUserData.name}") // Assuming User has a name field
-            Text(text = "User: ${localUserData.userID}") // Assuming User has a name field
-            Text(text = "User: ${localUserData.email}") // Assuming User has a name field
-        } else {
-            Text(text = "No user data available")
-        }
 
         when {
             isLoading -> CircularProgressIndicator()
-            error != null -> Text(text = "Error: $error")
-            //userData != null -> Text(text = "User: ${userData.name}") // Assuming User has a name field
-            else -> Text(text = "No user data available")
+            error != null -> ErrorMessage(error = "Error: $error")
+            else -> Unit
         }
 
         val postID = UUID.randomUUID().toString()
@@ -279,21 +304,62 @@ fun MakeAPostBody(
         val coroutineScope = rememberCoroutineScope()
 
 
-        // Post Button
-        selectedImageUri?.let { uri ->
-            Button(
-                onClick = {
-                    val filename = postViewModel.generatePostID()
+//        // Post Button
+//        selectedImageUri?.let { uri ->
+//            Button(
+//                onClick = {
+//                    val filename = postViewModel.generatePostID()
+//
+//
+//
+//                    val imageUrl = firebaseStorageViewModel.uploadStatus.value?.imageUrl
+//
+//                    coroutineScope.launch {
+//                        val url = postViewModel.uploadFile(uri, filename, "post_images")
+//
+//                        postViewModel.createPost(
+//                            Post(
+//                            id = postID,
+//                            userName = localUserData?.userName?: "N/A",
+//                            profileImageUrl = localUserData?.profileImageUrl?: "N/A",
+//                            postImageUrl = if (url != null) url.toString() else "N/A", // imageUrl?: "N/A",
+//                            postText = content.value,
+//                            timestamp = Timestamp.now(),
+//                            likeCount = 0,
+//                            commentCount = 0,
+//                            likedBy = emptyList(),
+//                            comments = listOf(),
+//                            userId =  localUserData?.userID?: "N/A"
+//                        )
+//                        )
+//
+//                        postViewModel.loadPosts()
+//                    }
+//
+//
+//
+//
+//
+//
+//                }, ////////////
+//                modifier = Modifier.fillMaxWidth()
+//            ) {
+//                Text("Post")
+//            } // Button
+//        } // selectedImageUri?.let
+        Button(
+            onClick = {
+                val filename = postViewModel.generatePostID()
 
 
 
-                    val imageUrl = firebaseStorageViewModel.uploadStatus.value?.imageUrl
+                val imageUrl = firebaseStorageViewModel.uploadStatus.value?.imageUrl
 
-                    coroutineScope.launch {
-                        val url = postViewModel.uploadFile(uri, filename, "post_images")
+                coroutineScope.launch {
+                    val url = postViewModel.uploadFile(selectedImageUri!!, filename, "post_images")
 
-                        postViewModel.createPost(
-                            com.example.socialmediaapp.data.entitiy.Post(
+                    postViewModel.createPost(
+                        Post(
                             id = postID,
                             userName = localUserData?.userName?: "N/A",
                             profileImageUrl = localUserData?.profileImageUrl?: "N/A",
@@ -306,22 +372,23 @@ fun MakeAPostBody(
                             comments = listOf(),
                             userId =  localUserData?.userID?: "N/A"
                         )
-                        )
+                    )
 
-                        postViewModel.loadPosts()
-                    }
-
-
+                    postViewModel.loadPosts()
+                }
 
 
 
 
-                }, ////////////
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Post")
-            }
-        }
+
+
+            }, ////////////
+            enabled = selectedImageUri != null,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Post")
+        } // Button
+
 
 
     }

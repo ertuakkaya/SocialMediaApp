@@ -10,6 +10,7 @@ import com.example.socialmediaapp.data.entitiy.Post
 import com.example.socialmediaapp.data.entitiy.User
 import com.example.socialmediaapp.data.repository.FirestoreRepository
 import com.example.socialmediaapp.data.repository.PostRepository
+import com.example.socialmediaapp.util.ImageUploadResult
 import com.example.socialmediaapp.util.Result
 import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -65,7 +66,9 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     }
 
     suspend fun uploadFile(uri : Uri, fileName : String, imagePath : String) : Uri? {
+        _uploadStatus.value = ImageUploadResult(success = true, errorMessage = null, imageUrl = null)
         return postRepository.uploadPostImage(uri, fileName, imagePath)
+
     }
 
     // load post
@@ -93,13 +96,20 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     }
 
 
+    // UI state'i tutmak için
+    private val _uploadStatus = MutableStateFlow<ImageUploadResult?>(null)
+    val uploadStatus: StateFlow<ImageUploadResult?> = _uploadStatus.asStateFlow()
+
 
     fun createPost(post: Post) {
         viewModelScope.launch {
             try {
                 postRepository.createPost(post).also {
                     Log.d("PostViewModel", "createPost Id : $it")
+
                 }
+
+
 
 
 
@@ -209,6 +219,9 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
         }
     }
 
+
+
+
     /**
      *   updatePostState is getting postID and update function
      *   update function is getting PostState and returning PostState
@@ -219,6 +232,9 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
             val currentState = currentMap[postId] ?: PostState()
             currentMap + (postId to update(currentState))
         }
+
+
+
 
     }
 
