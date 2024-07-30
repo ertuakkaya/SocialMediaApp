@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,7 +19,11 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonElevation
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
@@ -28,6 +33,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,7 +44,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -230,14 +238,15 @@ fun MakeAPostBody(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
-
+        // Horizontal Pager for multiple images
         ElevatedCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(500.dp),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.elevatedCardColors(Color(0xFFFFFFFF)),
-            content = { HorizontalPagerSample(selectedImageUris.ifEmpty { listOf(selectedImageUri).filterNotNull() }) }
+            content = { HorizontalPagerSample(selectedImageUris.ifEmpty { listOf(selectedImageUri).filterNotNull() }) },
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
 
         )
 
@@ -247,28 +256,51 @@ fun MakeAPostBody(
                 singlePhotoPickerLauncher.launch(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                 )
-            }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 24.dp)
         ) {
             Text(text = "Pick Multiple Image")
         }
 
+        val focusManager = LocalFocusManager.current
 
 
-
-
-
-        // Content TextField
-        OutlinedTextField(
-            value = content.value,
-            onValueChange = { content.value = it },
-            label = { Text("Content") },
+        Card (
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp),
-            keyboardActions = KeyboardActions(onDone = { /* Handle send post */ })
-        )
+                .height(200.dp)
+                .clickable {
+                    focusManager.clearFocus()
+                },
+        ){
+            // Content TextField
+            TextField(
+                value = content.value,
+                onValueChange = { content.value = it },
+                label = { Text("Content") },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        // Hide the keyboard
+                      focusManager.clearFocus()
+                    },
+                    onNext = {
+                        focusManager.clearFocus()
+                    },
+                    onGo = {
+                        focusManager.clearFocus()
+                    },
+                    onSearch = {
+                        focusManager.clearFocus()
+                    }
+                )
+            )
+        }
 
-        val scope = rememberCoroutineScope()
+
 
 
         val userData by firestoreViewModel.userData.collectAsState()
@@ -293,60 +325,8 @@ fun MakeAPostBody(
         }
 
         val postID = UUID.randomUUID().toString()
-
-
-
-
-
-
-
-
         val coroutineScope = rememberCoroutineScope()
 
-
-//        // Post Button
-//        selectedImageUri?.let { uri ->
-//            Button(
-//                onClick = {
-//                    val filename = postViewModel.generatePostID()
-//
-//
-//
-//                    val imageUrl = firebaseStorageViewModel.uploadStatus.value?.imageUrl
-//
-//                    coroutineScope.launch {
-//                        val url = postViewModel.uploadFile(uri, filename, "post_images")
-//
-//                        postViewModel.createPost(
-//                            Post(
-//                            id = postID,
-//                            userName = localUserData?.userName?: "N/A",
-//                            profileImageUrl = localUserData?.profileImageUrl?: "N/A",
-//                            postImageUrl = if (url != null) url.toString() else "N/A", // imageUrl?: "N/A",
-//                            postText = content.value,
-//                            timestamp = Timestamp.now(),
-//                            likeCount = 0,
-//                            commentCount = 0,
-//                            likedBy = emptyList(),
-//                            comments = listOf(),
-//                            userId =  localUserData?.userID?: "N/A"
-//                        )
-//                        )
-//
-//                        postViewModel.loadPosts()
-//                    }
-//
-//
-//
-//
-//
-//
-//                }, ////////////
-//                modifier = Modifier.fillMaxWidth()
-//            ) {
-//                Text("Post")
-//            } // Button
-//        } // selectedImageUri?.let
         Button(
             onClick = {
                 val filename = postViewModel.generatePostID()
@@ -373,18 +353,12 @@ fun MakeAPostBody(
                             userId =  localUserData?.userID?: "N/A"
                         )
                     )
-
                     postViewModel.loadPosts()
                 }
-
-
-
-
-
-
-            }, ////////////
+            },
             enabled = selectedImageUri != null,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 24.dp)
         ) {
             Text("Post")
         } // Button
