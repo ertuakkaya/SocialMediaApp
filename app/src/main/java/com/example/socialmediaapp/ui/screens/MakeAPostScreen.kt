@@ -8,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,6 +31,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -43,7 +45,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
@@ -67,7 +71,10 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 import com.example.socialmediaapp.data.entitiy.Post
 import compose.icons.FeatherIcons
+import compose.icons.feathericons.Camera
 import compose.icons.feathericons.Check
+import compose.icons.feathericons.Send
+import compose.icons.feathericons.Upload
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -232,7 +239,8 @@ fun MakeAPostBody(
 
     Column(
         modifier = modifier
-            .padding(16.dp)
+            //.padding(16.dp)
+            .padding(start = 16.dp, end = 16.dp, top = 0.dp, bottom = 0.dp)
             .verticalScroll(rememberScrollState())
             .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -242,6 +250,7 @@ fun MakeAPostBody(
         ElevatedCard(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(top = 16.dp)
                 .height(500.dp),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.elevatedCardColors(Color(0xFFFFFFFF)),
@@ -250,18 +259,44 @@ fun MakeAPostBody(
 
         )
 
-        Button(
+
+        // Button to pick multiple images
+        IconButton(
             onClick = {
 
                 singlePhotoPickerLauncher.launch(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                 )
             },
-            modifier = Modifier.fillMaxWidth(),
-            elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 24.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(45.dp)
+                .shadow(4.dp, shape = RoundedCornerShape(16.dp)),
+            colors = IconButtonDefaults
+                .iconButtonColors(
+                    containerColor = Color(0xFFA3A2A2),
+//                    contentColor = Color(0xFFFFFFFF),
+                    disabledContentColor = Color(0xFF000000),
+                    disabledContainerColor = Color(0xFFFFFFFF),
+                ),
+
+
         ) {
-            Text(text = "Pick Multiple Image")
-        }
+            Row (
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 16.dp)
+                    .fillMaxWidth(),
+
+                horizontalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally)
+            ){
+                Icon(
+                    imageVector = FeatherIcons.Camera, contentDescription = ""
+                )
+                Text(text = "Pick Multiple Image")
+            }
+
+        }// IconButton //  Button to pick multiple images
+
 
         val focusManager = LocalFocusManager.current
 
@@ -278,7 +313,8 @@ fun MakeAPostBody(
             TextField(
                 value = content.value,
                 onValueChange = { content.value = it },
-                label = { Text("Content") },
+                //label = { Text("Content") },
+                placeholder = { Text("What's on your mind?") },
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
@@ -296,7 +332,9 @@ fun MakeAPostBody(
                     onSearch = {
                         focusManager.clearFocus()
                     }
-                )
+                ),
+
+
             )
         }
 
@@ -327,7 +365,9 @@ fun MakeAPostBody(
         val postID = UUID.randomUUID().toString()
         val coroutineScope = rememberCoroutineScope()
 
-        Button(
+
+        // Button to pick multiple images
+        IconButton(
             onClick = {
                 val filename = postViewModel.generatePostID()
 
@@ -357,11 +397,71 @@ fun MakeAPostBody(
                 }
             },
             enabled = selectedImageUri != null,
-            modifier = Modifier.fillMaxWidth(),
-            elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 24.dp)
-        ) {
-            Text("Post")
-        } // Button
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+                .height(45.dp)
+                .shadow(4.dp, shape = RoundedCornerShape(16.dp)),
+            colors = IconButtonDefaults
+                .iconButtonColors(
+                    containerColor = Color(0xFFA3A2A2),
+//                    contentColor = Color(0xFFFFFFFF),
+                    disabledContentColor = Color(0xFF000000),
+                    disabledContainerColor = Color(0xFFFFFFFF),
+                ),
+
+
+            ) {
+            Row (
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 16.dp)
+                    .fillMaxWidth(),
+
+                horizontalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally)
+            ){
+                Icon(
+                    imageVector = FeatherIcons.Upload, contentDescription = ""
+                )
+                Text(text = "Submit Post")
+            }
+
+        }// IconButton //  Button to pick multiple images
+
+//        Button(
+//            onClick = {
+//                val filename = postViewModel.generatePostID()
+//
+//
+//
+//                val imageUrl = firebaseStorageViewModel.uploadStatus.value?.imageUrl
+//
+//                coroutineScope.launch {
+//                    val url = postViewModel.uploadFile(selectedImageUri!!, filename, "post_images")
+//
+//                    postViewModel.createPost(
+//                        Post(
+//                            id = postID,
+//                            userName = localUserData?.userName?: "N/A",
+//                            profileImageUrl = localUserData?.profileImageUrl?: "N/A",
+//                            postImageUrl = if (url != null) url.toString() else "N/A", // imageUrl?: "N/A",
+//                            postText = content.value,
+//                            timestamp = Timestamp.now(),
+//                            likeCount = 0,
+//                            commentCount = 0,
+//                            likedBy = emptyList(),
+//                            comments = listOf(),
+//                            userId =  localUserData?.userID?: "N/A"
+//                        )
+//                    )
+//                    postViewModel.loadPosts()
+//                }
+//            },
+//            enabled = selectedImageUri != null,
+//            modifier = Modifier.fillMaxWidth(),
+//            elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 24.dp)
+//        ) {
+//            Text("Post")
+//        } // Button
 
 
 
