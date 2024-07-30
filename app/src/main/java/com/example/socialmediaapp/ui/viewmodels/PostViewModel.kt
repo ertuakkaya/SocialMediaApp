@@ -71,6 +71,10 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
 
     }
 
+    fun resetUploadStatus() {
+        _uploadStatus.value = null
+    }
+
     // load post
     fun loadPosts() {
         viewModelScope.launch {

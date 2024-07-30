@@ -34,6 +34,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
@@ -75,6 +77,7 @@ import compose.icons.feathericons.Camera
 import compose.icons.feathericons.Check
 import compose.icons.feathericons.Send
 import compose.icons.feathericons.Upload
+import kotlinx.coroutines.delay
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -89,7 +92,12 @@ fun MakeAPostScreen(
     firestoreViewModel: FirestoreViewModel
 ) {
 
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
     Scaffold (
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+
         topBar = {
             CenterAlignedTopAppBar(
                 modifier = Modifier,
@@ -143,7 +151,16 @@ fun MakeAPostScreen(
             postViewModel = postViewModel,
             firestoreViewModel = firestoreViewModel,
             authViewModel = authViewModel,
-            navController = navController
+            navController = navController,
+            onPostSuccess = {
+                scope.launch {
+                    snackbarHostState.showSnackbar("Post uploaded successfully")
+                    delay(2000) // 2 saniye bekle
+                    navController.navigate(Screen.HomeScreen) {
+                        popUpTo(Screen.MakeAPostScreen) { inclusive = true }
+                    }
+                }
+            }
 
         )
     }
@@ -181,7 +198,8 @@ fun MakeAPostBody(
     postViewModel: PostViewModel,
     authViewModel: AuthViewModel,
     firestoreViewModel: FirestoreViewModel,
-    navController: NavHostController
+    navController: NavHostController,
+    onPostSuccess: () -> Unit
 ) {
 
 
@@ -195,15 +213,32 @@ fun MakeAPostBody(
 
 
 
-    uploadStatus?.let { status ->
-        Log.d("FirebaseStorageViewModel", "Image upload status: $status")
-        when { // TODO : Post Succes or Fail Screen
-            status.success -> SuccesDialogComponent(onDismissRequest = {
-                navController.navigate(Screen.HomeScreen)
-            })
-            else -> Log.d("FirebaseStorageViewModel", "Image upload fail. ")
+//    uploadStatus?.let { status ->
+//        Log.d("FirebaseStorageViewModel", "Image upload status: $status")
+//        when { // TODO : Post Succes or Fail Screen
+//            status.success -> SuccesDialogComponent(onDismissRequest = {
+//                navController.navigate(Screen.HomeScreen)
+//            })
+//            else -> Log.d("FirebaseStorageViewModel", "Image upload fail. ")
+//        }
+//    }
+
+
+    val corotioneScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uploadStatus) {
+        uploadStatus?.let { status ->
+            Log.d("FirebaseStorageViewModel", "Image upload status: $status")
+            when {
+                status.success -> {
+                    onPostSuccess()
+                }
+                else -> Log.d("FirebaseStorageViewModel", "Image upload fail. ")
+            }
         }
     }
+
 
 
 
@@ -366,7 +401,7 @@ fun MakeAPostBody(
         val coroutineScope = rememberCoroutineScope()
 
 
-        // Button to pick multiple images
+        // IconButton // Submit Post
         IconButton(
             onClick = {
                 val filename = postViewModel.generatePostID()
@@ -393,7 +428,11 @@ fun MakeAPostBody(
                             userId =  localUserData?.userID?: "N/A"
                         )
                     )
-                    postViewModel.loadPosts()
+
+                    this.launch {
+                        postViewModel.loadPosts()
+                    }
+                    postViewModel.resetUploadStatus()
                 }
             },
             enabled = selectedImageUri != null,
