@@ -591,10 +591,18 @@ class PostRepository @Inject constructor(
         return fileName
     }
 
+    suspend fun fetchCommentCount(post_id: String): Int {
 
+        val commentsRef = firestore.collection("posts").document(post_id).collection("comments")
+        val snapshot = commentsRef.get().await()
+        return try {
+            snapshot.size()
+        } catch (e: Exception) {
+            Log.e("FetchCommentCount", "Error fetching comment count: ${e.message}", e)
+            0
+        }
 
-
-
+    }
 
 
     init {

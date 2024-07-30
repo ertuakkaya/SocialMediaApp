@@ -231,37 +231,7 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
                 verticalAlignment = Alignment.CenterVertically
             ){
 
-                /*
-                // Comment icon and Text Row
-                Box(
-                    modifier = Modifier
-                        .size(50.dp)
-                        .weight(1f),
-                    content = {
-                        CommentSectionPost(
-                            userCommented = userCommented,
-                            commentCount = commentCount,
-                            postViewModel = postViewModel,
-                            post = post,
-                        )
-//                        // Yorumları gösterme bölümü
-//                        if (isCommentsExpanded) {
-//                            when (val state = commentState) {
-//                                is Result.Loading -> LoadingIndicator()
-//                                is Result.Success -> if (state.data.isEmpty()) {
-//                                    Text(text = "No comments yet")
-//                                } else {
-//                                    CommentListComponent()
-//                                }
-//                                is Result.Failure -> ErrorMessage(state.exception.message ?: "An unknown error occurred")
-//                            }
-//
-//                            // Yorum ekleme bölümü
-//                            AddComment(postViewModel = postViewModel, post = post)
-//                        }
-                    }
-                )
-                */
+
                 // Like icon and Text Row
                 Box(
                     modifier = Modifier
@@ -296,16 +266,6 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
             )
 
 
-//            val lastComment by postViewModel.lastComment.collectAsState()
-//
-//            LaunchedEffect (Unit){
-//                postViewModel.fetchLastComment(post.id)
-//            }
-//
-//            lastComment.let {comment ->
-//                //CommentSection(postViewModel = postViewModel, post = post)
-//                Text(text = comment?.commentText ?: "No comments yet")
-//            }
 
 
 
@@ -383,42 +343,7 @@ fun CommentSectionPost(
     post: Post
 ){
 
-    /**
-     *              Column {
-     *         Row(
-     *             modifier = Modifier
-     *                 .clickable {
-     *                     isExpanded = !isExpanded
-     *                     if (isExpanded) {
-     *                         onLoadComment()
-     *                     }
-     *                 }
-     *                 .padding(vertical = 8.dp),
-     *             verticalAlignment = Alignment.CenterVertically
-     *         ) {
-     *             Icon(
-     *                 imageVector = Icons.Default.Person,
-     *                 contentDescription = "Comments"
-     *             )
-     *             Spacer(modifier = Modifier.width(8.dp))
-     *             Text(text = "${post.commentCount} comments")
-     *         }
-     *
-     *         if (isExpanded) {
-     *             when (val state = commentState) {
-     *                 is Result.Loading -> LoadingIndicator()
-     *                 is Result.Success -> if (state.data.isEmpty()) {
-     *                     Text(text = "No comments yet")
-     *                 } else {
-     *                     CommentListComponent(postViewModel = postViewModel, comments = state.data)
-     *                 }
-     *                 is Result.Failure -> ErrorMessage(state.exception.message ?: "An unknown error occurred")
-     *             }
-     *
-     *             AddComment(postViewModel = postViewModel, post = post)
-     *         }
-     *     }
-     */
+
 
     var isExpanded by remember { mutableStateOf(false) }
 
@@ -481,24 +406,7 @@ fun CommentSectionPost(
     }// Comment icon and Text Row
 }
 
-//@Composable
-//fun CommentSectionPost(
-//    userCommented: Boolean,
-//    commentCount: Int,
-//    postViewModel: PostViewModel,
-//    post: Post,
-//    onCommentClick: () -> Unit
-//) {
-//    IconButton(
-//        onClick = onCommentClick
-//    ) {
-//        Icon(
-//            imageVector = Icons.Default.Person,
-//            contentDescription = "Comments"
-//        )
-//    }
-//    Text(text = "$commentCount")
-//}
+
 
 
 
@@ -523,6 +431,40 @@ fun CommentSection(
     var isExpanded by remember { mutableStateOf(false) }
     val commentState by postViewModel.commentsState.collectAsState()
 
+    val postStates by postViewModel.postStates.collectAsState()
+    val currentPostState = postStates[post.id] ?: PostState()
+
+
+    val posts by postViewModel.posts.collectAsState()
+    val currentPost = posts.find {it ->
+        it.id == post.id
+    } ?: return
+
+
+    var commentCount =
+
+
+    Log.d("CommentSection", "Comment Count: ${currentPostState.commentCount}")
+
+    LaunchedEffect (post.id){
+        postViewModel.fetchCommentCount(post.id)
+
+    }
+    val commentCount1 by postViewModel.commentCount.collectAsState()
+    Log.d("CommentSection", "commentCount1: $commentCount1")
+
+    when (val state = commentState) {
+        is Result.Loading -> Unit
+        is Result.Success -> if (state.data.isEmpty()) {
+        } else {
+            commentCount = state.data.size
+        }
+        is Result.Failure -> Log.d("CommentSection", "Error: ${state.exception.message}")
+    }
+
+
+
+
     Column {
         Row(
             modifier = Modifier
@@ -540,6 +482,9 @@ fun CommentSection(
                 contentDescription = "Comments"
             )
             Spacer(modifier = Modifier.width(8.dp))
+
+            // Comment Count Text
+            Log.d("CommentSection", "post.commentCount ${post.commentCount}")
             Text(text = "${post.commentCount} comments")
         }
 
@@ -653,14 +598,7 @@ fun AddComment(
             currentUser.let {
                 if (it != null) { //// TODO: User comes here
                     AsyncImage(
-                        //model = "https://picsum.photos/400/400",
-                        // model = if (post.profileImageUrl.isNotEmpty()) post.profileImageUrl else "https://picsum.photos/400/400",////////////////
-//            model = if (currentUser!!.profileImageUrl!!.isNotEmpty()) currentUser?.profileImageUrl else "https://picsum.photos/400/400",
                         model = currentUser?.profileImageUrl,
-//            model = ImageRequest.Builder(LocalContext.current)
-//                .data(user?.profileImageUrl ?: "https://picsum.photos/400/400")
-//                .crossfade(true)
-//                .build(),
                         contentDescription = "Translated description of what the image contains",
                         modifier = Modifier
                             .size(50.dp)

@@ -76,8 +76,8 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
         viewModelScope.launch {
             postRepository.getPostsFlow().collect {
                 _posts.value = it
-                //Log.d("PostViewModel ", "Posts: $it")
             }
+
         }
     }
 
@@ -355,6 +355,21 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
 
             } catch (e: Exception) {
                 Log.d("PostViewModel", "fetchLastComment: $e")
+            }
+        }
+    }
+
+    private val _commentCount = MutableStateFlow<Int?>(0)
+    val commentCount: StateFlow<Int?> get() = _commentCount.asStateFlow()
+
+
+    fun fetchCommentCount(post_id : String){
+        viewModelScope.launch {
+            try {
+                val commentCount = postRepository.fetchCommentCount(post_id)
+                _commentCount.value = commentCount
+            } catch (e: Exception) {
+                Log.d("PostViewModel", "fetchCommentCount: $e")
             }
         }
     }
