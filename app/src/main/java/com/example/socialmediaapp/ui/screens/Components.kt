@@ -75,6 +75,7 @@ import com.example.socialmediaapp.Screen
 import com.example.socialmediaapp.data.entitiy.Comment
 import com.example.socialmediaapp.data.entitiy.Like
 import com.example.socialmediaapp.data.entitiy.Post
+import com.example.socialmediaapp.data.entitiy.User
 import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
 import com.example.socialmediaapp.ui.viewmodels.PostState
@@ -147,7 +148,7 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
      * currentUser is the currently logged in user of the app.
      */
     LaunchedEffect(Unit) {
-        postViewModel.getUser(post.userId)
+        postViewModel.getUser(post.userId) // TODO: it is fetching user_id form post and should be fetch from current logged in user's id
 
         ////
         postViewModel.updatePostState(post.id) {
@@ -290,7 +291,8 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
                 onLoadComment = {
                     // Yorumları yükleme işlemi burada gerçekleştirilebilir
                     postViewModel.loadComments(post.id)
-                }
+                },
+                user_id = currentUserID
             )
 
 
@@ -515,7 +517,8 @@ fun CommentSectionPost(
 fun CommentSection(
     postViewModel: PostViewModel,
     post: Post,
-    onLoadComment: () -> Unit
+    onLoadComment: () -> Unit,
+    user_id: String
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     val commentState by postViewModel.commentsState.collectAsState()
@@ -551,7 +554,7 @@ fun CommentSection(
                 is Result.Failure -> ErrorMessage(state.exception.message ?: "An unknown error occurred")
             }
 
-            AddComment(postViewModel = postViewModel, post = post )
+            AddComment(postViewModel = postViewModel, post = post, user_id = user_id)
 
         }
     }
@@ -609,6 +612,7 @@ fun CommentComponent(comment: Comment) {
 fun AddComment(
     postViewModel: PostViewModel,
     post: Post,
+    user_id : String
 ){
 
 
@@ -616,7 +620,7 @@ fun AddComment(
 
     // User data is loading
     LaunchedEffect(Unit) {
-        postViewModel.getUser(post.userId)
+        postViewModel.getUser(user_id)
     }
 
     val currentUser by postViewModel.user.collectAsState()
@@ -647,7 +651,7 @@ fun AddComment(
             .clip(CircleShape),)
         {
             currentUser.let {
-                if (it != null) {
+                if (it != null) { //// TODO: User comes here
                     AsyncImage(
                         //model = "https://picsum.photos/400/400",
                         // model = if (post.profileImageUrl.isNotEmpty()) post.profileImageUrl else "https://picsum.photos/400/400",////////////////
