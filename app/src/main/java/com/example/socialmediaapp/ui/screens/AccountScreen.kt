@@ -133,14 +133,7 @@ fun AccountScreen(
                         )
                     }
                 },
-                actions = {
-                    IconButton(onClick = { /* do something */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Localized description"
-                        )
-                    }
-                },
+
                 scrollBehavior = scrollBehavior
             )
         },
@@ -169,16 +162,16 @@ fun AccountScreen(
         when {
             isLoading -> LoadingIndicator()
             error != null -> ErrorMessage(error!!)
-                userData != null -> AccountScreenBodyContent(
-                userData!!,
-                Modifier.padding(innerPadding),
-                onSignOut = { firebaseViewModel.signOut() },
-                firestoreViewModel = firestoreViewModel,
-                firebaseViewModel = firebaseViewModel,
-                userViewModel = userViewModel,
+            userData != null ->
+                AccountScreenBodyContent(
+                    userData!!,
+                    Modifier.padding(innerPadding),
+                    onSignOut = { firebaseViewModel.signOut() },
+                    firestoreViewModel = firestoreViewModel,
+                    firebaseViewModel = firebaseViewModel,
+                    userViewModel = userViewModel,
                     navController = navHostController
-
-            )
+                )
             else -> Text("No user data available")
         }
 

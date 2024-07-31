@@ -27,6 +27,10 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import com.example.socialmediaapp.util.Result
+import com.google.android.gms.tasks.Task
+import com.google.firebase.firestore.DocumentSnapshot
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
 
 
 class PostRepository @Inject constructor(
@@ -55,6 +59,36 @@ class PostRepository @Inject constructor(
         emit(posts)
 
     }
+
+
+    ////// try
+    fun getPost(post_id: String) : Task<DocumentSnapshot>{
+        return firestore.collection("posts").document(post_id).get()
+    }
+
+    fun observePost(post_id: String): Flow<Post?> = callbackFlow {
+        val postRef = firestore.collection("posts").document(post_id)
+
+        val listenerRegistration = postRef.addSnapshotListener { snapshot, error ->
+            if (error != null){
+                close(error)
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()){
+               val post = snapshot.toObject(Post::class.java)
+                trySend(post)
+            } else {
+                trySend(null)
+            }
+        }
+        awaitClose{
+            listenerRegistration.remove()
+        }
+    }
+
+
+
 
     suspend fun getPostById(postId: String): Post? {
         val document = postsCollection.document(postId).get().await()

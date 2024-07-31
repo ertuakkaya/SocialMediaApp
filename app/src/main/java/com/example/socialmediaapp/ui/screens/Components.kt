@@ -59,6 +59,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -106,7 +107,12 @@ fun Components(){
 
 @Composable
 //@Preview
-fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreViewModel,authViewModel: AuthViewModel) {
+fun Post(
+    post: Post,
+    postViewModel: PostViewModel,
+    firestoreViewModel: FirestoreViewModel,
+    authViewModel: AuthViewModel,
+) {
 
 
     var userLiked by remember { mutableStateOf(postViewModel.GetLikesByUserID()) }
@@ -133,6 +139,8 @@ fun Post(post: Post,postViewModel: PostViewModel,firestoreViewModel: FirestoreVi
 
     var isCommentsExpanded by remember { mutableStateOf(false) }
     val commentState by postViewModel.commentsState.collectAsState()
+
+
 
 
     Log.d("Post", "Post: $userLiked")
@@ -295,6 +303,9 @@ fun LikeSeciton(
 ) {
 
 
+
+
+
         Row (
             modifier = Modifier
                 .fillMaxWidth(),
@@ -315,6 +326,7 @@ fun LikeSeciton(
             IconButton(
                 onClick = {
                     postViewModel.likeOrUnlikePost(post.id, currentUserID)
+
                 },
                 modifier = Modifier.size(50.dp)
             ) {
@@ -322,7 +334,8 @@ fun LikeSeciton(
                     painter = if(isPostLiked) painterResource(id = R.drawable.like_filled)
                     else painterResource(id = R.drawable.like_unfilled),
                     contentDescription = null,
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier
+                        .size(32.dp)
                 )
             }
 
@@ -682,9 +695,12 @@ fun ProfileImage(
         modifier = modifier
             .size(50.dp)
             .border(2.dp, Color.Gray, CircleShape)
-            .clip(CircleShape),
+            .clip(CircleShape)
+            .shadow(88.dp),
         contentScale = ContentScale.FillBounds
-        )
+    )
+
+
 }
 
 
@@ -700,6 +716,7 @@ fun PostImage(postImageUrl : String,
             .fillMaxWidth()
             .height(300.dp)
             .border(1.dp, Color.LightGray, RoundedCornerShape(4.dp))
+            .shadow(4.dp, RoundedCornerShape(8.dp))
             .clip(RoundedCornerShape(4.dp)),
         contentScale = ContentScale.FillWidth,
     )

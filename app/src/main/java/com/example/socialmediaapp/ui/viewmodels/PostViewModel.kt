@@ -2,6 +2,7 @@ package com.example.socialmediaapp.ui.viewmodels
 
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.socialmediaapp.data.entitiy.Comment
@@ -53,6 +54,9 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
 
 
 
+
+
+
     }
 
 
@@ -82,6 +86,23 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
                 _posts.value = it
             }
 
+        }
+    }
+
+    fun observePostState(post_id: String) {
+        viewModelScope.launch {
+            postRepository.observePost(post_id).collect{post ->
+                post.let {
+                    updatePostState(it!!.id){
+                        PostState(
+                            isLiked = it.isLiked,
+                            likeCount = it.likeCount,
+                            commentCount = it.commentCount
+                        )
+                    }
+                }
+
+            }
         }
     }
 
@@ -237,10 +258,10 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
             currentMap + (postId to update(currentState))
         }
 
-
-
-
     }
+
+
+
 
     /////// Comment Section
 

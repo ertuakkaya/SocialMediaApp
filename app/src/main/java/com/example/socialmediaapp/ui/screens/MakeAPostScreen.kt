@@ -429,9 +429,12 @@ fun MakeAPostBody(
                         )
                     )
 
+                    // Load posts
                     this.launch {
                         postViewModel.loadPosts()
                     }
+
+                    // set upload status to null
                     postViewModel.resetUploadStatus()
                 }
             },

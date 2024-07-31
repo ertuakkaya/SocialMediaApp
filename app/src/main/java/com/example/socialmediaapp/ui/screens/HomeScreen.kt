@@ -1,5 +1,6 @@
 package com.example.socialmediaapp.ui.screens
 
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
@@ -50,10 +51,12 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.socialmediaapp.Screen
+import com.example.socialmediaapp.data.entitiy.Post
 import com.example.socialmediaapp.ui.viewmodels.AuthState
 import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirebaseViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
+import com.example.socialmediaapp.ui.viewmodels.PostState
 import com.example.socialmediaapp.ui.viewmodels.PostViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -173,6 +176,7 @@ fun HomeScreenBodyContent(modifier: Modifier = Modifier,postViewModel: PostViewM
     val posts by postViewModel.posts.collectAsState()
 
 
+
     Surface (
         color = Color(0xFFFFFFFF),
         modifier = modifier.fillMaxSize()
@@ -186,7 +190,12 @@ fun HomeScreenBodyContent(modifier: Modifier = Modifier,postViewModel: PostViewM
         ) {
 
             items(posts.size) { index ->
-                Post(post = posts[index], postViewModel = postViewModel, firestoreViewModel = firestoreViewModel, authViewModel = authViewModel  )
+                Post(
+                    post = posts[index],
+                    postViewModel = postViewModel,
+                    firestoreViewModel = firestoreViewModel,
+                    authViewModel = authViewModel
+                )
             }
 
         }
