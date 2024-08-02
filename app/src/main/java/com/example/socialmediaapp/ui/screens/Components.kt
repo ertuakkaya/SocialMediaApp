@@ -89,6 +89,7 @@ import kotlin.math.absoluteValue
 
 import com.example.socialmediaapp.util.Result
 import compose.icons.feathericons.MessageCircle
+import compose.icons.feathericons.Plus
 import compose.icons.feathericons.PlusCircle
 import compose.icons.feathericons.User
 
@@ -1066,6 +1067,34 @@ fun BottomBarComponent(navHostController: NavHostController) {
             icon = {
                 Icon(
                     FeatherIcons.User,
+                    contentDescription = null
+                )
+            },
+        )
+
+        // ChatScreen
+        NavigationBarItem(
+            selected = currentRoute.toString() == "com.example.socialmediaapp.Screen.ChatScreen",
+            onClick = {
+                navHostController.navigate(Screen.ChatScreen)
+            },
+            icon = {
+                Icon(
+                    FeatherIcons.MessageCircle,
+                    contentDescription = null
+                )
+            },
+        )
+
+        // ChatselectScreen
+        NavigationBarItem(
+            selected = currentRoute.toString() == "com.example.socialmediaapp.Screen.ChatSelectScreen",
+            onClick = {
+                navHostController.navigate(Screen.ChatSelectScreen)
+            },
+            icon = {
+                Icon(
+                    FeatherIcons.Plus,
                     contentDescription = null
                 )
             },
