@@ -1,23 +1,23 @@
 package com.example.socialmediaapp
 
-import android.widget.Toast
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.socialmediaapp.data.entitiy.User
 import com.example.socialmediaapp.ui.screens.AccountScreen
+import com.example.socialmediaapp.ui.screens.ChatScreen
+import com.example.socialmediaapp.ui.screens.ChatSelectScreen
+import com.example.socialmediaapp.ui.viewmodels.ChatViewModel
 import com.example.socialmediaapp.ui.screens.HomeScreen
 import com.example.socialmediaapp.ui.screens.LoadingScreen
 import com.example.socialmediaapp.ui.screens.LoginScreen
 import com.example.socialmediaapp.ui.screens.MakeAPostScreen
 import com.example.socialmediaapp.ui.screens.SignupScreen
-import com.example.socialmediaapp.ui.viewmodels.AuthState
 import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
+import com.example.socialmediaapp.ui.viewmodels.ChatSelectViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirebaseStorageViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirebaseViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
@@ -35,7 +35,9 @@ fun AppNavHost(
     postViewModel: PostViewModel,
     firebaseStorageViewModel: FirebaseStorageViewModel,
     makeAPostViewModel: MakeAPostViewModel,
-    userViewModel: UserViewModel
+    userViewModel: UserViewModel,
+    chatViewModel: ChatViewModel,
+    chatSelectViewModel: ChatSelectViewModel
 
 ) {
 
@@ -95,6 +97,16 @@ fun AppNavHost(
             LoadingScreen()
         }
 
+        composable<Screen.ChatScreen> {
+           val dash = it.toRoute<Screen.ChatScreen>()
+            ChatScreen(viewModel = chatViewModel, partnerId = "Jp1QgCWzMZeZXxFoYlqAijIPaYO2", dash.partnerUserId )
+        }
+
+        composable<Screen.ChatSelectScreen> {
+            ChatSelectScreen(viewModel = chatSelectViewModel, navController = navController)
+
+        }
+
     }
 }
 
@@ -132,5 +144,13 @@ sealed class Screen {
 
     @Serializable
     object LoadingScreen : Screen()
+
+    @Serializable
+    data class ChatScreen(
+        val partnerUserId: String
+    ) : Screen()
+
+    @Serializable
+    object ChatSelectScreen : Screen()
 }
 

@@ -8,12 +8,11 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import com.example.socialmediaapp.ui.viewmodels.ChatViewModel
 import com.example.socialmediaapp.ui.theme.SocialMediaAppTheme
 import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
+import com.example.socialmediaapp.ui.viewmodels.ChatSelectViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirebaseStorageViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirebaseViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
@@ -32,6 +31,8 @@ class MainActivity : ComponentActivity() {
     val firebaseStorageViewModel: FirebaseStorageViewModel by viewModels()
     val makeAPostViewModel: MakeAPostViewModel by viewModels()
     val userViewModel: UserViewModel by viewModels()
+    val chatViewModel: ChatViewModel by viewModels()
+    val chatSelectViewModel: ChatSelectViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,7 +48,9 @@ class MainActivity : ComponentActivity() {
                         postViewModel = postViewModel,
                         firebaseStorageViewModel = firebaseStorageViewModel,
                         makeAPostViewModel = makeAPostViewModel,
-                        userViewModel = userViewModel
+                        userViewModel = userViewModel,
+                        chatViewModel = chatViewModel,
+                        chatSelectViewModel = chatSelectViewModel
                     )
                 }
             }
