@@ -41,28 +41,34 @@ class ChatViewModel @Inject constructor( private val chatRepository: FirestoreRe
      *  @param chatPartnerID: String is the ID of the user with whom the current user is chatting.
      */
 
-//    fun loadChatMessages(chatPartnerID: String){
+
+    private val _isCurrentUserMessage = MutableStateFlow<Map<String, Boolean>>(emptyMap())
+    val isCurrentUserMessage: StateFlow<Map<String, Boolean>> = _isCurrentUserMessage.asStateFlow()
+
+//    fun loadChatMessages(partnerId: String) {
 //        viewModelScope.launch {
-//            chatRepository.getMessages(currentUserID,chatPartnerID).collect{ messageList ->
+//            chatRepository.getMessages(currentUserID, partnerId).collect { messageList ->
 //                _messages.value = messageList.sortedBy { it.timestamp }
+//                _isCurrentUserMessage.value = messageList.associate {
+//                    it.id to (it.sender_id == currentUserID)
+//                }
 //            }
 //        }
 //    }
 
 
-    private val _isCurrentUserMessage = MutableStateFlow<Map<String, Boolean>>(emptyMap())
-    val isCurrentUserMessage: StateFlow<Map<String, Boolean>> = _isCurrentUserMessage.asStateFlow()
 
     fun loadChatMessages(partnerId: String) {
-        viewModelScope.launch {
-            chatRepository.getMessages(currentUserID, partnerId).collect { messageList ->
-                _messages.value = messageList.sortedBy { it.timestamp }
-                _isCurrentUserMessage.value = messageList.associate {
-                    it.id to (it.sender_id == currentUserID)
-                }
-            }
+    viewModelScope.launch {
+        chatRepository.getMessages(currentUserID, partnerId).collect { messageList ->
+            _messages.value = messageList.sortedBy { it.timestamp }
+//            _isCurrentUserMessage.value = messageList.associate {
+//                it.id to (it.sender_id == currentUserID)
+//            }
         }
     }
+}
+
 
     /**
      * Load Chat Partner from Firestore
@@ -82,15 +88,19 @@ class ChatViewModel @Inject constructor( private val chatRepository: FirestoreRe
 
     fun sendMessage(reveiverID: String, message: String){
         viewModelScope.launch {
-            val message = ChatMessage(
+            val chatMessage = ChatMessage(
                 id = "",
                 sender_id = currentUserID,
                 receiver_id = reveiverID,
                 message = message,
                 timestamp = System.currentTimeMillis()
             )
-            chatRepository.sendMessage(message)
+            chatRepository.sendMessage(chatMessage)
         }
+    }
+
+    fun isCurrentUserMessage(message: ChatMessage) : Boolean {
+        return message.sender_id == currentUserID
     }
 
 
