@@ -108,6 +108,8 @@ class FirestoreRepository @Inject constructor(private val firestore: FirebaseFir
      * Get Chat Messages from Firestore
      */
 
+
+    /*
     suspend fun getMessages(sender_id: String, receiver_id: String): Flow<List<ChatMessage>> = callbackFlow {
         val sentMessageListener = chatCollection
             .whereEqualTo("sender_id", sender_id)
@@ -141,6 +143,41 @@ class FirestoreRepository @Inject constructor(private val firestore: FirebaseFir
             receivedMessageListener.remove()
         }
     }
+
+     */
+
+
+//    fun getMessages(currentUserId: String, partnerId: String): Flow<List<ChatMessage>> = flow {
+//    val messages = firestore.collection("messages")
+//        .whereIn("sender_id", listOf(currentUserId, partnerId))
+//        .whereIn("receiver_id", listOf(currentUserId, partnerId))
+//        .get()
+//        .await()
+//        .toObjects(ChatMessage::class.java)
+//    emit(messages)
+//    }
+
+    fun getMessages(user_id1: String, user_id2: String) : Flow<List<ChatMessage>> = callbackFlow {
+        val query = chatCollection
+            .orderBy("timestamp",Query.Direction.ASCENDING)
+            .whereIn("sender_id", listOf(user_id1,user_id2))
+            .whereIn("receiver_id", listOf(user_id1,user_id2))
+
+        val listener = query.addSnapshotListener{ snapshot, error ->
+            if (error != null) {
+                close(error)
+                return@addSnapshotListener
+            }
+            val messages = snapshot?.toObjects(ChatMessage::class.java) ?: emptyList()
+            trySend(messages)
+        }
+        awaitClose{ listener.remove() }
+
+
+
+    }
+
+
 
     /**
      *  Get chat partner from Firestore
