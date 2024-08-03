@@ -29,27 +29,45 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.rememberCoroutineScope
 
 import androidx.compose.ui.unit.dp
 import com.example.socialmediaapp.Screen
 import com.example.socialmediaapp.data.entitiy.ChatMessage
 import com.example.socialmediaapp.ui.viewmodels.ChatViewModel
+import kotlinx.coroutines.launch
 import java.util.Locale
 
+
+/*
 @Composable
 fun ChatScreen(
     viewModel: ChatViewModel, partnerId: String,
     partnerUserId : String
-)
-{
+) {
     val messages by viewModel.messages.collectAsState()
     val chatPartner by viewModel.chatPartner.collectAsState()
     val isCurrentUserMessage by viewModel.isCurrentUserMessage.collectAsState()
+
+    val listState = rememberLazyListState()
+
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(partnerUserId) {
         viewModel.loadChatMessages(partnerUserId)
         viewModel.loadChatPartner(partnerUserId)
     }
+
+
+    LaunchedEffect(messages) {
+        if (messages.isNotEmpty()) {
+            coroutineScope.launch {
+                listState.animateScrollToItem(messages.size - 1)
+            }
+        }
+    }
+
 
     Log.d("ChatScreen", "partnerId: $partnerUserId")
 
@@ -68,13 +86,21 @@ fun ChatScreen(
             items(messages) { message ->
                 ChatMessageItem(
                     message = message,
-                    isCurrentUser = isCurrentUserMessage[message.id] ?: false
+                    isCurrentUser = viewModel.isCurrentUserMessage(message)
+                    //isCurrentUserMessage[message.id] ?: false
 
                 )
             }
         }
 
-        ChatInput(onSendMessage = { viewModel.sendMessage(partnerUserId, it) })
+        ChatInput(
+            onSendMessage = {
+                viewModel.sendMessage(partnerUserId, it)
+                coroutineScope.launch {
+                    listState.animateScrollToItem(messages.size)
+                }
+            }
+        )
     }
 }
 
@@ -99,6 +125,120 @@ fun ChatMessageItem(message: ChatMessage, isCurrentUser: Boolean) {
             Text(
                 text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(java.util.Date(message.timestamp)),
                 //text = message.timestamp.toString(),
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.White.copy(alpha = 0.7f)
+            )
+        }
+    }
+}
+
+// ChatInput Composable'ı güncelleniyor
+@Composable
+fun ChatInput(onSendMessage: (String) -> Unit) {
+    var message by remember { mutableStateOf("") }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
+        TextField(
+            value = message,
+            onValueChange = { message = it },
+            modifier = Modifier.weight(1f),
+            placeholder = { Text("Mesajınızı yazın...") }
+        )
+        IconButton(
+            onClick = {
+                if (message.isNotBlank()) {
+                    onSendMessage(message)
+                    message = ""
+                }
+            }
+        ) {
+            Icon(Icons.Default.Send, contentDescription = "Gönder")
+        }
+    }
+}
+
+ */
+
+@Composable
+fun ChatScreen(
+    viewModel: ChatViewModel, partnerId: String,
+    partnerUserId: String
+) {
+    val messages by viewModel.messages.collectAsState()
+    val chatPartner by viewModel.chatPartner.collectAsState()
+    val isCurrentUserMessage by viewModel.isCurrentUserMessage.collectAsState()
+
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(partnerUserId) {
+        viewModel.loadChatMessages(partnerUserId)
+        viewModel.loadChatPartner(partnerUserId)
+    }
+
+    LaunchedEffect(messages) {
+        if (messages.isNotEmpty()) {
+            coroutineScope.launch {
+                listState.animateScrollToItem(messages.size - 1)
+            }
+        }
+    }
+
+    Log.d("ChatScreen", "partnerId: $partnerUserId")
+
+    Column(modifier = Modifier.padding(vertical = 32.dp, horizontal = 16.dp)) {
+        chatPartner?.let { partner ->
+            Text(text = "Chat with ${partner.userName}", style = MaterialTheme.typography.headlineMedium)
+        }
+
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            state = listState
+        ) {
+            items(messages) { message ->
+                ChatMessageItem(
+                    message = message,
+                    isCurrentUser = viewModel.isCurrentUserMessage(message)
+                )
+            }
+        }
+
+        ChatInput(
+            onSendMessage = {
+                viewModel.sendMessage(partnerUserId, it)
+                coroutineScope.launch {
+                    listState.animateScrollToItem(messages.size)
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun ChatMessageItem(message: ChatMessage, isCurrentUser: Boolean) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        contentAlignment = if (isCurrentUser) Alignment.CenterEnd else Alignment.CenterStart
+    ) {
+        Column(
+            modifier = Modifier
+                .background(
+                    if (isCurrentUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
+                    RoundedCornerShape(8.dp)
+                )
+                .padding(8.dp)
+        ) {
+            Text(text = message.message, color = Color.White)
+            Text(
+                text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(java.util.Date(message.timestamp)),
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.White.copy(alpha = 0.7f)
             )
