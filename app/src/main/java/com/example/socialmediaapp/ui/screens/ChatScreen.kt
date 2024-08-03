@@ -3,11 +3,15 @@ package com.example.socialmediaapp.ui.screens
 import android.icu.text.SimpleDateFormat
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -30,142 +34,144 @@ import androidx.compose.ui.graphics.Color
 
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MediumTopAppBar
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.socialmediaapp.Screen
 import com.example.socialmediaapp.data.entitiy.ChatMessage
+import com.example.socialmediaapp.data.entitiy.User
 import com.example.socialmediaapp.ui.viewmodels.ChatViewModel
+import compose.icons.FeatherIcons
+import compose.icons.feathericons.ArrowLeft
+import compose.icons.feathericons.SkipBack
 import kotlinx.coroutines.launch
 import java.util.Locale
 
 
-/*
+
+@Composable
+fun NavigationCompoent(user : User, onBackClick : () -> Unit){
+
+   user.let { notNullUser ->
+       Row (
+           horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
+           verticalAlignment = Alignment.CenterVertically
+       ){
+
+           IconButton(
+               onClick = {
+                    onBackClick()
+               }) {
+               Icon(FeatherIcons.ArrowLeft, contentDescription = "Back")
+           }
+
+
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .border(2.dp, Color.Gray, CircleShape)
+                    .clip(CircleShape),
+                content = {
+                    ProfileImage(profileImageUrl = notNullUser.profileImageUrl!!)
+                }
+            )
+
+           Text(
+               text = notNullUser.userName!!,
+               fontSize = MaterialTheme.typography.headlineSmall.fontSize
+           )
+       }
+   }
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
-    viewModel: ChatViewModel, partnerId: String,
-    partnerUserId : String
+    viewModel: ChatViewModel,
+    partnerUserId: String,
+    onBackClick: () -> Unit,
 ) {
-    val messages by viewModel.messages.collectAsState()
-    val chatPartner by viewModel.chatPartner.collectAsState()
-    val isCurrentUserMessage by viewModel.isCurrentUserMessage.collectAsState()
-
-    val listState = rememberLazyListState()
-
-    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(partnerUserId) {
-        viewModel.loadChatMessages(partnerUserId)
+        //viewModel.loadChatMessages(partnerUserId)
         viewModel.loadChatPartner(partnerUserId)
     }
 
-
-    LaunchedEffect(messages) {
-        if (messages.isNotEmpty()) {
-            coroutineScope.launch {
-                listState.animateScrollToItem(messages.size - 1)
-            }
-        }
-    }
+    val chatPartnerUser by viewModel.chatPartner.collectAsState()
 
 
-    Log.d("ChatScreen", "partnerId: $partnerUserId")
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
 
-    Column (modifier = Modifier.padding(vertical = 32.dp, horizontal = 16.dp))
-    {
-        chatPartner?.let { partner ->
-            Text(text = "Chat with ${partner.userName}", style = MaterialTheme.typography.headlineMedium)
-        }
 
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-        ) {
-            items(messages) { message ->
-                ChatMessageItem(
-                    message = message,
-                    isCurrentUser = viewModel.isCurrentUserMessage(message)
-                    //isCurrentUserMessage[message.id] ?: false
+    chatPartnerUser?.let { user ->
+        Scaffold(
+            modifier = Modifier,
+                //.nestedScroll(scrollBehavior.nestedScrollConnection),
+                
+            topBar = {
+//                NavigationCompoent(user = user, onBackClick = onBackClick)
+                TopAppBar(
+                    navigationIcon = {
+                        NavigationCompoent(
+                            user = user,
+                            onBackClick = {
+                                try {
+                                    onBackClick()
+                                } catch (e: Exception) {
+                                    Log.d("ChatScreen", "Error: ${e.message}")
 
+                                }
+                            }
+                        )
+                    },
+                    title = {
+                    },
+                    modifier = Modifier
+                    ,
+                    //scrollBehavior = scrollBehavior,
+                    colors = TopAppBarDefaults.topAppBarColors(colorScheme.secondary)
                 )
-            }
-        }
 
-        ChatInput(
-            onSendMessage = {
-                viewModel.sendMessage(partnerUserId, it)
-                coroutineScope.launch {
-                    listState.animateScrollToItem(messages.size)
-                }
-            }
+            },
+
+            content = { paddingValue ->
+                ChatScreenBody(
+                    modifier = Modifier.padding(paddingValue),
+                    viewModel = viewModel,
+                    partnerUserId = partnerUserId
+                )
+            },
+
+
+
+
+
+
         )
     }
+
+
 }
 
 
 @Composable
-fun ChatMessageItem(message: ChatMessage, isCurrentUser: Boolean) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        contentAlignment = if (isCurrentUser) Alignment.CenterEnd else Alignment.CenterStart
-    ) {
-        Column(
-            modifier = Modifier
-                .background(
-                    if (isCurrentUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
-                    RoundedCornerShape(8.dp)
-                )
-                .padding(8.dp)
-        ) {
-            Text(text = message.message, color = Color.White)
-            Text(
-                text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(java.util.Date(message.timestamp)),
-                //text = message.timestamp.toString(),
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.White.copy(alpha = 0.7f)
-            )
-        }
-    }
-}
-
-// ChatInput Composable'ı güncelleniyor
-@Composable
-fun ChatInput(onSendMessage: (String) -> Unit) {
-    var message by remember { mutableStateOf("") }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-    ) {
-        TextField(
-            value = message,
-            onValueChange = { message = it },
-            modifier = Modifier.weight(1f),
-            placeholder = { Text("Mesajınızı yazın...") }
-        )
-        IconButton(
-            onClick = {
-                if (message.isNotBlank()) {
-                    onSendMessage(message)
-                    message = ""
-                }
-            }
-        ) {
-            Icon(Icons.Default.Send, contentDescription = "Gönder")
-        }
-    }
-}
-
- */
-
-@Composable
-fun ChatScreen(
-    viewModel: ChatViewModel, partnerId: String,
+fun ChatScreenBody(
+    modifier: Modifier,
+    viewModel: ChatViewModel,
     partnerUserId: String
 ) {
     val messages by viewModel.messages.collectAsState()
@@ -190,11 +196,11 @@ fun ChatScreen(
 
     Log.d("ChatScreen", "partnerId: $partnerUserId")
 
-    Column(modifier = Modifier.padding(vertical = 32.dp, horizontal = 16.dp)) {
-        chatPartner?.let { partner ->
-            Text(text = "Chat with ${partner.userName}", style = MaterialTheme.typography.headlineMedium)
-        }
-
+    Column(
+        modifier = Modifier
+            .padding(vertical = 32.dp, horizontal = 8.dp)
+            //.border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+    ) {
         LazyColumn(
             modifier = Modifier
                 .weight(1f)
@@ -225,23 +231,43 @@ fun ChatMessageItem(message: ChatMessage, isCurrentUser: Boolean) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(vertical = 8.dp),
         contentAlignment = if (isCurrentUser) Alignment.CenterEnd else Alignment.CenterStart
     ) {
-        Column(
+
+
+        Row (
             modifier = Modifier
                 .background(
                     if (isCurrentUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
                     RoundedCornerShape(8.dp)
                 )
-                .padding(8.dp)
-        ) {
-            Text(text = message.message, color = Color.White)
-            Text(
-                text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(java.util.Date(message.timestamp)),
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.White.copy(alpha = 0.7f)
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)
+
+        ){
+
+            Box(
+                modifier = Modifier
+                    ,
+                content ={
+                    Text(text = message.message, color = Color.White)
+                }
             )
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.Bottom),
+                content ={
+                    Text(
+                        text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(java.util.Date(message.timestamp)),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White.copy(alpha = 0.5f)
+                    )
+                }
+            )
+
+
         }
     }
 }

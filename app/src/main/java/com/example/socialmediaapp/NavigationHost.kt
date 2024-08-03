@@ -98,8 +98,14 @@ fun AppNavHost(
         }
 
         composable<Screen.ChatScreen> {
-           val dash = it.toRoute<Screen.ChatScreen>()
-            ChatScreen(viewModel = chatViewModel, partnerId = "Jp1QgCWzMZeZXxFoYlqAijIPaYO2", dash.partnerUserId )
+            val dash = it.toRoute<Screen.ChatScreen>()
+            ChatScreen(
+                viewModel = chatViewModel,
+                dash.partnerUserId,
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
         }
 
         composable<Screen.ChatSelectScreen> {
@@ -152,5 +158,7 @@ sealed class Screen {
 
     @Serializable
     object ChatSelectScreen : Screen()
+
+
 }
 
