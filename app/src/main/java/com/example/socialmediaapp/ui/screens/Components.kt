@@ -2,7 +2,6 @@ package com.example.socialmediaapp.ui.screens
 
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,19 +28,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
@@ -49,7 +43,6 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -64,22 +57,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
 import com.example.socialmediaapp.R
 import com.example.socialmediaapp.Screen
 import com.example.socialmediaapp.data.entitiy.Comment
-import com.example.socialmediaapp.data.entitiy.Like
 import com.example.socialmediaapp.data.entitiy.Post
-import com.example.socialmediaapp.data.entitiy.User
 import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
 import com.example.socialmediaapp.ui.viewmodels.PostState
@@ -955,9 +945,9 @@ private fun HorizontalPagerIndicator(
 
 
 @Composable
-fun BottomBarComponent(navHostController: NavHostController) {
+fun BottomBarComponent(navController: NavController) {
 
-    val navBackStackEntry by navHostController.currentBackStackEntryAsState()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
     NavigationBar(
@@ -973,7 +963,7 @@ fun BottomBarComponent(navHostController: NavHostController) {
         NavigationBarItem(
             selected = currentRoute.toString() == "com.example.socialmediaapp.Screen.HomeScreen",
             onClick = {
-                navHostController.navigate(Screen.HomeScreen)
+                navController.navigate(Screen.HomeScreen)
                 Log.d("BottomBarComponent", "HomeScreen $currentRoute")
             },
             modifier = Modifier
@@ -995,7 +985,7 @@ fun BottomBarComponent(navHostController: NavHostController) {
         NavigationBarItem(
             selected = currentRoute.toString() == "com.example.socialmediaapp.Screen.MakeAPostScreen",
             onClick = {
-                navHostController.navigate(Screen.MakeAPostScreen)
+                navController.navigate(Screen.MakeAPostScreen)
             },
             icon = {
                 Icon(
@@ -1009,7 +999,7 @@ fun BottomBarComponent(navHostController: NavHostController) {
         NavigationBarItem(
             selected = currentRoute.toString() == "com.example.socialmediaapp.Screen.AccountScreen",
             onClick = {
-                navHostController.navigate(Screen.AccountScreen)
+                navController.navigate(Screen.AccountScreen)
             },
             icon = {
                 Icon(
@@ -1018,29 +1008,17 @@ fun BottomBarComponent(navHostController: NavHostController) {
                 )
             },
         )
-//        // ChatScreen
-//        NavigationBarItem(
-//            selected = currentRoute.toString() == "com.example.socialmediaapp.Screen.ChatScreen",
-//            onClick = {
-//                navHostController.navigate(Screen.ChatScreen)
-//            },
-//            icon = {
-//                Icon(
-//                    FeatherIcons.MessageCircle,
-//                    contentDescription = null
-//                )
-//            },
-//        )
+
 
         // ChatselectScreen
         NavigationBarItem(
             selected = currentRoute.toString() == "com.example.socialmediaapp.Screen.ChatSelectScreen",
             onClick = {
-                navHostController.navigate(Screen.ChatSelectScreen)
+                navController.navigate(Screen.ChatSelectScreen)
             },
             icon = {
                 Icon(
-                    FeatherIcons.Plus,
+                    FeatherIcons.MessageCircle,
                     contentDescription = null
                 )
             },

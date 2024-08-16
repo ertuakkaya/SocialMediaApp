@@ -37,11 +37,10 @@ fun AppNavHost(
     makeAPostViewModel: MakeAPostViewModel,
     userViewModel: UserViewModel,
     chatViewModel: ChatViewModel,
-    chatSelectViewModel: ChatSelectViewModel
+    chatSelectViewModel: ChatSelectViewModel,
+
 
 ) {
-
-
 
 
     val navController = rememberNavController()
@@ -109,7 +108,10 @@ fun AppNavHost(
         }
 
         composable<Screen.ChatSelectScreen> {
-            ChatSelectScreen(viewModel = chatSelectViewModel, navController = navController)
+            ChatSelectScreen(
+                viewModel = chatSelectViewModel,
+                navController = navController,
+            )
 
         }
 

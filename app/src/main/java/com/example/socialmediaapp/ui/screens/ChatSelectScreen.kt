@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
@@ -22,22 +23,28 @@ import com.example.socialmediaapp.data.entitiy.User
 import com.example.socialmediaapp.ui.viewmodels.ChatSelectViewModel
 
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CardElevation
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
+import com.example.socialmediaapp.R
 import com.example.socialmediaapp.Screen
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatSelectScreen(
     viewModel: ChatSelectViewModel,
-    navController: NavController
+    navController: NavController,
 ) {
+
 
 
     LaunchedEffect (Unit){
@@ -47,45 +54,91 @@ fun ChatSelectScreen(
 
     val userList = users
 
+    Scaffold (
+        //snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+
+        topBar = {
+            TopAppBar(
+                modifier = Modifier,
+
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    Color(0xFFFFFFFF), Color(0xFFFFFFFF), Color(0xFF000000)
+                ),
+
+                title = {
+                    Text(
+                        text = "Select a user to chat with",
+                        //fontSize = 32.sp,
+                        //fontWeight = FontWeight.Bold,
+                        modifier = Modifier,
+                        //textAlign = TextAlign.Center
+                    )
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            // Navigate back
+                            navController.navigateUp()
+                        },
+                        modifier = Modifier.size(50.dp)
+                    ) {
+
+                        Icon(
+                            painter = painterResource(id = R.drawable.back_arrow),
+                            contentDescription = "",
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                },
+                //scrollBehavior = scrollBehavior,
 
 
-    Log.d("ChatSelectScreen", "Users: $users")
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 36.dp, horizontal = 16.dp),
 
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Text(
-                text = "Select a user to chat with",
-                fontSize = 24.sp,
+
             )
 
+        },// Top bar
+        bottomBar = {
+            BottomBarComponent(navController = navController)
+        }
+    ) { innerPadding ->
+        // inner Box
+        Box(
+            modifier = Modifier
+                //.fillMaxWidth()
+                .padding(innerPadding),
+            )
+        {
+            Box(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
 
-            LazyColumn (
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ){
-                items(users) { user ->
-                    UserCardComponent(user = user, onClick = {
-                        // Navigate to chat screen
-                        Log.d("ChatSelectScreen Onclick", "User: $user")
-                        user.userID?.let { // TODO: Handle null
-                            navController.navigate(Screen.ChatScreen(user.userID!!))
+
+
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(users) { user ->
+                            UserCardComponent(user = user, onClick = {
+                                // Navigate to chat screen
+                                Log.d("ChatSelectScreen Onclick", "User: $user")
+                                user.userID?.let { // TODO: Handle null
+                                    navController.navigate(Screen.ChatScreen(user.userID!!))
+                                }
+                            })
                         }
-                    })
-                }
 
+                    }
+                }
             }
         }
+
     }
 
-
-
+    Log.d("ChatSelectScreen", "Users: $users")
 
 }
 
