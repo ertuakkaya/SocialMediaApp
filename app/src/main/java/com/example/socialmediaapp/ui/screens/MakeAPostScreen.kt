@@ -204,18 +204,6 @@ fun MakeAPostBody(
     var imageUri by remember { mutableStateOf<Uri?>(null) }
 
 
-
-//    uploadStatus?.let { status ->
-//        Log.d("FirebaseStorageViewModel", "Image upload status: $status")
-//        when { // TODO : Post Succes or Fail Screen
-//            status.success -> SuccesDialogComponent(onDismissRequest = {
-//                navController.navigate(Screen.HomeScreen)
-//            })
-//            else -> Log.d("FirebaseStorageViewModel", "Image upload fail. ")
-//        }
-//    }
-
-
     val corotioneScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 

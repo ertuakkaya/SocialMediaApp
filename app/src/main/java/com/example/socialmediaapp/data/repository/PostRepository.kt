@@ -114,33 +114,15 @@ class PostRepository @Inject constructor(
     }
 
     suspend fun getLikesByUserId(): Boolean {
-//        val deneme = postsCollection.document(post.id)
-//        val snapshot = postsCollection.document().collection("likedBy").whereEqualTo("user", firebaseAuth.currentUser).get().await()
-//        val snapshot = postsCollection.document("tDB9co8mVoIKm7hWbZHN").collection("likedBy").get().await()
-//        val snapshot1 = postsCollection.document("/posts/tDB9co8mVoIKm7hWbZHN/likedBy/").get().await()
-//        val like = snapshot1.toObject(Like::class.java)
-//            .whereEqualTo("likedBy", firebaseAuth.currentUser!!)
-////            .whereArrayContains("likedBy", firebaseAuth.currentUser!!)
-//            .get()
-//            .await()
-
         val deneme = postsCollection.whereArrayContains("likedBy", "/users/"+firebaseAuth.currentUser?.uid.toString()).get().await()
 
         val userList = deneme.toObjects(User::class.java)
-//        Log.d("likedBy", snapshot.documents.toString())
-//        Log.d("likedBy like ", like.toString())
+
         Log.d("likedBy deneme ", deneme.documents.toString())
         Log.d("likedBy userlist ", userList.size.toString())
-//        return !snapshot.isEmpty
-
         return false
-//        if (snapshot.isEmpty) {
-//            return false
-//        }else{
-//            return true
-//        }
     }
-    ///////
+
 
 
 
@@ -257,15 +239,16 @@ class PostRepository @Inject constructor(
 
         val postRef = firestore.collection("posts").document(postID)
         val commentsRef = postRef.collection("comments")
-        val currentUser = FirebaseAuth.getInstance().currentUser // TODO: Use Dependency Injection
+        //val currentUser = FirebaseAuth.getInstance().currentUser //
+        val currentUser = firebaseAuth.currentUser
 
         val newComment = Comment(
             commentID = commentsRef.document().id,
             commentText = commentText,
             createdAt = Timestamp.now(),
-            userID = user.userID ?: "null", // TODO: get user.userID
-            userName = user.userName ?: "null", // TODO: get user.username
-            profileImageUrl = user.profileImageUrl ?: "null" // TODO: get user.profileImageUrl
+            userID = user.userID ?: "null",
+            userName = user.userName ?: "null",
+            profileImageUrl = user.profileImageUrl ?: "null"
         )
 
         val docRef = commentsRef.add(newComment).await()

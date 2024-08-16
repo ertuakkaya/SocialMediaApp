@@ -92,7 +92,7 @@ fun AccountScreen(
     LaunchedEffect(authState.value) {
         when(authState.value){
             is AuthState.Unauthenticated -> navHostController.navigate(Screen.LoginScreen)
-            is AuthState.Authenticated -> Unit // TODO: navigate to home
+            is AuthState.Authenticated -> Unit
             is AuthState.Error -> Toast.makeText(context,
                 (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT).show()
             else -> Unit

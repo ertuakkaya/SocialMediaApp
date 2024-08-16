@@ -329,8 +329,6 @@ fun SignupScreen(navController: NavHostController, firebaseViewModel: FirebaseVi
 
                 Button(
                     onClick = {
-                        /* Handle login click */
-                        // TODO: Sign up
                         if (password != repeatPassword) {
                             Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
                             return@Button
@@ -368,7 +366,7 @@ fun SignupScreen(navController: NavHostController, firebaseViewModel: FirebaseVi
 
                 TextButton(
                     onClick = {
-                        navController.navigate(Screen.LoginScreen) // TODO: navigate to login
+                        navController.navigate(Screen.LoginScreen)
                     },
                     modifier = Modifier
                         .wrapContentWidth()

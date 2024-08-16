@@ -125,7 +125,7 @@ fun ChatSelectScreen(
                             UserCardComponent(user = user, onClick = {
                                 // Navigate to chat screen
                                 Log.d("ChatSelectScreen Onclick", "User: $user")
-                                user.userID?.let { // TODO: Handle null
+                                user.userID?.let {
                                     navController.navigate(Screen.ChatScreen(user.userID!!))
                                 }
                             })

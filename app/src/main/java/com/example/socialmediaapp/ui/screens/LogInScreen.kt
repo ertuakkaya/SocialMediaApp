@@ -61,7 +61,7 @@ fun LoginScreen(navController: NavHostController,firebaseViewModel: FirebaseView
     LaunchedEffect(authState.value) {
         when(authState.value){
 
-            is AuthState.Authenticated -> navController.navigate(Screen.HomeScreen) // TODO: navigate to home
+            is AuthState.Authenticated -> navController.navigate(Screen.HomeScreen)
             is AuthState.Error -> Toast.makeText(context,
                 (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT).show()
             else -> Unit
@@ -195,7 +195,7 @@ fun LoginScreen(navController: NavHostController,firebaseViewModel: FirebaseView
 
                 Button(
                     onClick = {
-                        // firebase login TODO: add firebase login
+                        // firebase login
                         firebaseViewModel.login(email, password)
 
                     },

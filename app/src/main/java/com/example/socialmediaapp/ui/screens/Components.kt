@@ -150,7 +150,7 @@ fun Post(
      * currentUser is the currently logged in user of the app.
      */
     LaunchedEffect(Unit) {
-        postViewModel.getUser(post.userId) // TODO: it is fetching user_id form post and should be fetch from current logged in user's id
+        postViewModel.getUser(post.userId)
 
         ////
         postViewModel.updatePostState(post.id) {
@@ -700,7 +700,7 @@ fun AddComment(
             .clip(CircleShape),)
         {
             currentUser.let {
-                if (it != null) { //// TODO: User comes here
+                if (it != null) {
                     AsyncImage(
                         model = currentUser?.profileImageUrl,
                         contentDescription = "Translated description of what the image contains",
