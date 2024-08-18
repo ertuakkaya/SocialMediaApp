@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -37,32 +36,26 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import com.example.socialmediaapp.Screen
 import com.example.socialmediaapp.data.entitiy.ChatMessage
 import com.example.socialmediaapp.data.entitiy.User
 import com.example.socialmediaapp.ui.viewmodels.ChatViewModel
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.ArrowLeft
-import compose.icons.feathericons.SkipBack
 import kotlinx.coroutines.launch
 import java.util.Locale
 
 
 
 @Composable
-fun NavigationCompoent(user : User, onBackClick : () -> Unit){
+fun ChatScreenTopBar(user : User, onBackClick : () -> Unit){
 
    user.let { notNullUser ->
        Row (
@@ -105,6 +98,9 @@ fun ChatScreen(
     onBackClick: () -> Unit,
 ) {
 
+
+    Log.d("ChatScreen", "partnerUserId: $partnerUserId")
+
     LaunchedEffect(partnerUserId) {
         //viewModel.loadChatMessages(partnerUserId)
         viewModel.loadChatPartner(partnerUserId)
@@ -126,7 +122,7 @@ fun ChatScreen(
 //                NavigationCompoent(user = user, onBackClick = onBackClick)
                 TopAppBar(
                     navigationIcon = {
-                        NavigationCompoent(
+                        ChatScreenTopBar(
                             user = user,
                             onBackClick = {
                                 try {

@@ -28,6 +28,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -53,6 +54,9 @@ fun ChatSelectScreen(
     val users by viewModel.users.collectAsState()
 
     val userList = users
+
+
+
 
     Scaffold (
         //snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -122,13 +126,21 @@ fun ChatSelectScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         items(users) { user ->
-                            UserCardComponent(user = user, onClick = {
-                                // Navigate to chat screen
-                                Log.d("ChatSelectScreen Onclick", "User: $user")
-                                user.userID?.let {
-                                    navController.navigate(Screen.ChatScreen(user.userID!!))
-                                }
-                            })
+                            UserCardComponent(
+                                user = user,
+                                onClick = {
+
+                                    // Navigate to chat screen
+                                    Log.d("ChatSelectScreen Onclick", "User: $user")
+
+                                    user.userID?.let {
+                                        navController.navigate(Screen.ChatScreen(user.userID!!))
+                                    }
+                                },
+                                viewModel = viewModel
+
+
+                            )
                         }
 
                     }
@@ -146,13 +158,26 @@ fun ChatSelectScreen(
 @Composable
 fun UserCardComponent(
     user : User,
-    onClick : () -> Unit = { }
+    onClick : () -> Unit = { },
+    geLastMessage : () -> Unit = { },
+    viewModel : ChatSelectViewModel
 
 ) {
 
 
 
+    LaunchedEffect(Unit) {
+        viewModel.getLastMessageByUserID(user.userID!!, "APtChbuqYLTaOQQKkoym3lIMkyV2")
+    }
+
     Log.d("UserCardComponent", "User: $user")
+
+
+
+
+    val lastMessage by viewModel.lastMessage.collectAsState()
+
+
 
     user?.let {
         // Profile pic , username ,
@@ -166,7 +191,6 @@ fun UserCardComponent(
         ){
             Row(
                 modifier = Modifier
-
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
@@ -180,8 +204,23 @@ fun UserCardComponent(
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                //Text(text = username)
-                Text(text = user.userName!!)
+
+                Column {
+                    //Text(text = username)
+                    Text(
+                        text = user.userName!!,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    lastMessage.let {
+                        Text(
+                            text = lastMessage.message,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+
+
+                }
+
 
 
             }

@@ -65,14 +65,7 @@ class FirestoreRepository @Inject constructor(private val firestore: FirebaseFir
             emit(null)
         }
     }
-//    fun getUserFromFirestore2(userID : String) : User? {
-//
-//
-//        val user1 = firestore.collection("users").document(userID).get().await()
-//
-//        return  user1.toObject(User::class.java)
-//
-//    }
+
 
     fun updateUserInFirestore(userID: String, user: User) = firestore.collection("users").document(userID).update(
         mapOf(
@@ -109,59 +102,14 @@ class FirestoreRepository @Inject constructor(private val firestore: FirebaseFir
      */
 
 
-    /*
-    suspend fun getMessages(sender_id: String, receiver_id: String): Flow<List<ChatMessage>> = callbackFlow {
-        val sentMessageListener = chatCollection
-            .whereEqualTo("sender_id", sender_id)
-            .whereEqualTo("receiver_id", receiver_id)
-            .orderBy("timestamp" , Query.Direction.ASCENDING)
-            .addSnapshotListener{ snapshot, error ->
-                if (error != null) {
-                    close(error)
-                    return@addSnapshotListener
-                }
-                val messages = snapshot?.toObjects(ChatMessage::class.java) ?: emptyList()
-                trySend(messages)
-            }
-
-        val receivedMessageListener = chatCollection
-            .whereEqualTo("sender_id", receiver_id)
-            .whereEqualTo("receiver_id", sender_id)
-            .orderBy("timestamp" , Query.Direction.ASCENDING)
-            .addSnapshotListener{ snapshot, error ->
-                if (error != null) {
-                    close(error)
-                    return@addSnapshotListener
-                }
-                val messages = snapshot?.toObjects(ChatMessage::class.java) ?: emptyList()
-                trySend(messages)
-            }
 
 
-        awaitClose {
-            sentMessageListener.remove()
-            receivedMessageListener.remove()
-        }
-    }
-
-     */
-
-
-//    fun getMessages(currentUserId: String, partnerId: String): Flow<List<ChatMessage>> = flow {
-//    val messages = firestore.collection("messages")
-//        .whereIn("sender_id", listOf(currentUserId, partnerId))
-//        .whereIn("receiver_id", listOf(currentUserId, partnerId))
-//        .get()
-//        .await()
-//        .toObjects(ChatMessage::class.java)
-//    emit(messages)
-//    }
 
     fun getMessages(user_id1: String, user_id2: String) : Flow<List<ChatMessage>> = callbackFlow {
         val query = chatCollection
             .orderBy("timestamp",Query.Direction.ASCENDING)
             .whereIn("sender_id", listOf(user_id1,user_id2))
-            .whereIn("receiver_id", listOf(user_id1,user_id2))
+            //.whereIn("receiver_id", listOf(user_id1,user_id2))
 
         val listener = query.addSnapshotListener{ snapshot, error ->
             if (error != null) {
@@ -189,5 +137,30 @@ class FirestoreRepository @Inject constructor(private val firestore: FirebaseFir
         return userCollection.document(user_id).get().await().toObject(User::class.java)
 
     }
+
+
+    /**
+     * Get last message by user ID
+     */
+    suspend fun getLastMessageByUserID(userID: String, currentUserID: String) : Flow<ChatMessage?> = flow {
+        try {
+            val snapshot = withContext(Dispatchers.IO) {
+                chatCollection
+                    .whereEqualTo("sender_id", userID)
+                    .whereEqualTo("receiver_id", currentUserID)
+                    .orderBy("timestamp", Query.Direction.DESCENDING)
+                    .limit(1)
+                    .get()
+                    .await()
+            }
+            val message = snapshot.toObjects(ChatMessage::class.java).firstOrNull()
+            Log.d("FirestoreRepository", "getLastMessageByUserID Message: $message")
+            emit(message)
+        } catch (e: Exception) {
+            emit(null)
+            Log.e("FirestoreRepository", "getLastMessageByUserID Error: ${e.message}", e)
+        }
+    }
+
 
 }

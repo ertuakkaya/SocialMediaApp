@@ -2,6 +2,7 @@ package com.example.socialmediaapp.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.socialmediaapp.data.entitiy.ChatMessage
 import com.example.socialmediaapp.data.entitiy.User
 import com.example.socialmediaapp.data.repository.FirestoreRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,7 +29,18 @@ class ChatSelectViewModel @Inject constructor(private val firestoreRepository: F
             }
         }
 
+    }
 
+
+    private val _lastMessage = MutableStateFlow<ChatMessage>(ChatMessage())
+    val lastMessage: StateFlow<ChatMessage> = _lastMessage.asStateFlow()
+
+    fun getLastMessageByUserID(userID: String, currentUserId: String) {
+        viewModelScope.launch {
+            firestoreRepository.getLastMessageByUserID(userID,currentUserId).collect{message ->
+                _lastMessage.value = message?: ChatMessage().copy(message = "No messages")
+            }
+        }
     }
 
 }
