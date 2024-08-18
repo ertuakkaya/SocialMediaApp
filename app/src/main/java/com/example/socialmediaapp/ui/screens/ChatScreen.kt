@@ -194,8 +194,7 @@ fun ChatScreenBody(
 
     Column(
         modifier = Modifier
-            .padding(vertical = 32.dp, horizontal = 8.dp)
-            //.border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+            .padding(start = 8.dp, end = 8.dp, top = 120.dp, bottom = 8.dp)
     ) {
         LazyColumn(
             modifier = Modifier
@@ -227,7 +226,7 @@ fun ChatMessageItem(message: ChatMessage, isCurrentUser: Boolean) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(bottom = 8.dp, top = 8.dp),
         contentAlignment = if (isCurrentUser) Alignment.CenterEnd else Alignment.CenterStart
     ) {
 
