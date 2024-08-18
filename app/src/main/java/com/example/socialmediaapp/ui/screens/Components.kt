@@ -337,11 +337,9 @@ fun Post(
 
                 AnimatedVisibility(
                     visible = isExpanded,
-//                    enter = fadeIn() + slideInVertically(),
-//                    exit = fadeOut() + slideOutVertically()
-                    enter = fadeIn(animationSpec = tween(300)) +
-                            slideInVertically(animationSpec = tween(300)) +
-                            scaleIn(animationSpec = tween(300)),
+                    enter = fadeIn(animationSpec = tween(500)) +
+                            slideInVertically(animationSpec = tween(500)) +
+                            scaleIn(animationSpec = tween(500)),
                     exit = fadeOut(animationSpec = tween(300)) +
                             slideOutVertically(animationSpec = tween(300)) +
                             scaleOut(animationSpec = tween(300))
@@ -372,23 +370,6 @@ fun Post(
                     }
 
                 }
-//                if (isExpanded) {
-//                    Column {
-//                        when (val state = commentState) {
-//                            is Result.Loading -> LoadingIndicator()
-//                            is Result.Success -> if (state.data.isEmpty()) {
-//                                Text(text = "No comments yet")
-//                            } else {
-//                                CommentListComponent(postViewModel = postViewModel, comments = state.data)
-//                            }
-//                            is Result.Failure -> ErrorMessage(state.exception.message ?: "An unknown error occurred")
-//                        }
-//
-//                        AddComment(postViewModel = postViewModel, post = post, user_id = currentUserID)
-//                    }
-//                }
-
-
             }
 
             // Comment icon , comment count text, like count text , like button
