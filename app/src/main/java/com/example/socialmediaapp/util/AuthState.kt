@@ -1,4 +1,4 @@
-package com.example.socialmediaapp.ui.viewmodels
+package com.example.socialmediaapp.util
 
 sealed class AuthState{
     object Authenticated : AuthState()

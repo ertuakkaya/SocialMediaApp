@@ -15,34 +15,6 @@ import javax.inject.Inject
 class FirebaseStorageRepository @Inject constructor(private val storage: FirebaseStorage,firestoreRepository: FirestoreRepository) {
 
 
-
-
-//    private val userPofileImagesRef: StorageReference = storage.reference.child("user_profile_images")
-//    private val postImagesRef: StorageReference = storage.reference.child("post_images")
-//
-//
-//
-//
-//    suspend fun uploadImage(imageUri: Uri): Flow<ImageUploadResult> = flow {
-//        try {
-//            val filename = "${UUID.randomUUID()}" // filename should be
-//            val uploadTask = userPofileImagesRef.child(filename).putFile(imageUri).await()
-//            val downloadUrl = uploadTask.storage.downloadUrl.await().toString()
-//            emit(ImageUploadResult(success = true, imageUrl = downloadUrl))
-//        } catch (e: Exception) {
-//            emit(ImageUploadResult(success = false, errorMessage = e.message))
-//        }
-//    }.flowOn(Dispatchers.IO)
-//
-//    fun getImageUrl(filename: String): Flow<String?> = flow {
-//        try {
-//            val url = userPofileImagesRef.child(filename).downloadUrl.await().toString()
-//            emit(url)
-//        } catch (e: Exception) {
-//            emit(null)
-//        }
-//    }.flowOn(Dispatchers.IO)
-
     private val userProfileImagesRef: StorageReference = storage.reference.child("user_profile_images")
     private val postImagesRef: StorageReference = storage.reference.child("post_images")
 
@@ -60,6 +32,7 @@ class FirebaseStorageRepository @Inject constructor(private val storage: Firebas
             }
             val uploadTask = reference.child(filename).putFile(imageUri).await()
             val downloadUrl = uploadTask.storage.downloadUrl.await().toString()
+
             emit(ImageUploadResult(success = true, imageUrl = downloadUrl))
         } catch (e: Exception) {
             emit(ImageUploadResult(success = false, errorMessage = e.message))

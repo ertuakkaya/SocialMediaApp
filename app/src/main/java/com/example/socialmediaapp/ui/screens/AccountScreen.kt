@@ -58,7 +58,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.socialmediaapp.Screen
 import com.example.socialmediaapp.data.entitiy.User
-import com.example.socialmediaapp.ui.viewmodels.AuthState
+import com.example.socialmediaapp.util.AuthState
 import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirebaseViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel

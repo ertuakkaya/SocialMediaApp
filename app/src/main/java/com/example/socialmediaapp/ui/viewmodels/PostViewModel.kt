@@ -12,6 +12,7 @@ import com.example.socialmediaapp.data.entitiy.User
 import com.example.socialmediaapp.data.repository.FirestoreRepository
 import com.example.socialmediaapp.data.repository.PostRepository
 import com.example.socialmediaapp.util.ImageUploadResult
+import com.example.socialmediaapp.util.PostState
 import com.example.socialmediaapp.util.Result
 import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -403,9 +404,4 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
 
 
 
-data class PostState(
-    val isLiked: Boolean = false,
-    val likeCount: Int = 0,
-    val commentCount: Int = 0,
-)
 

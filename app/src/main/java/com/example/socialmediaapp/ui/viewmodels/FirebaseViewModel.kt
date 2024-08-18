@@ -1,8 +1,5 @@
 package com.example.socialmediaapp.ui.viewmodels
 
-import android.content.ContentValues.TAG
-import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,16 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.socialmediaapp.data.entitiy.User
 import com.example.socialmediaapp.data.repository.AuthRepository
 import com.example.socialmediaapp.data.repository.FirestoreRepository
-import com.google.firebase.auth.FirebaseAuth
+import com.example.socialmediaapp.util.AuthState
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.userProfileChangeRequest
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject

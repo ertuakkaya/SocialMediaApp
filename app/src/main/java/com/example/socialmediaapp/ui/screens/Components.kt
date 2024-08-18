@@ -75,8 +75,8 @@ import com.example.socialmediaapp.data.entitiy.Comment
 import com.example.socialmediaapp.data.entitiy.Post
 import com.example.socialmediaapp.ui.viewmodels.AuthViewModel
 import com.example.socialmediaapp.ui.viewmodels.FirestoreViewModel
-import com.example.socialmediaapp.ui.viewmodels.PostState
 import com.example.socialmediaapp.ui.viewmodels.PostViewModel
+import com.example.socialmediaapp.util.PostState
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.Home
 import compose.icons.feathericons.Send
@@ -390,10 +390,10 @@ fun LikeSeciton(
 ) {
 
 
-    // animation
+    // animation scale
     val scale by animateFloatAsState(
         targetValue = if (isPostLiked) 1.3f else 1f,
-        animationSpec = tween(durationMillis = 500)
+        animationSpec = tween(durationMillis = 300)
     )
 
     Row(
@@ -418,7 +418,7 @@ fun LikeSeciton(
             },
             modifier = Modifier.size(50.dp)
         ) {
-            // TODO: add like animation
+
             Icon(
                 painter = if (isPostLiked) painterResource(id = R.drawable.like_filled)
                 else painterResource(id = R.drawable.like_unfilled),
@@ -426,7 +426,7 @@ fun LikeSeciton(
                 tint = if (isPostLiked) Color.Red else Color.Black,
                 modifier = Modifier
                     .size(32.dp)
-                    .scale(scale)
+                    .scale(scale) // Animation scale
             )
         }
     }
